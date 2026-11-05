@@ -2,145 +2,222 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AC MILAN</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0a0a0a">
+<title>Tana del Diavolo · Calendario</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box}body{margin:0;background:#000;color:#fff;font-family:Arial,sans-serif;padding:15px}
-.topbar{display:flex;align-items:center;gap:10px;position:sticky;top:0;background:#000;padding:5px 0 10px;z-index:10}
-.menu-btn{background:#e60023;color:#fff;border:none;font-size:22px;padding:8px 14px;border-radius:10px}
-h1{color:#e60023;font-size:22px;margin:0;flex:1;text-align:center}
-.sub{text-align:center;color:#aaa;font-size:12px;margin-bottom:12px}
-.mesi{display:flex;gap:8px;overflow-x:auto;padding-bottom:10px}
-.mesi button{background:#222;color:#fff;border:1px solid #444;padding:10px 16px;border-radius:20px;font-weight:bold;white-space:nowrap}
-.mesi button.active{background:#e60023}
-.mese{display:none}.mese.active{display:block}
-h2{color:#e60023;font-size:22px;border-bottom:2px solid #e60023;padding-bottom:5px}
-.partita{background:#111;border-left:4px solid #e60023;border-radius:10px;padding:12px;margin:10px 0;cursor:pointer}
-.data{color:#ffcc00;font-weight:bold;font-size:13px}
-.vs{font-size:18px;font-weight:bold;margin:4px 0}
-.dove{color:#aaa;font-size:13px}
-.casa{color:#4CAF50;font-weight:bold;font-size:12px}
-.trasferta{color:#FF9800;font-weight:bold;font-size:12px}
-.pannello{display:none;background:#222;border-radius:10px;padding:12px;margin-top:10px}
-.pannello.show{display:block}
-.riga{background:#000;padding:10px;border-radius:8px;margin:8px 0;display:flex;justify-content:space-between;align-items:center;gap:8px}
-.riga b{font-size:14px}
-.riga span{color:#ffcc00;font-size:12px;font-weight:bold}
-.riga a{background:#e60023;color:#fff;text-decoration:none;padding:8px 10px;border-radius:20px;font-size:12px;font-weight:bold;white-space:nowrap}
-.tappa{color:#aaa;font-size:12px;margin-top:5px}
-.footer{text-align:center;color:#e60023;font-weight:bold;margin-top:20px}
-.overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:99}
-.overlay.show{display:block}
-.sidebar{position:fixed;top:0;left:-280px;width:270px;height:100%;background:#111;z-index:100;transition:0.3s;padding:20px;border-right:3px solid #e60023}
-.sidebar.show{left:0}
-.sidebar a{display:block;background:#222;color:#fff;text-decoration:none;padding:14px;border-radius:10px;margin:10px 0;font-weight:bold}
-.chiudi{background:#e60023;color:#fff;border:none;padding:10px 18px;border-radius:10px;font-weight:bold;width:100%}
+:root{
+  --red:#e3001b;--red-dark:#9e0013;--black:#0a0a0a;--card:#141414;--card2:#1c1c1c;
+  --line:#262626;--text:#f5f5f5;--muted:#8a8a8a;--gold:#f2c94c;--green:#3ddc84;--orange:#ff9f43;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--black);color:var(--text);font-family:Inter,system-ui,sans-serif;min-height:100vh;padding-bottom:env(safe-area-inset-bottom)}
+a{color:inherit}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none}
+
+/* header */
+.hero{position:relative;overflow:hidden;padding:18px 16px 26px;
+  background:repeating-linear-gradient(90deg,var(--red) 0 38px,#111 38px 76px)}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,10,.55) 0%,rgba(10,10,10,.85) 60%,var(--black) 100%)}
+.hero>*{position:relative;z-index:1}
+.top{display:flex;align-items:center;justify-content:space-between}
+.brand{font-family:Anton,sans-serif;font-size:22px;letter-spacing:1px;text-transform:uppercase}
+.brand span{color:var(--red)}
+.menu-btn{width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,.08);display:grid;place-items:center}
+.menu-btn i{display:block;width:18px;height:2px;background:#fff;box-shadow:0 6px #fff,0 -6px #fff}
+
+/* next match */
+.next{margin-top:22px}
+.label{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--red)}
+.next-teams{font-family:Anton,sans-serif;font-size:40px;line-height:1;margin-top:8px;text-transform:uppercase}
+.next-teams .vs{display:block;font-family:Inter;font-size:13px;font-weight:600;color:var(--muted);margin:6px 0;letter-spacing:2px}
+.next-teams .me{color:var(--red)}
+.next-meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.chip{font-size:12px;font-weight:600;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.08);white-space:nowrap}
+.chip.gold{color:var(--gold)}
+
+/* tabs */
+.tabs{position:sticky;top:0;z-index:20;background:rgba(10,10,10,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.tabs-in{display:flex;gap:6px;overflow-x:auto;padding:12px 16px;scrollbar-width:none}
+.tabs-in::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;padding:9px 16px;border-radius:999px;font-size:13px;font-weight:700;letter-spacing:.5px;background:var(--card);color:var(--muted);border:1px solid var(--line)}
+.tab.on{background:var(--red);color:#fff;border-color:var(--red)}
+
+main{padding:8px 16px 40px;max-width:640px;margin:0 auto}
+.month-title{font-family:Anton,sans-serif;font-size:28px;text-transform:uppercase;margin:18px 0 10px}
+
+/* card */
+.match{background:var(--card);border:1px solid var(--line);border-radius:16px;margin-bottom:10px;overflow:hidden;transition:border-color .2s}
+.match.open{border-color:var(--red)}
+.match.past{opacity:.45}
+.match.is-next{border-color:var(--red);box-shadow:0 0 0 1px var(--red) inset}
+.m-head{width:100%;display:grid;grid-template-columns:54px 1fr auto;gap:12px;align-items:center;padding:14px;text-align:left}
+.date{text-align:center;border-right:1px solid var(--line);padding-right:12px}
+.date b{display:block;font-family:Anton,sans-serif;font-size:26px;line-height:1}
+.date small{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
+.teams{font-weight:800;font-size:16px;line-height:1.25;text-transform:uppercase}
+.teams .me{color:var(--red)}
+.sub{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:5px;font-size:12px;color:var(--muted)}
+.tag{font-size:10px;font-weight:800;letter-spacing:1px;padding:3px 7px;border-radius:6px;text-transform:uppercase}
+.tag.home{background:rgba(61,220,132,.12);color:var(--green)}
+.tag.away{background:rgba(255,159,67,.12);color:var(--orange)}
+.tag.derby{background:var(--red);color:#fff}
+.time{font-family:Anton,sans-serif;font-size:20px;color:var(--gold)}
+.arrow{display:block;margin:4px auto 0;width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);transition:transform .2s}
+.match.open .arrow{transform:rotate(-135deg)}
+
+/* timeline */
+.panel{display:none;padding:4px 14px 14px}
+.match.open .panel{display:block}
+.step{display:grid;grid-template-columns:14px 1fr auto;gap:12px;align-items:center;padding:10px 0;position:relative}
+.step::before{content:"";position:absolute;left:6px;top:0;bottom:0;width:2px;background:var(--line)}
+.step:first-child::before{top:50%}.step:last-child::before{bottom:50%}
+.dot{width:14px;height:14px;border-radius:50%;background:var(--card);border:2px solid var(--muted);position:relative;z-index:1}
+.step.done .dot{background:var(--red);border-color:var(--red)}
+.step b{display:block;font-size:14px}
+.step span{font-size:12px;color:var(--gold);font-weight:600}
+.go{font-size:12px;font-weight:800;padding:8px 12px;border-radius:999px;background:var(--card2);border:1px solid var(--line);text-decoration:none;white-space:nowrap}
+.step.done .go{background:var(--red);border-color:var(--red)}
+
+footer{text-align:center;padding:30px 16px 40px;font-family:Anton,sans-serif;font-size:18px;letter-spacing:1px;text-transform:uppercase;color:var(--red)}
+
+/* drawer */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);opacity:0;pointer-events:none;transition:opacity .25s;z-index:90}
+.drawer{position:fixed;top:0;right:0;height:100%;width:min(300px,85vw);background:#111;z-index:100;transform:translateX(100%);transition:transform .25s;padding:20px 16px;border-left:3px solid var(--red);display:flex;flex-direction:column;gap:8px}
+body.menu .overlay{opacity:1;pointer-events:auto}
+body.menu .drawer{transform:none}
+.drawer h3{font-family:Anton,sans-serif;font-size:22px;text-transform:uppercase;margin-bottom:8px}
+.drawer h3 span{color:var(--red)}
+.drawer a{display:flex;align-items:center;gap:10px;padding:14px;border-radius:12px;background:var(--card);border:1px solid var(--line);text-decoration:none;font-weight:700}
+.close{margin-top:auto;padding:14px;border-radius:12px;background:var(--red);font-weight:800}
 </style>
 </head>
 <body>
-<div class="topbar"><button class="menu-btn" onclick="apriMenu()">☰</button><h1>AC MILAN</h1><div style="width:48px"></div></div>
-<div class="sub">CALENDARIO • TAPPA UNA PARTITA PER APRIRE IL PANNELLO</div>
-<div class="overlay" id="overlay" onclick="chiudiMenu()"></div>
-<div class="sidebar" id="sidebar"><h3 style="color:#e60023">🔴⚫ MENU MILAN</h3>
-<a href="https://www.google.com/search?q=terna+arbitrale+Milan" target="_blank">🧑‍⚖️ Terna Arbitrale</a>
-<a href="https://www.google.com/search?q=formazioni+probabili+Milan" target="_blank">📋 Formazioni Probabili</a>
-<a href="https://www.google.com/search?q=formazioni+ufficiali+Milan" target="_blank">✅ Formazioni Ufficiali</a>
-<a href="https://www.google.com/search?q=calciomercato+Milan" target="_blank">💰 Calciomercato</a>
-<button class="chiudi" onclick="chiudiMenu()">CHIUDI ✖</button></div>
 
-<div class="mesi">
-<button class="active" onclick="show('nov',this)">NOV</button>
-<button onclick="show('dic',this)">DIC</button>
-<button onclick="show('gen',this)">GEN</button>
-<button onclick="show('feb',this)">FEB</button>
-<button onclick="show('mar',this)">MAR</button>
-<button onclick="show('apr',this)">APR</button>
-<button onclick="show('mag',this)">MAG</button>
-</div>
+<header class="hero">
+  <div class="top">
+    <div class="brand">Tana del <span>Diavolo</span></div>
+    <button class="menu-btn" onclick="menu(true)" aria-label="Menu"><i></i></button>
+  </div>
+  <div class="next" id="next"></div>
+</header>
 
-<div id="nov" class="mese active"><h2>NOVEMBRE</h2>
-<div class="partita" data-kickoff="2026-11-05T18:45" data-avv="FERENCVAROS"><div class="data">GIO 5 NOV • 18:45</div><div class="vs">MILAN vs FERENCVAROS ▼</div><div><span class="casa">IN CASA</span> <span class="dove">• San Siro • Europa League</span></div><div class="tappa">👆 TAPPA PER APRIRE PANNELLO</div><div class="pannello"></div></div>
-<div class="partita" data-kickoff="2026-11-08T15:00" data-avv="GENOA"><div class="data">DOM 8 NOV • 15:00</div><div class="vs">GENOA vs MILAN ▼</div><div><span class="trasferta">TRASFERTA</span> <span class="dove">• Ferraris • Serie A</span></div><div class="tappa">👆 TAPPA PER APRIRE PANNELLO</div><div class="pannello"></div></div>
-<div class="partita" data-kickoff="2026-11-22T18:00" data-avv="FROSINONE"><div class="data">DOM 22 NOV • 18:00</div><div class="vs">MILAN vs FROSINONE ▼</div><div><span class="casa">IN CASA</span> <span class="dove">• San Siro • Serie A</span></div><div class="tappa">👆 TAPPA PER APRIRE PANNELLO</div><div class="pannello"></div></div>
-<div class="partita" data-kickoff="2026-11-30T20:45" data-avv="CAGLIARI"><div class="data">LUN 30 NOV • 20:45</div><div class="vs">CAGLIARI vs MILAN ▼</div><div><span class="trasferta">TRASFERTA</span> <span class="dove">• Sardegna Arena • Serie A</span></div><div class="tappa">👆 TAPPA PER APRIRE PANNELLO</div><div class="pannello"></div></div>
-</div>
+<nav class="tabs"><div class="tabs-in" id="tabs"></div></nav>
+<main id="list"></main>
+<footer>Forza Milan 🔴⚫</footer>
 
-<div id="dic" class="mese"><h2>DICEMBRE</h2>
-<div class="partita" data-kickoff="2026-12-06T20:45" data-avv="PARMA"><div class="data">DOM 6 DIC • 20:45</div><div class="vs">MILAN vs PARMA ▼</div><div><span class="casa">IN CASA</span> <span class="dove">• San Siro • Serie A</span></div><div class="tappa">👆 TAPPA PER APRIRE PANNELLO</div><div class="pannello"></div></div>
-<div class="partita" data-kickoff="2026-12-13T20:45" data-avv="NAPOLI"><div class="data">DOM 13 DIC • 20:45</div><div><span class="trasferta">TRASFERTA</span> <span class="dove">• Maradona • Serie A</span></div><div class="tappa">👆 TAPPA PER APRIRE PANNELLO</div><div class="pannello"></div></div>
-<div class="partita" data-kickoff="2026-12-19T18:00" data-avv="COMO"><div class="data">SAB 19 DIC • 18:00</div><div class="vs">MILAN vs COMO ▼</div><div><span class="casa">IN CASA</span> <span class="dove">• San Siro • Serie A</span></div><div class="tappa">👆 TAPPA PER APRIRE PANNELLO</div><div class="pannello"></div></div>
-</div>
+<div class="overlay" onclick="menu(false)"></div>
+<aside class="drawer">
+  <h3>Menu <span>Milan</span></h3>
+  <a href="https://www.google.com/search?q=terna+arbitrale+Milan" target="_blank" rel="noopener">🧑‍⚖️ Terna arbitrale</a>
+  <a href="https://www.google.com/search?q=formazioni+probabili+Milan" target="_blank" rel="noopener">📋 Formazioni probabili</a>
+  <a href="https://www.google.com/search?q=formazioni+ufficiali+Milan" target="_blank" rel="noopener">✅ Formazioni ufficiali</a>
+  <a href="https://www.google.com/search?q=classifica+serie+a" target="_blank" rel="noopener">🏆 Classifica Serie A</a>
+  <a href="https://www.google.com/search?q=calciomercato+Milan" target="_blank" rel="noopener">💰 Calciomercato</a>
+  <button class="close" onclick="menu(false)">Chiudi</button>
+</aside>
 
-<div id="gen" class="mese"><h2>GENNAIO</h2>
-<div class="partita" data-kickoff="2027-01-02T20:45" data-avv="MONZA"><div class="data">SAB 2 GEN • 20:45</div><div class="vs">MONZA vs MILAN ▼</div><div><span class="trasferta">TRASFERTA</span> <span class="dove">• Serie A</span></div><div class="tappa">👆 TAPPA PER APRIRE PANNELLO</div><div class="pannello"></div></div>
-<div class="partita" data-kickoff="2027-01-05T20:45" data-avv="FIORENTINA"><div class="data">MAR 5 GEN • 20:45</div><div class="vs">MILAN vs FIORENTINA ▼</div><div><span class="casa">IN CASA</span> <span class="dove">• San Siro • Serie A</span></div><div class="tappa">👆 TAPPA PER APRIRE PANNELLO</div><div class="pannello"></div></div>
-<div class="partita" data-kickoff="2027-01-09T18:00" data-avv="ROMA"><div class="data">SAB 9 GEN • 18:00</div><div class="vs">ROMA vs MILAN ▼</div><div><span class="trasferta">TRASFERTA</span> <span class="dove">• Olimpico • Serie A</span></div><div class="tappa">👆 TAPPA PER APRIRE PANNELLO</div><div class="pannello"></div></div>
-<div class="partita" data-kickoff="2027-01-13T21:00" data-avv="MONZA"><div class="data">MER 13 GEN • 21:00</div><div class="vs">MILAN vs MONZA ▼</div><div><span class="casa">IN CASA</span> <span class="dove">• San Siro • Coppa Italia</span></div><div class="tappa">👆 TAPPA PER APRIRE PANNELLO</div><div class="pannello"></div></div>
-<div class="partita" data-kickoff="2027-01-17T15:00" data-avv="TORINO"><div class="data">DOM 17 GEN • 15:00</div><div class="vs">MILAN vs TORINO ▼</div><div><span class="casa">IN CASA</span> <span class="dove">• San Siro • Serie A</span></div><div class="tappa">👆 TAPPA PER APRIRE PANNELLO</div><div class="pannello"></div></div>
-<div class="partita" data-kickoff="2027-01-24T15:00" data-avv="FROSINONE"><div class="data">DOM 24 GEN • 15:00</div><div class="vs">FROSINONE vs MILAN ▼</div><div><span class="trasferta">TRASFERTA</span> <span class="dove">• Serie A</span></div><div class="tappa">👆 TAPPA PER APRIRE PANNELLO</div><div class="pannello"></div></div>
-<div class="partita" data-kickoff="2027-01-31T15:00" data-avv="JUVENTUS"><div class="data">DOM 31 GEN • 15:00</div><div class="vs">MILAN vs JUVENTUS ▼</div><div><span class="casa">IN CASA</span> <span class="dove">• San Siro • Serie A</span></div><div class="tappa">👆 TAPPA PER APRIRE PANNELLO</div><div class="pannello"></div></div>
-</div>
-
-<div id="feb" class="mese"><h2>FEBBRAIO</h2>
-<div class="partita" data-kickoff="2027-02-07T15:00" data-avv="BOLOGNA"><div class="data">DOM 7 FEB • 15:00</div><div class="vs">BOLOGNA vs MILAN ▼</div><div><span class="trasferta">TRASFERTA</span> <span class="dove">• Serie A</span></div><div class="tappa">👆 TAPPA PER APRIRE PANNELLO</div><div class="pannello"></div></div>
-<div class="partita" data-kickoff="2027-02-14T15:00" data-avv="INTER"><div class="data">DOM 14 FEB • 15:00</div><div class="vs">INTER vs MILAN ▼</div><div><span class="trasferta">DERBY</span> <span class="dove">• San Siro • Serie A</span></div><div class="tappa">👆 TAPPA PER APRIRE PANNELLO</div><div class="pannello"></div></div>
-<div class="partita" data-kickoff="2027-02-21T15:00" data-avv="GENOA"><div class="data">DOM 21 FEB • 15:00</div><div class="vs">MILAN vs GENOA ▼</div><div><span class="casa">IN CASA</span> <span class="dove">• San Siro • Serie A</span></div><div class="tappa">👆 TAPPA PER APRIRE PANNELLO</div><div class="pannello"></div></div>
-<div class="partita" data-kickoff="2027-02-28T15:00" data-avv="COMO"><div class="data">DOM 28 FEB • 15:00</div><div class="vs">COMO vs MILAN ▼</div><div><span class="trasferta">TRASFERTA</span> <span class="dove">• Serie A</span></div><div class="tappa">👆 TAPPA PER APRIRE PANNELLO</div><div class="pannello"></div></div>
-</div>
-
-<div id="mar" class="mese"><h2>MARZO</h2>
-<div class="partita" data-kickoff="2027-03-07T15:00" data-avv="CAGLIARI"><div class="data">DOM 7 MAR • 15:00</div><div class="vs">MILAN vs CAGLIARI ▼</div><div><span class="casa">IN CASA</span> <span class="dove">• San Siro • Serie A</span></div><div class="tappa">👆 TAPPA PER APRIRE PANNELLO</div><div class="pannello"></div></div>
-<div class="partita" data-kickoff="2027-03-14T15:00" data-avv="SASSUOLO"><div class="data">DOM 14 MAR • 15:00</div><div class="vs">MILAN vs SASSUOLO ▼</div><div><span class="casa">IN CASA</span> <span class="dove">• San Siro • Serie A</span></div><div class="tappa">👆 TAPPA PER APRIRE PANNELLO</div><div class="pannello"></div></div>
-<div class="partita" data-kickoff="2027-03-21T15:00" data-avv="ATALANTA"><div class="data">DOM 21 MAR • 15:00</div><div class="vs">ATALANTA vs MILAN ▼</div><div><span class="trasferta">TRASFERTA</span> <span class="dove">• Serie A</span></div><div class="tappa">👆 TAPPA PER APRIRE PANNELLO</div><div class="pannello"></div></div>
-</div>
-
-<div id="apr" class="mese"><h2>APRILE</h2>
-<div class="partita" data-kickoff="2027-04-04T15:00" data-avv="MONZA"><div class="data">DOM 4 APR • 15:00</div><div class="vs">MILAN vs MONZA ▼</div><div><span class="casa">IN CASA</span> <span class="dove">• San Siro • Serie A</span></div><div class="tappa">👆 TAPPA PER APRIRE PANNELLO</div><div class="pannello"></div></div>
-<div class="partita" data-kickoff="2027-04-11T15:00" data-avv="FIORENTINA"><div class="data">DOM 11 APR • 15:00</div><div class="vs">FIORENTINA vs MILAN ▼</div><div><span class="trasferta">TRASFERTA</span> <span class="dove">• Serie A</span></div><div class="tappa">👆 TAPPA PER APRIRE PANNELLO</div><div class="pannello"></div></div>
-<div class="partita" data-kickoff="2027-04-18T15:00" data-avv="NAPOLI"><div class="data">DOM 18 APR • 15:00</div><div class="vs">MILAN vs NAPOLI ▼</div><div><span class="casa">IN CASA</span> <span class="dove">• San Siro • Serie A</span></div><div class="tappa">👆 TAPPA PER APRIRE PANNELLO</div><div class="pannello"></div></div>
-<div class="partita" data-kickoff="2027-04-25T15:00" data-avv="LECCE"><div class="data">DOM 25 APR • 15:00</div><div class="vs">LECCE vs MILAN ▼</div><div><span class="trasferta">TRASFERTA</span> <span class="dove">• Serie A</span></div><div class="tappa">👆 TAPPA PER APRIRE PANNELLO</div><div class="pannello"></div></div>
-</div>
-
-<div id="mag" class="mese"><h2>MAGGIO</h2>
-<div class="partita" data-kickoff="2027-05-02T15:00" data-avv="LAZIO"><div class="data">DOM 2 MAG • 15:00</div><div class="vs">MILAN vs LAZIO ▼</div><div><span class="casa">IN CASA</span> <span class="dove">• San Siro • Serie A</span></div><div class="tappa">👆 TAPPA PER APRIRE PANNELLO</div><div class="pannello"></div></div>
-<div class="partita" data-kickoff="2027-05-09T15:00" data-avv="PARMA"><div class="data">DOM 9 MAG • 15:00</div><div class="vs">PARMA vs MILAN ▼</div><div><span class="trasferta">TRASFERTA</span> <span class="dove">• Serie A</span></div><div class="tappa">👆 TAPPA PER APRIRE PANNELLO</div><div class="pannello"></div></div>
-<div class="partita" data-kickoff="2027-05-16T15:00" data-avv="ROMA"><div class="data">DOM 16 MAG • 15:00</div><div class="vs">MILAN vs ROMA ▼</div><div><span class="casa">IN CASA</span> <span class="dove">• San Siro • Serie A</span></div><div class="tappa">👆 TAPPA PER APRIRE PANNELLO</div><div class="pannello"></div></div>
-<div class="partita" data-kickoff="2027-05-23T15:00" data-avv="VENEZIA"><div class="data">DOM 23 MAG • 15:00</div><div class="vs">VENEZIA vs MILAN ▼</div><div><span class="trasferta">TRASFERTA</span> <span class="dove">• Serie A</span></div><div class="tappa">👆 TAPPA PER APRIRE PANNELLO</div><div class="pannello"></div></div>
-<div class="partita" data-kickoff="2027-05-30T15:00" data-avv="UDINESE"><div class="data">DOM 30 MAG • 15:00</div><div class="vs">MILAN vs UDINESE ▼</div><div><span class="casa">IN CASA</span> <span class="dove">• San Siro • ULTIMA</span></div><div class="tappa">👆 TAPPA PER APRIRE PANNELLO</div><div class="pannello"></div></div>
-</div>
-
-<div class="footer">TANA DEL DIAVOLO 🔴⚫</div>
 <script>
-function show(id,btn){document.querySelectorAll('.mese').forEach(e=>e.classList.remove('active'));document.querySelectorAll('.mesi button').forEach(e=>e.classList.remove('active'));document.getElementById(id).classList.add('active');btn.classList.add('active');}
-function apriMenu(){document.getElementById('sidebar').classList.add('show');document.getElementById('overlay').classList.add('show');}
-function chiudiMenu(){document.getElementById('sidebar').classList.remove('show');document.getElementById('overlay').classList.remove('show');}
-function fmt(d){return d.toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short'})+' • '+d.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});}
-document.querySelectorAll('.partita').forEach(p=>{
-p.addEventListener('click',()=>{
-let pan=p.querySelector('.pannello');
-if(pan.classList.contains('show')){pan.classList.remove('show');return;}
-let kick=new Date(p.dataset.kickoff); let avv=p.dataset.avv;
-let pre=new Date(kick); pre.setHours(pre.getHours()-24);
-let prob=new Date(kick); prob.setHours(prob.getHours()-21);
-if(prob.getHours()>=22){prob.setHours(21,0,0,0);}
-let uff=new Date(kick); uff.setHours(uff.getHours()-1);
-let pt=new Date(kick); pt.setMinutes(pt.getMinutes()+40);
-let fine=new Date(kick); fine.setMinutes(fine.getMinutes()+110);
-let pag=new Date(kick); pag.setMinutes(pag.getMinutes()+155);
-let top=new Date(kick); top.setMinutes(top.getMinutes()+200);
-let rows=[
-['🎙️ Pre-Partita',pre,'pre partita Milan '+avv],
-['📋 Formazioni Probabili',prob,'formazioni probabili Milan '+avv],
-['✅ Formazioni Ufficiali',uff,'formazioni ufficiali Milan '+avv],
-['⏱️ Fine Primo Tempo',pt,'risultato primo tempo Milan '+avv],
-['🏁 Fine Partita',fine,'risultato finale Milan '+avv],
-['⭐ Pagelle',pag,'pagelle Milan '+avv],
-['🔥 Top e Flop',top,'top e flop Milan '+avv]
-];
-pan.innerHTML=rows.map(r=>`<div class="riga"><div><b>${r[0]}</b><br><span>${fmt(r[1])}</span></div><a href="https://www.google.com/search?q=${encodeURIComponent(r[2])}" target="_blank" onclick="event.stopPropagation()">VEDI →</a></div>`).join('')+'<div style="color:#aaa;font-size:12px">I messaggi WhatsApp ti arrivano da soli a quegli orari, se li attiviamo per quella partita.</div>';
-pan.classList.add('show');
-});
-});
+const M=[
+ ["2026-11-05T18:45","FERENCVAROS",1,"San Siro","Europa League"],
+ ["2026-11-08T15:00","GENOA",0,"Ferraris","Serie A"],
+ ["2026-11-22T18:00","FROSINONE",1,"San Siro","Serie A"],
+ ["2026-11-30T20:45","CAGLIARI",0,"Unipol Domus","Serie A"],
+ ["2026-12-06T20:45","PARMA",1,"San Siro","Serie A"],
+ ["2026-12-13T20:45","NAPOLI",0,"Maradona","Serie A"],
+ ["2026-12-19T18:00","COMO",1,"San Siro","Serie A"],
+ ["2027-01-02T20:45","MONZA",0,"","Serie A"],
+ ["2027-01-05T20:45","FIORENTINA",1,"San Siro","Serie A"],
+ ["2027-01-09T18:00","ROMA",0,"Olimpico","Serie A"],
+ ["2027-01-13T21:00","MONZA",1,"San Siro","Coppa Italia"],
+ ["2027-01-17T15:00","TORINO",1,"San Siro","Serie A"],
+ ["2027-01-24T15:00","FROSINONE",0,"","Serie A"],
+ ["2027-01-31T15:00","JUVENTUS",1,"San Siro","Serie A"],
+ ["2027-02-07T15:00","BOLOGNA",0,"Dall'Ara","Serie A"],
+ ["2027-02-14T15:00","INTER",2,"San Siro","Serie A"],
+ ["2027-02-21T15:00","GENOA",1,"San Siro","Serie A"],
+ ["2027-02-28T15:00","COMO",0,"Sinigaglia","Serie A"],
+ ["2027-03-07T15:00","CAGLIARI",1,"San Siro","Serie A"],
+ ["2027-03-14T15:00","SASSUOLO",1,"San Siro","Serie A"],
+ ["2027-03-21T15:00","ATALANTA",0,"Bergamo","Serie A"],
+ ["2027-04-04T15:00","MONZA",1,"San Siro","Serie A"],
+ ["2027-04-11T15:00","FIORENTINA",0,"Franchi","Serie A"],
+ ["2027-04-18T15:00","NAPOLI",1,"San Siro","Serie A"],
+ ["2027-04-25T15:00","LECCE",0,"Via del Mare","Serie A"],
+ ["2027-05-02T15:00","LAZIO",1,"San Siro","Serie A"],
+ ["2027-05-09T15:00","PARMA",0,"Tardini","Serie A"],
+ ["2027-05-16T15:00","ROMA",1,"San Siro","Serie A"],
+ ["2027-05-23T15:00","VENEZIA",0,"Penzo","Serie A"],
+ ["2027-05-30T15:00","UDINESE",1,"San Siro","Serie A"]
+].map(([k,avv,home,stadio,comp])=>({k:new Date(k),avv,home,stadio,comp}));
+
+const MESI=["Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno","Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"];
+const GG=["Dom","Lun","Mar","Mer","Gio","Ven","Sab"];
+const now=new Date();
+const pad=n=>String(n).padStart(2,"0");
+const ora=d=>pad(d.getHours())+":"+pad(d.getMinutes());
+const quando=d=>GG[d.getDay()]+" "+d.getDate()+" "+MESI[d.getMonth()].slice(0,3).toLowerCase()+" · "+ora(d);
+const add=(d,min)=>new Date(d.getTime()+min*60000);
+const teams=m=>m.home===1?`<span class="me">Milan</span> vs ${m.avv}`:`${m.avv} vs <span class="me">Milan</span>`;
+const tag=m=>m.home===2?'<span class="tag derby">Derby</span>':m.home?'<span class="tag home">Casa</span>':'<span class="tag away">Trasferta</span>';
+const q=s=>"https://www.google.com/search?q="+encodeURIComponent(s);
+
+const next=M.find(m=>add(m.k,110)>now)||M[M.length-1];
+const nextIdx=M.indexOf(next);
+
+document.getElementById("next").innerHTML=`
+ <div class="label">${add(next.k,0)<=now?"In corso":"Prossima partita"}</div>
+ <div class="next-teams">${next.home===1?'<span class="me">Milan</span>':next.avv}<span class="vs">VS</span>${next.home===1?next.avv:'<span class="me">Milan</span>'}</div>
+ <div class="next-meta">
+  <span class="chip gold">${quando(next.k)}</span>
+  <span class="chip">${next.comp}</span>
+  ${next.stadio?`<span class="chip">${next.stadio}</span>`:""}
+ </div>`;
+
+function steps(m){
+ let prob=add(m.k,-21*60); if(prob.getHours()>=22) prob.setHours(21,0,0,0);
+ const s=[
+  ["🎙️ Pre-partita",add(m.k,-24*60),"pre partita"],
+  ["📋 Formazioni probabili",prob,"formazioni probabili"],
+  ["✅ Formazioni ufficiali",add(m.k,-60),"formazioni ufficiali"],
+  ["⏱️ Fine primo tempo",add(m.k,47),"risultato primo tempo"],
+  ["🏁 Risultato finale",add(m.k,110),"risultato"],
+  ["⭐ Pagelle",add(m.k,155),"pagelle"],
+  ["🔥 Top e flop",add(m.k,200),"top e flop"]
+ ];
+ return s.map(([t,d,k])=>`<div class="step${d<=now?" done":""}"><i class="dot"></i><div><b>${t}</b><span>${quando(d)}</span></div><a class="go" href="${q(k+" Milan "+m.avv)}" target="_blank" rel="noopener">Vedi</a></div>`).join("");
+}
+
+const months=[...new Set(M.map(m=>m.k.getFullYear()*12+m.k.getMonth()))];
+const list=document.getElementById("list"), tabs=document.getElementById("tabs");
+
+function render(mk){
+ tabs.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",+b.dataset.m===mk));
+ const ms=M.filter(m=>m.k.getFullYear()*12+m.k.getMonth()===mk);
+ list.innerHTML=`<h2 class="month-title">${MESI[mk%12]}</h2>`+ms.map(m=>{
+  const i=M.indexOf(m), past=add(m.k,110)<=now;
+  return `<article class="match${past?" past":""}${i===nextIdx?" is-next":""}">
+   <button class="m-head" onclick="this.parentNode.classList.toggle('open')">
+    <div class="date"><b>${m.k.getDate()}</b><small>${GG[m.k.getDay()]}</small></div>
+    <div><div class="teams">${teams(m)}</div><div class="sub">${tag(m)}<span>${m.comp}${m.stadio?" · "+m.stadio:""}</span></div></div>
+    <div><div class="time">${ora(m.k)}</div><i class="arrow"></i></div>
+   </button>
+   <div class="panel">${steps(m)}</div>
+  </article>`}).join("");
+}
+
+tabs.innerHTML=months.map(mk=>`<button class="tab" data-m="${mk}">${MESI[mk%12].slice(0,3)}</button>`).join("");
+tabs.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{render(+b.dataset.m);b.scrollIntoView({inline:"center",block:"nearest",behavior:"smooth"})});
+
+const startM=next.k.getFullYear()*12+next.k.getMonth();
+render(startM);
+tabs.querySelector(`[data-m="${startM}"]`).scrollIntoView({inline:"center",block:"nearest"});
+
+function menu(o){document.body.classList.toggle("menu",o)}
 </script>
 </body>
 </html>
