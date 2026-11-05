@@ -29,9 +29,10 @@ button{font:inherit;color:inherit;cursor:pointer;border:none;background:none}
 .hero-bg{position:absolute;inset:-10%;background:url(assets/smoke.jpg) center/cover;will-change:transform}
 .hero-bg::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 45%,transparent 0 25%,rgba(7,7,7,.75) 70%),linear-gradient(transparent 60%,var(--bg))}
 .hero-in{position:relative;z-index:1;text-align:center;will-change:transform,opacity}
-.stage{width:230px;height:230px;margin:0 auto 34px;perspective:900px}
+.stage{width:230px;height:230px;margin:0 auto 34px;perspective:900px;touch-action:pan-y;cursor:grab;-webkit-user-select:none;user-select:none}
+.stage:active{cursor:grabbing}
 .coin-tilt{width:100%;height:100%;transform-style:preserve-3d;will-change:transform}
-.coin{position:relative;width:100%;height:100%;transform-style:preserve-3d;animation:spin 14s linear infinite}
+.coin{position:relative;width:100%;height:100%;transform-style:preserve-3d;will-change:transform}
 .coin>*{position:absolute;inset:0;border-radius:50%}
 .coin .face{background:url(assets/logo.png) center/cover;backface-visibility:hidden}
 .coin .front{transform:translateZ(9px)}
@@ -87,6 +88,30 @@ h2.display{font-size:38px;margin-bottom:20px}
 .ic svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .ic.ok{background:var(--gold);color:#111;border-color:var(--gold)}
 
+/* RISULTATO / EDITOR / BOTTONI */
+.score{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;padding:14px;margin:0 0 8px;border-radius:16px;background:var(--card2);border:1px solid var(--line)}
+.score .s{display:flex;align-items:center;gap:10px}
+.score .s:last-child{flex-direction:row-reverse}
+.score input{width:54px;height:54px;text-align:center;font-family:Anton,sans-serif;font-size:28px;background:#0a0a0a;border:1px solid #333;border-radius:14px;color:#fff;-moz-appearance:textfield}
+.score input::-webkit-inner-spin-button{-webkit-appearance:none}
+.score input:focus{outline:none;border-color:var(--gold)}
+.score .dash{font-family:Anton,sans-serif;color:var(--muted);font-size:22px}
+.next .score{margin:18px 0 0;background:rgba(0,0,0,.35)}
+.esito{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:7px;font-family:Inter;font-size:11px;font-weight:900;color:#111;margin-left:6px;vertical-align:3px}
+.esito.V{background:#3ddc84}.esito.N{background:var(--gold)}.esito.P{background:var(--red);color:#fff}
+.item .txt{cursor:pointer}
+.item .txt b em{font-style:normal;color:var(--gold);font-size:11px;margin-left:6px}
+.item .ed{grid-column:1/-1;display:none}
+.item.edit .ed{display:block}
+.item textarea{width:100%;min-height:130px;margin-top:4px;padding:12px;border-radius:12px;background:#0a0a0a;border:1px solid #333;color:var(--text);font:500 14px/1.45 Inter,sans-serif;resize:vertical}
+.item textarea:focus{outline:none;border-color:var(--gold)}
+.item.edit{opacity:1}
+.bar{display:flex;flex-wrap:wrap;gap:8px;margin:-6px 0 16px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;background:var(--card2);border:1px solid var(--line);font-size:13px;font-weight:800}
+.btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.btn.gold{background:var(--gold);border-color:var(--gold);color:#111}
+.mbody .bar{margin:4px 0 10px}
+
 /* CITY */
 .city{position:relative;height:230vh;margin-top:60px}
 .city-in{position:sticky;top:0;height:100svh;overflow:hidden;display:grid;place-items:center}
@@ -102,7 +127,7 @@ h2.display{font-size:38px;margin-bottom:20px}
 .mbtn{flex:0 0 auto;padding:9px 15px;border-radius:999px;font-size:13px;font-weight:800;background:var(--card);border:1px solid var(--line);color:var(--muted)}
 .mbtn.on{background:var(--red);border-color:var(--red);color:#fff}
 .match{border-radius:18px;background:var(--card);border:1px solid var(--line);margin-bottom:10px;overflow:hidden;transition:border-color .3s}
-.match.past{opacity:.42}
+.match.past{opacity:.42}.match.past.open{opacity:1}
 .match.is-next{border-color:var(--red)}
 .match.open{border-color:var(--gold2)}
 .mh{width:100%;display:grid;grid-template-columns:46px 1fr auto;gap:12px;align-items:center;padding:14px;text-align:left}
@@ -142,7 +167,7 @@ body.scrolled .nav{transform:none}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 
 @media (prefers-reduced-motion:reduce){
-  .coin{animation:none}[data-r]{opacity:1;transform:none;transition:none}
+  [data-r]{opacity:1;transform:none;transition:none}
   .city{height:auto}.city-in{position:relative;height:70svh}.city-img{clip-path:none}
 }
 </style>
@@ -169,6 +194,7 @@ body.scrolled .nav{transform:none}
   <section class="block" id="contenuti">
     <div class="eyebrow" data-r>Piano contenuti</div>
     <h2 class="display" data-r style="--d:.05s" id="planTitle"></h2>
+    <div class="bar"><button class="btn gold" id="icsNext"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>Notifiche partita</button></div>
     <div class="plan" id="plan"></div>
   </section>
 </div>
@@ -184,6 +210,7 @@ body.scrolled .nav{transform:none}
   <section class="block" id="calendario">
     <div class="eyebrow" data-r>Stagione</div>
     <h2 class="display" data-r style="--d:.05s">Calendario</h2>
+    <div class="bar" data-r style="--d:.08s"><button class="btn" id="icsAll"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>Notifiche stagione</button></div>
     <div class="months" id="months" data-r style="--d:.1s"></div>
     <div id="cal"></div>
   </section>
@@ -271,7 +298,17 @@ const badge=(t,sm)=>{const [c,a,b]=TEAMS[t]||[t.slice(0,3),"#333","#555"];return
 const casa=m=>m.home===1?"MILAN":m.avv, ospite=m=>m.home===1?m.avv:"MILAN";
 const titolo=m=>`${cap(casa(m))} - ${cap(ospite(m))}`;
 const tagH=m=>`#${casa(m)==="MILAN"?"Milan":cap(casa(m))}${ospite(m)==="MILAN"?"Milan":cap(ospite(m))}`;
-const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{v?localStorage.setItem(k,"1"):localStorage.removeItem(k)}catch(e){}}};
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{v?localStorage.setItem(k,v===true?"1":v):localStorage.removeItem(k)}catch(e){}}};
+const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+function res(m){const v=store.get(m.id+":res");if(!v)return null;const [h,a]=v.split("-").map(Number);const mg=casa(m)==="MILAN"?h:a,og=casa(m)==="MILAN"?a:h;return {h,a,e:mg>og?"V":mg<og?"P":"N"}}
+const resLine=m=>{const r=res(m);return r?`${cap(casa(m))} ${r.h}-${r.a} ${cap(ospite(m))}`:""};
+function scoreHTML(m){const r=res(m);return `<div class="score" data-m="${m.i}">
+ <div class="s">${badge(casa(m),1)}<input inputmode="numeric" maxlength="2" data-side="h" value="${r?r.h:""}" aria-label="Gol ${cap(casa(m))}"></div>
+ <span class="dash">-</span>
+ <div class="s">${badge(ospite(m),1)}<input inputmode="numeric" maxlength="2" data-side="a" value="${r?r.a:""}" aria-label="Gol ${cap(ospite(m))}"></div>
+</div>`}
+const headRight=m=>{const r=res(m);const tipo=m.home===2?'<i class="derby">DERBY</i>':m.home?'<i class="home">CASA</i>':'<i class="away">TRASFERTA</i>';return r?`${r.h}-${r.a}<span class="esito ${r.e}">${r.e}</span>${tipo}`:`${ora(m.k)}${tipo}`};
+const BELL='<svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>';
 
 const STEPS=[
  ["pre","🎙️","Pre-partita",m=>add(m.k,-24*60),"pre partita","VIGILIA"],
@@ -295,15 +332,18 @@ function planHTML(m){
   let cls="";
   if(done)cls="done";else if(d<=now&&now-d<180*60000)cls="due";else if(d>now&&!flagged){cls="nexto";flagged=true}
   if(d>now)flagged=true;
+  const txt=store.get(k+":txt")||"";
   return `<div class="item ${cls}" data-k="${k}" data-m="${m.i}" data-s="${key}">
    <button class="chk" aria-label="Pubblicato">${IC.check}</button>
-   <div><b>${emo} ${name}</b><small>${quando(d)}</small></div>
+   <div class="txt"><b>${emo} ${name}${txt?"<em>✎</em>":""}</b><small>${quando(d)}</small></div>
    <div class="acts"><button class="ic cp" aria-label="Copia caption">${IC.copy}</button><a class="ic" aria-label="Cerca" target="_blank" rel="noopener" href="${q(query+" Milan "+m.avv)}">${IC.search}</a></div>
+   <div class="ed"><textarea data-k="${k}" placeholder="${esc(caption(m,key,true))}">${esc(txt)}</textarea></div>
   </div>`}).join("");
 }
-function caption(m,key){
- const s=STEPS.find(x=>x[0]===key);
- return `${s[1]} ${s[5]} | ${titolo(m).toUpperCase()}\n${m.comp}${m.stadio?" · "+m.stadio:""} · ${quando(m.k)}\n\n#ForzaMilan #SempreMilan ${tagH(m)} #TanaDelDiavolo`;
+function caption(m,key,tpl){
+ const own=!tpl&&store.get(m.id+":"+key+":txt");if(own)return own;
+ const s=STEPS.find(x=>x[0]===key),r=["fin","pag","top"].includes(key)&&resLine(m);
+ return `${s[1]} ${s[5]} | ${titolo(m).toUpperCase()}\n${r?r.toUpperCase():m.comp+(m.stadio?" · "+m.stadio:"")+" · "+quando(m.k)}\n\n#ForzaMilan #SempreMilan ${tagH(m)} #TanaDelDiavolo`;
 }
 
 /* ---------- prossima partita + piano ---------- */
@@ -321,7 +361,7 @@ document.getElementById("nextCard").innerHTML=`
   <span class="chip${next.home===2?" red":""}">${next.home===2?"Derby":next.home?"Casa":"Trasferta"}</span>
   <span class="chip">${next.comp}</span>
   ${next.stadio?`<span class="chip">${next.stadio}</span>`:""}
- </div>`;
+ </div>${live?scoreHTML(next):""}`;
 document.getElementById("planTitle").textContent=titolo(next);
 const planEl=document.getElementById("plan");
 planEl.innerHTML=planHTML(next);
@@ -335,14 +375,13 @@ function renderMonth(mk,animate){
  monthsEl.querySelectorAll(".mbtn").forEach(b=>b.classList.toggle("on",+b.dataset.m===mk));
  cal.innerHTML=M.filter(m=>m.k.getFullYear()*12+m.k.getMonth()===mk).map((m,j)=>{
   const past=add(m.k,110)<=now;
-  const tipo=m.home===2?'<i class="derby">DERBY</i>':m.home?'<i class="home">CASA</i>':'<i class="away">TRASFERTA</i>';
   return `<article class="match${past?" past":""}${m===next?" is-next":""}" data-r style="--d:${j*.06}s">
    <button class="mh">
     <div class="d"><b>${m.k.getDate()}</b><small>${GG[m.k.getDay()]}</small></div>
     <div class="opp">${badge(m.avv,1)}<div><strong>${m.home===1?"vs ":"@ "}${m.avv}</strong><span>${m.comp}${m.stadio?" · "+m.stadio:""}</span></div></div>
-    <div class="h">${ora(m.k)}${tipo}</div>
+    <div class="h" data-h="${m.i}">${headRight(m)}</div>
    </button>
-   <div class="mbody"><div class="plan">${planHTML(m)}</div></div>
+   <div class="mbody">${m.k<=now?scoreHTML(m):""}<div class="bar"><button class="btn ics1" data-m="${m.i}">${BELL}Notifiche</button></div><div class="plan">${planHTML(m)}</div></div>
   </article>`}).join("");
  cal.querySelectorAll("[data-r]").forEach(e=>animate?io.observe(e):e.classList.add("in"));
 }
@@ -353,7 +392,9 @@ cal.addEventListener("click",e=>{const h=e.target.closest(".mh");if(h)h.parentNo
 /* ---------- azioni piano (spunta / copia) ---------- */
 const toast=t=>{const el=document.getElementById("toast");el.textContent=t;el.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove("show"),1600)};
 document.addEventListener("click",async e=>{
+ const b1=e.target.closest(".ics1");if(b1){downloadICS([M[+b1.dataset.m]]);return}
  const it=e.target.closest(".item");if(!it)return;
+ if(e.target.closest(".txt")){it.classList.toggle("edit");if(it.classList.contains("edit"))it.querySelector("textarea").focus({preventScroll:true});return}
  if(e.target.closest(".chk")){
   const on=!it.classList.contains("done");store.set(it.dataset.k,on);
   document.querySelectorAll(`.item[data-k="${it.dataset.k}"]`).forEach(x=>{x.classList.toggle("done",on);if(on)x.classList.remove("due","nexto")});
@@ -367,6 +408,43 @@ document.addEventListener("click",async e=>{
  }
 });
 
+/* descrizione post */
+document.addEventListener("input",e=>{
+ const t=e.target;
+ if(t.matches(".item textarea")){
+  const k=t.dataset.k,v=t.value.trim()?t.value:"";store.set(k+":txt",v);
+  document.querySelectorAll(`.item[data-k="${k}"]`).forEach(it=>{const o=it.querySelector("textarea");if(o!==t)o.value=t.value;const b=it.querySelector(".txt b");const em=b.querySelector("em");if(v&&!em)b.insertAdjacentHTML("beforeend","<em>✎</em>");if(!v&&em)em.remove()});
+ }
+ if(t.matches(".score input")){
+  t.value=t.value.replace(/\D/g,"").slice(0,2);
+  const box=t.closest(".score"),m=M[+box.dataset.m],h=box.querySelector('[data-side="h"]').value,a=box.querySelector('[data-side="a"]').value;
+  store.set(m.id+":res",h!==""&&a!==""?h+"-"+a:"");
+  document.querySelectorAll(`.score[data-m="${m.i}"]`).forEach(o=>{if(o!==box){o.querySelector('[data-side="h"]').value=h;o.querySelector('[data-side="a"]').value=a}});
+  document.querySelectorAll(`[data-h="${m.i}"]`).forEach(x=>x.innerHTML=headRight(m));
+  document.querySelectorAll(`.item[data-m="${m.i}"] textarea`).forEach(ta=>ta.placeholder=caption(m,ta.closest(".item").dataset.s,true));
+ }
+});
+
+/* notifiche: file calendario con avviso all'ora di ogni post */
+function downloadICS(list){
+ const z=d=>d.toISOString().replace(/[-:]/g,"").replace(/\.\d{3}/,""),e=s=>s.replace(/\\/g,"\\\\").replace(/\n/g,"\\n").replace(/[,;]/g,c=>"\\"+c);
+ const L=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Tana del Diavolo//IT","CALSCALE:GREGORIAN","METHOD:PUBLISH","X-WR-CALNAME:Tana del Diavolo"];
+ let n=0;
+ list.forEach(m=>STEPS.forEach(([key,emo,name,fn])=>{
+  const d=fn(m);if(d<=now)return;n++;
+  L.push("BEGIN:VEVENT",`UID:${m.id}-${key}@tanadeldiavolo`,`DTSTAMP:${z(now)}`,`DTSTART:${z(d)}`,`DTEND:${z(add(d,15))}`,
+   `SUMMARY:${e(emo+" "+name+" · "+titolo(m))}`,`DESCRIPTION:${e(caption(m,key))}`,
+   "BEGIN:VALARM","ACTION:DISPLAY","TRIGGER:PT0M",`DESCRIPTION:${e("Post: "+name+" · "+titolo(m))}`,"END:VALARM","END:VEVENT");
+ }));
+ L.push("END:VCALENDAR");
+ if(!n){toast("Nessun post in arrivo");return}
+ const url=URL.createObjectURL(new Blob([L.join("\r\n")],{type:"text/calendar;charset=utf-8"}));
+ const a=document.createElement("a");a.href=url;a.download=list.length>1?"tana-del-diavolo-stagione.ics":`tana-del-diavolo-${list[0].avv.toLowerCase()}.ics`;
+ document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),4000);
+}
+document.getElementById("icsNext").onclick=()=>downloadICS([next]);
+document.getElementById("icsAll").onclick=()=>downloadICS(M);
+
 /* ---------- reveal on scroll ---------- */
 const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}}),{rootMargin:"0px 0px -8% 0px"});
 document.querySelectorAll("[data-r]").forEach(e=>io.observe(e));
@@ -377,6 +455,17 @@ centerTab(monthsEl.querySelector(`[data-m="${startM}"]`),false);
 /* ---------- moneta 3D ---------- */
 const coin=document.getElementById("coin");
 coin.innerHTML='<div class="face back"></div>'+Array.from({length:17},(_,i)=>`<div class="edge" style="transform:translateZ(${i-8}px);filter:brightness(${.7+.3*Math.abs(Math.cos(i/3))})"></div>`).join("")+'<div class="face front"></div>';
+
+/* moneta: gira da sola, si trascina col dito, un tocco la fa girare forte */
+(()=>{
+ const st=document.querySelector(".stage"),idle=matchMedia("(prefers-reduced-motion: reduce)").matches?0:.45;
+ let ang=0,vel=idle,drag=false,lx=0,moved=0;
+ st.addEventListener("pointerdown",e=>{drag=true;lx=e.clientX;moved=0;vel=0;st.setPointerCapture(e.pointerId)});
+ st.addEventListener("pointermove",e=>{if(!drag)return;const dx=e.clientX-lx;lx=e.clientX;moved+=Math.abs(dx);ang+=dx*.9;vel=dx*.9});
+ const up=()=>{if(!drag)return;drag=false;if(moved<6)vel=28};
+ st.addEventListener("pointerup",up);st.addEventListener("pointercancel",up);
+ (function loop(){if(!drag){vel+=(idle-vel)*.025;ang+=vel}coin.style.transform=`rotateY(${ang}deg)`;requestAnimationFrame(loop)})();
+})();
 
 /* ---------- motion legato allo scroll ---------- */
 const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
