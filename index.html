@@ -6,7 +6,12 @@
 <meta name="theme-color" content="#070707">
 <title>Tana del Diavolo</title>
 <link rel="icon" href="assets/logo.png">
-<link rel="apple-touch-icon" href="assets/logo.png">
+<link rel="apple-touch-icon" href="assets/icon-192.png">
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Tana">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -156,7 +161,7 @@ footer img{width:64px;height:64px;opacity:.85}
 footer p{margin-top:10px;font-family:Anton,sans-serif;letter-spacing:2px;text-transform:uppercase;color:var(--red)}
 
 /* NAV */
-.nav{position:fixed;left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom));height:var(--nav);max-width:520px;margin:0 auto;z-index:50;display:grid;grid-template-columns:repeat(4,1fr);border-radius:22px;background:rgba(18,18,18,.82);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.08);transform:translateY(140%);transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+.nav{position:fixed;left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom));height:var(--nav);max-width:520px;margin:0 auto;z-index:50;display:grid;grid-template-columns:repeat(5,1fr);border-radius:22px;background:rgba(18,18,18,.82);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.08);transform:translateY(140%);transition:transform .5s cubic-bezier(.2,.8,.2,1)}
 body.scrolled .nav{transform:none}
 .nav a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:10px;font-weight:700;color:var(--muted);transition:color .2s}
 .nav a.on{color:#fff}
@@ -170,6 +175,79 @@ body.scrolled .nav{transform:none}
   [data-r]{opacity:1;transform:none;transition:none}
   .city{height:auto}.city-in{position:relative;height:70svh}.city-img{clip-path:none}
 }
+
+/* STUDIO */
+.selwrap{position:relative;margin-bottom:12px}
+.selwrap::after{content:"";position:absolute;right:18px;top:50%;width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:translateY(-70%) rotate(45deg);pointer-events:none}
+.sel{width:100%;appearance:none;-webkit-appearance:none;padding:14px 44px 14px 16px;border-radius:16px;background:var(--card);border:1px solid var(--line);color:var(--text);font:700 15px Inter,sans-serif}
+.seg{display:grid;grid-template-columns:1fr 1fr;padding:4px;border-radius:14px;background:var(--card);border:1px solid var(--line);margin-bottom:14px}
+.seg button{padding:11px;border-radius:10px;font-size:14px;font-weight:800;color:var(--muted);transition:.25s}
+.seg button.on{background:var(--red);color:#fff}
+.pane{display:none}.pane.on{display:block;animation:paneIn .45s cubic-bezier(.2,.7,.2,1)}
+@keyframes paneIn{from{opacity:0;transform:translateY(14px)}}
+.mods{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-bottom:12px}
+.mods::-webkit-scrollbar{display:none}
+.mod{flex:0 0 auto;padding:8px 13px;border-radius:999px;background:var(--card);border:1px solid var(--line);font-size:13px;font-weight:800;color:var(--muted)}
+.mod.on{border-color:var(--gold);color:var(--gold)}
+.pitch{position:relative;aspect-ratio:68/92;border-radius:20px;overflow:hidden;border:1px solid #2a2a2a;
+  background:repeating-linear-gradient(180deg,#0f1410 0 9%,#0c110d 9% 18%);touch-action:none;-webkit-user-select:none;user-select:none}
+.pitch .pl{position:absolute;border:2px solid rgba(255,255,255,.14)}
+.pitch .mid{left:0;right:0;top:50%;height:0;border-width:2px 0 0}
+.pitch .circ{left:50%;top:50%;width:26%;aspect-ratio:1;border-radius:50%;transform:translate(-50%,-50%)}
+.pitch .box-t{left:22%;right:22%;top:-2px;height:15%;border-top:0}
+.pitch .box-b{left:22%;right:22%;bottom:-2px;height:15%;border-bottom:0}
+.slot{position:absolute;width:64px;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:4px;transition:left .5s cubic-bezier(.2,.8,.2,1),top .5s cubic-bezier(.2,.8,.2,1)}
+.tok{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-family:Anton,sans-serif;font-size:18px;color:#fff;background:linear-gradient(135deg,var(--red) 50%,#111 50%);box-shadow:0 0 0 2px #0a0a0a,0 0 0 3px rgba(255,255,255,.25),0 8px 18px rgba(0,0,0,.6);cursor:grab}
+.tok.gk{background:linear-gradient(135deg,var(--gold) 50%,#5c4116 50%);color:#111}
+.tok.empty{background:rgba(255,255,255,.06);box-shadow:0 0 0 2px rgba(255,255,255,.25) inset;color:var(--muted);font-family:Inter;font-weight:800;font-size:20px}
+.slot span{max-width:76px;padding:2px 6px;border-radius:6px;background:rgba(0,0,0,.65);font-size:10.5px;font-weight:800;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.slot.over .tok{transform:scale(1.15);box-shadow:0 0 0 3px var(--gold)}
+.ghost{position:fixed;z-index:200;pointer-events:none;transform:translate(-50%,-50%) scale(1.15)}
+.vrow{display:grid;grid-template-columns:34px 1fr auto 34px;gap:10px;align-items:center;padding:8px 10px;border-radius:14px;background:var(--card);border:1px solid var(--line);margin-bottom:6px}
+.vrow.off{opacity:.5}
+.vrow .n{font-family:Anton,sans-serif;font-size:18px;color:var(--muted);text-align:center}
+.vrow b{font-size:14px;font-weight:700}
+.vrow small{display:block;font-size:11px;color:var(--muted);font-weight:600}
+.step{display:flex;align-items:center;gap:4px}
+.step button{width:34px;height:34px;border-radius:10px;background:var(--card2);border:1px solid var(--line);font-size:18px;font-weight:800}
+.step output{min-width:40px;text-align:center;font-family:Anton,sans-serif;font-size:22px}
+.vgood{color:#3ddc84}.vok{color:var(--gold)}.vbad{color:#ff4d5e}
+.mvp{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-size:17px;filter:grayscale(1) opacity(.4);transition:.2s}
+.mvp.on{filter:none;background:rgba(217,173,85,.15)}
+.vsub{font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin:16px 0 8px}
+.gfx-t{margin-top:26px}
+.gfx{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.gbtn{display:flex;align-items:center;gap:10px;padding:14px;border-radius:16px;background:var(--card);border:1px solid var(--line);font-size:14px;font-weight:800;text-align:left}
+.gbtn span{font-size:20px}
+
+/* BILANCIO */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{padding:14px 12px;border-radius:18px;background:var(--card);border:1px solid var(--line)}
+.stat b{display:block;font-family:Anton,sans-serif;font-size:34px;line-height:1}
+.stat small{font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}
+.stat.big{grid-column:span 3;display:flex;justify-content:space-between;align-items:center;background:linear-gradient(135deg,var(--red2),#140204);border-color:#4a0a12}
+.stat.big b{font-size:52px}
+.forma{display:flex;gap:6px}
+.forma i{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;font-style:normal;font-size:12px;font-weight:900;color:#111}
+.forma .V{background:#3ddc84}.forma .N{background:var(--gold)}.forma .P{background:var(--red);color:#fff}
+.forma .x{background:#222;color:var(--muted)}
+.stat.green b{color:#3ddc84}.stat.goldc b{color:var(--gold)}.stat.redc b{color:#ff4d5e}
+
+/* SHEET */
+.sheet{position:fixed;inset:0;z-index:150;background:rgba(0,0,0,.6);opacity:0;pointer-events:none;transition:opacity .25s;display:flex;align-items:flex-end}
+.sheet.on{opacity:1;pointer-events:auto}
+.sheet-in{width:100%;max-width:680px;margin:0 auto;max-height:86svh;overflow:auto;background:#101010;border-radius:24px 24px 0 0;border-top:1px solid #2a2a2a;padding:10px 16px calc(24px + env(safe-area-inset-bottom));transform:translateY(100%);transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+.sheet.on .sheet-in{transform:none}
+.grab{width:40px;height:4px;border-radius:4px;background:#333;margin:0 auto 14px}
+.sheet h3{font-family:Anton,sans-serif;font-size:24px;text-transform:uppercase;margin-bottom:12px}
+.plist{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px}
+.pbtn{display:flex;align-items:center;gap:8px;padding:10px;border-radius:12px;background:var(--card);border:1px solid var(--line);text-align:left;font-size:13px;font-weight:700}
+.pbtn i{font-style:normal;font-family:Anton,sans-serif;font-size:16px;color:var(--muted);min-width:22px}
+.pbtn.used{opacity:.4}
+.pbtn.cur{border-color:var(--gold)}
+.preview{width:100%;border-radius:14px;display:block;margin-bottom:12px;box-shadow:0 20px 50px rgba(0,0,0,.6)}
+.sheet .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sheet .btn{justify-content:center;padding:14px}
 </style>
 </head>
 <body>
@@ -194,8 +272,30 @@ body.scrolled .nav{transform:none}
   <section class="block" id="contenuti">
     <div class="eyebrow" data-r>Piano contenuti</div>
     <h2 class="display" data-r style="--d:.05s" id="planTitle"></h2>
-    <div class="bar"><button class="btn gold" id="icsNext"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>Notifiche partita</button></div>
+    <div class="bar" data-r style="--d:.08s">
+      <button class="btn gold" id="pushBtn"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><span>Attiva notifiche</span></button>
+      <button class="btn" id="icsNext"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>Calendario</button>
+    </div>
     <div class="plan" id="plan"></div>
+  </section>
+
+  <section class="block" id="studio">
+    <div class="eyebrow" data-r>Studio</div>
+    <h2 class="display" data-r style="--d:.05s">Formazione e pagelle</h2>
+    <div class="selwrap" data-r style="--d:.08s"><select id="stMatch" class="sel" aria-label="Partita"></select></div>
+    <div class="seg" data-r style="--d:.1s"><button data-t="xi" class="on">Formazione</button><button data-t="vot">Pagelle</button></div>
+    <div class="pane on" id="paneXI">
+      <div class="mods" id="mods"></div>
+      <div class="pitch" id="pitch"><div class="pl box-t"></div><div class="pl box-b"></div><div class="pl mid"></div><div class="pl circ"></div></div>
+    </div>
+    <div class="pane" id="paneVot"><div id="votes"></div></div>
+    <div class="eyebrow gfx-t">Grafiche Instagram</div>
+    <div class="gfx">
+      <button class="gbtn" data-g="matchday"><span>🗓️</span>Matchday</button>
+      <button class="gbtn" data-g="formazione"><span>📋</span>Formazione</button>
+      <button class="gbtn" data-g="risultato"><span>🏁</span>Risultato</button>
+      <button class="gbtn" data-g="pagelle"><span>⭐</span>Pagelle</button>
+    </div>
   </section>
 </div>
 
@@ -210,9 +310,15 @@ body.scrolled .nav{transform:none}
   <section class="block" id="calendario">
     <div class="eyebrow" data-r>Stagione</div>
     <h2 class="display" data-r style="--d:.05s">Calendario</h2>
-    <div class="bar" data-r style="--d:.08s"><button class="btn" id="icsAll"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>Notifiche stagione</button></div>
+    <div class="bar" data-r style="--d:.08s"><button class="btn" id="icsAll"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>Tutta la stagione nel calendario</button></div>
     <div class="months" id="months" data-r style="--d:.1s"></div>
     <div id="cal"></div>
+  </section>
+
+  <section class="block" id="bilancio">
+    <div class="eyebrow" data-r>Bilancio</div>
+    <h2 class="display" data-r style="--d:.05s">Stagione 26/27</h2>
+    <div id="stats"></div>
   </section>
 
   <section class="block" id="strumenti">
@@ -234,14 +340,23 @@ body.scrolled .nav{transform:none}
 
 <nav class="nav" id="nav">
   <a href="#prossima" data-s="prossima"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Prossima</a>
-  <a href="#contenuti" data-s="contenuti"><svg viewBox="0 0 24 24"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9"/></svg>Contenuti</a>
+  <a href="#contenuti" data-s="contenuti"><svg viewBox="0 0 24 24"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9"/></svg>Post</a>
+  <a href="#studio" data-s="studio"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 12h18M12 3v18"/><circle cx="12" cy="12" r="3"/></svg>Studio</a>
   <a href="#calendario" data-s="calendario"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>Calendario</a>
-  <a href="#strumenti" data-s="strumenti"><svg viewBox="0 0 24 24"><path d="M14 7l3-3 3 3-3 3M4 20l10-10"/><circle cx="6" cy="6" r="2"/></svg>Strumenti</a>
+  <a href="#bilancio" data-s="bilancio"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Bilancio</a>
 </nav>
+
+<div class="sheet" id="sheet"><div class="sheet-in"><div class="grab"></div><div id="sheetBody"></div></div></div>
 <div class="toast" id="toast"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-/* ---------- dati ---------- */
+/* ================= DATI ================= */
+const SB_URL="https://qtyibefywbqjrvmpzmdt.supabase.co";
+const SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF0eWliZWZ5d2JxanJ2bXB6bWR0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI0MTg4NDMsImV4cCI6MjEwNzk5NDg0M30.ahEvwPZrng3-0GYRI52T2CHRcTinD4Mqxp7Hycqm96E";
+const VAPID="BKJSjljnvPEo2Qk6MzMTehiWixAWIUM0c2iCj6qBvwG4mmBBSkP3G83lbo5baa7lNr4DciE-WJtUtqtG9hWZqE0";
+const COACH="Amorim";
+
 const TEAMS={
  MILAN:["MIL","#d0021b","#111"],FERENCVAROS:["FTC","#0c8a3c","#e9e9e9"],GENOA:["GEN","#b5121b","#0b2a5b"],
  FROSINONE:["FRO","#f3c400","#0a3a8a"],CAGLIARI:["CAG","#b5121b","#0b2a5b"],PARMA:["PAR","#f3c400","#0b3a8a"],
@@ -284,23 +399,93 @@ const M=[
  ["2027-05-30T15:00","UDINESE",1,"San Siro","Serie A"]
 ].map(([k,avv,home,stadio,comp],i)=>({id:k.slice(0,10),k:new Date(k),avv,home,stadio,comp,i}));
 
-/* ---------- utility ---------- */
+/* rosa 26/27 dal sito ufficiale: [numero, nome breve, ruolo] */
+const SQUAD=[
+ [16,"Maignan","P"],[1,"P. Terracciano","P"],[96,"Torriani","P"],
+ [23,"Tomori","D"],[31,"Pavlović","D"],[5,"De Winter","D"],[34,"Gila","D"],[46,"Gabbia","D"],[33,"Bartesaghi","D"],[2,"Estupiñán","D"],[42,"F. Terracciano","D"],[13,"Diawara","D"],[35,"Vladimirov","D"],
+ [14,"Modrić","C"],[12,"Rabiot","C"],[30,"Jashari","C"],[8,"Loftus-Cheek","C"],[80,"Musah","C"],[56,"Saelemaekers","C"],[11,"Pulisic","C"],[20,"Hutchinson","C"],[22,"Moreira","C"],[28,"Comotto","C"],[70,"Cissè","C"],
+ [9,"Ramos","A"],[21,"Chukwueze","A"],[73,"Camarda","A"]
+];
+const PL=Object.fromEntries(SQUAD.map(([n,name,r])=>[n,{n,name,r}]));
+const RUOLI={P:"Portieri",D:"Difensori",C:"Centrocampisti",A:"Attaccanti"},RUOLO={P:"Portiere",D:"Difensore",C:"Centrocampista",A:"Attaccante"};
+
+/* moduli: coordinate (x%, y%) dal portiere in basso */
+const MODS={
+ "4-3-3":[[50,90],[14,70],[37,74],[63,74],[86,70],[26,50],[50,54],[74,50],[18,25],[50,19],[82,25]],
+ "4-2-3-1":[[50,90],[14,70],[37,74],[63,74],[86,70],[35,56],[65,56],[18,36],[50,38],[82,36],[50,17]],
+ "3-4-2-1":[[50,90],[24,73],[50,76],[76,73],[11,51],[37,55],[63,55],[89,51],[32,32],[68,32],[50,16]],
+ "4-4-2":[[50,90],[14,70],[37,74],[63,74],[86,70],[12,48],[37,52],[63,52],[88,48],[34,22],[66,22]],
+ "3-5-2":[[50,90],[24,73],[50,76],[76,73],[10,46],[30,54],[50,58],[70,54],[90,46],[34,22],[66,22]]
+};
+
+/* ================= UTILITY ================= */
 const MESI=["Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno","Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"];
 const GG=["Dom","Lun","Mar","Mer","Gio","Ven","Sab"];
-const now=new Date();
+let now=new Date();
+const $=id=>document.getElementById(id);
 const pad=n=>String(n).padStart(2,"0");
 const ora=d=>pad(d.getHours())+":"+pad(d.getMinutes());
 const quando=d=>GG[d.getDay()]+" "+d.getDate()+" "+MESI[d.getMonth()].slice(0,3).toLowerCase()+" · "+ora(d);
 const add=(d,min)=>new Date(d.getTime()+min*60000);
 const cap=s=>s.charAt(0)+s.slice(1).toLowerCase();
 const q=s=>"https://www.google.com/search?q="+encodeURIComponent(s);
+const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 const badge=(t,sm)=>{const [c,a,b]=TEAMS[t]||[t.slice(0,3),"#333","#555"];return `<div class="badge${sm?" sm":""}" style="--a:${a};--b:${b}">${c}</div>`};
 const casa=m=>m.home===1?"MILAN":m.avv, ospite=m=>m.home===1?m.avv:"MILAN";
 const titolo=m=>`${cap(casa(m))} - ${cap(ospite(m))}`;
 const tagH=m=>`#${casa(m)==="MILAN"?"Milan":cap(casa(m))}${ospite(m)==="MILAN"?"Milan":cap(ospite(m))}`;
-const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{v?localStorage.setItem(k,v===true?"1":v):localStorage.removeItem(k)}catch(e){}}};
-const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-function res(m){const v=store.get(m.id+":res");if(!v)return null;const [h,a]=v.split("-").map(Number);const mg=casa(m)==="MILAN"?h:a,og=casa(m)==="MILAN"?a:h;return {h,a,e:mg>og?"V":mg<og?"P":"N"}}
+const toast=t=>{const el=$("toast");el.textContent=t;el.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove("show"),1800)};
+const BELL='<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>';
+const IC={
+ check:'<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg>',
+ copy:'<svg viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>',
+ search:'<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>'
+};
+
+/* ================= STATO CONDIVISO (Supabase + copia locale) ================= */
+const CACHE={},pending={};
+const isKey=k=>/^\d{4}-\d{2}-\d{2}:/.test(k);
+try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(isKey(k))CACHE[k]=localStorage.getItem(k)}}catch(e){}
+let sb=null,flushT=null;
+const store={
+ get:k=>k in CACHE?CACHE[k]:null,
+ json(k,d){try{return JSON.parse(CACHE[k])||d}catch(e){return d}},
+ set(k,v){
+  v=v?(v===true?"1":typeof v==="object"?JSON.stringify(v):String(v)):null;
+  if(v)CACHE[k]=v;else delete CACHE[k];
+  try{v?localStorage.setItem(k,v):localStorage.removeItem(k)}catch(e){}
+  pending[k]=v;clearTimeout(flushT);flushT=setTimeout(flush,500);
+ }
+};
+async function flush(){
+ if(!sb)return;
+ const ent=Object.entries(pending);Object.keys(pending).forEach(k=>delete pending[k]);
+ const ups=ent.filter(([,v])=>v).map(([key,value])=>({key,value,updated_at:new Date().toISOString()}));
+ const dels=ent.filter(([,v])=>!v).map(([k])=>k);
+ try{
+  if(ups.length){const {error}=await sb.from("tdd_state").upsert(ups);if(error)throw error}
+  if(dels.length){const {error}=await sb.from("tdd_state").delete().in("key",dels);if(error)throw error}
+ }catch(e){ent.forEach(([k,v])=>{if(!(k in pending))pending[k]=v});clearTimeout(flushT);flushT=setTimeout(flush,5000)}
+}
+async function initSync(){
+ if(!window.supabase)return;
+ sb=supabase.createClient(SB_URL,SB_KEY);
+ const {data,error}=await sb.from("tdd_state").select("key,value");
+ if(error){sb=null;return}
+ const remote=Object.fromEntries(data.map(r=>[r.key,r.value]));
+ Object.keys(CACHE).filter(k=>!(k in remote)).forEach(k=>pending[k]=CACHE[k]);
+ for(const k in remote){CACHE[k]=remote[k];try{localStorage.setItem(k,remote[k])}catch(e){}}
+ flush();rerender();
+ sb.channel("tdd").on("postgres_changes",{event:"*",schema:"public",table:"tdd_state"},p=>{
+  const k=(p.new&&p.new.key)||(p.old&&p.old.key);if(!k||k in pending)return;
+  if(p.eventType==="DELETE"){delete CACHE[k];try{localStorage.removeItem(k)}catch(e){}}
+  else{CACHE[k]=p.new.value;try{localStorage.setItem(k,p.new.value)}catch(e){}}
+  rerender();
+ }).subscribe();
+}
+
+/* ================= RISULTATI ================= */
+function res(m){const v=store.get(m.id+":res");if(!v)return null;const [h,a]=v.split("-").map(Number);const mg=casa(m)==="MILAN"?h:a,og=casa(m)==="MILAN"?a:h;return {h,a,mg,og,e:mg>og?"V":mg<og?"P":"N"}}
 const resLine=m=>{const r=res(m);return r?`${cap(casa(m))} ${r.h}-${r.a} ${cap(ospite(m))}`:""};
 function scoreHTML(m){const r=res(m);return `<div class="score" data-m="${m.i}">
  <div class="s">${badge(casa(m),1)}<input inputmode="numeric" maxlength="2" data-side="h" value="${r?r.h:""}" aria-label="Gol ${cap(casa(m))}"></div>
@@ -308,8 +493,8 @@ function scoreHTML(m){const r=res(m);return `<div class="score" data-m="${m.i}">
  <div class="s">${badge(ospite(m),1)}<input inputmode="numeric" maxlength="2" data-side="a" value="${r?r.a:""}" aria-label="Gol ${cap(ospite(m))}"></div>
 </div>`}
 const headRight=m=>{const r=res(m);const tipo=m.home===2?'<i class="derby">DERBY</i>':m.home?'<i class="home">CASA</i>':'<i class="away">TRASFERTA</i>';return r?`${r.h}-${r.a}<span class="esito ${r.e}">${r.e}</span>${tipo}`:`${ora(m.k)}${tipo}`};
-const BELL='<svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>';
 
+/* ================= PIANO CONTENUTI ================= */
 const STEPS=[
  ["pre","🎙️","Pre-partita",m=>add(m.k,-24*60),"pre partita","VIGILIA"],
  ["prob","📋","Formazioni probabili",m=>{let d=add(m.k,-21*60);if(d.getHours()>=22)d.setHours(21,0,0,0);return d},"formazioni probabili","PROBABILI FORMAZIONI"],
@@ -319,12 +504,14 @@ const STEPS=[
  ["pag","⭐","Pagelle",m=>add(m.k,155),"pagelle","PAGELLE"],
  ["top","🔥","Top e flop",m=>add(m.k,200),"top e flop","TOP & FLOP"]
 ];
-const IC={
- check:'<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg>',
- copy:'<svg viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>',
- search:'<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>'
-};
-
+function caption(m,key,tpl){
+ const own=!tpl&&store.get(m.id+":"+key+":txt");if(own)return own;
+ const s=STEPS.find(x=>x[0]===key),r=["fin","pag","top"].includes(key)&&resLine(m);
+ let extra="";
+ if(key==="uff"||key==="prob"){const xi=xiOf(m);if(xi.p.some(Boolean))extra="\n\n"+xiText(xi)}
+ if(key==="pag"){const v=votesOf(m);const list=votedList(m,v);if(list.length)extra="\n\n"+list.map(([n,val])=>`${PL[n].name} ${fmtV(val)}${v.mvp==n?" ⭐":""}`).join("\n")}
+ return `${s[1]} ${s[5]} | ${titolo(m).toUpperCase()}\n${r?r.toUpperCase():m.comp+(m.stadio?" · "+m.stadio:"")+" · "+quando(m.k)}${extra}\n\n#ForzaMilan #SempreMilan ${tagH(m)} #TanaDelDiavolo`;
+}
 function planHTML(m){
  let flagged=false;
  return STEPS.map(([key,emo,name,fn,query])=>{
@@ -340,17 +527,13 @@ function planHTML(m){
    <div class="ed"><textarea data-k="${k}" placeholder="${esc(caption(m,key,true))}">${esc(txt)}</textarea></div>
   </div>`}).join("");
 }
-function caption(m,key,tpl){
- const own=!tpl&&store.get(m.id+":"+key+":txt");if(own)return own;
- const s=STEPS.find(x=>x[0]===key),r=["fin","pag","top"].includes(key)&&resLine(m);
- return `${s[1]} ${s[5]} | ${titolo(m).toUpperCase()}\n${r?r.toUpperCase():m.comp+(m.stadio?" · "+m.stadio:"")+" · "+quando(m.k)}\n\n#ForzaMilan #SempreMilan ${tagH(m)} #TanaDelDiavolo`;
-}
 
-/* ---------- prossima partita + piano ---------- */
-const next=M.find(m=>add(m.k,260)>now)||M[M.length-1];
-const live=next.k<=now;
-document.getElementById("nextLabel").textContent=live?"In corso":"Prossima partita";
-document.getElementById("nextCard").innerHTML=`
+/* ================= PROSSIMA PARTITA ================= */
+let next,live;
+function pickNext(){next=M.find(m=>add(m.k,260)>now)||M[M.length-1];live=next.k<=now}
+function renderNext(){
+ $("nextLabel").textContent=live?"In corso":"Prossima partita";
+ $("nextCard").innerHTML=`
  <div class="vsrow">
   <div class="t">${badge(casa(next))}<b>${cap(casa(next))}</b></div>
   <div class="x">VS</div>
@@ -362,37 +545,155 @@ document.getElementById("nextCard").innerHTML=`
   <span class="chip">${next.comp}</span>
   ${next.stadio?`<span class="chip">${next.stadio}</span>`:""}
  </div>${live?scoreHTML(next):""}`;
-document.getElementById("planTitle").textContent=titolo(next);
-const planEl=document.getElementById("plan");
-planEl.innerHTML=planHTML(next);
-planEl.querySelectorAll(".item").forEach((e,i)=>{e.setAttribute("data-r","");e.style.setProperty("--d",(i*.06)+"s")});
+}
+let planFirst=true;
+function renderPlan(){
+ $("planTitle").textContent=titolo(next);
+ const el=$("plan"),open=[...el.querySelectorAll(".item.edit")].map(x=>x.dataset.k);
+ el.innerHTML=planHTML(next);
+ el.querySelectorAll(".item").forEach((e,i)=>{if(open.includes(e.dataset.k))e.classList.add("edit");if(planFirst){e.setAttribute("data-r","");e.style.setProperty("--d",(i*.06)+"s");io.observe(e)}});
+ planFirst=false;
+}
 
-/* ---------- calendario ---------- */
+/* ================= CALENDARIO ================= */
 const months=[...new Set(M.map(m=>m.k.getFullYear()*12+m.k.getMonth()))];
-const monthsEl=document.getElementById("months"),cal=document.getElementById("cal");
+const monthsEl=$("months"),cal=$("cal");
+let curMonth;
 monthsEl.innerHTML=months.map(mk=>`<button class="mbtn" data-m="${mk}">${MESI[mk%12].slice(0,3)}</button>`).join("");
 function renderMonth(mk,animate){
+ curMonth=mk;
+ const open=[...cal.querySelectorAll(".match.open")].map(x=>x.dataset.i),edit=[...cal.querySelectorAll(".item.edit")].map(x=>x.dataset.k);
  monthsEl.querySelectorAll(".mbtn").forEach(b=>b.classList.toggle("on",+b.dataset.m===mk));
  cal.innerHTML=M.filter(m=>m.k.getFullYear()*12+m.k.getMonth()===mk).map((m,j)=>{
   const past=add(m.k,110)<=now;
-  return `<article class="match${past?" past":""}${m===next?" is-next":""}" data-r style="--d:${j*.06}s">
+  return `<article class="match${past?" past":""}${m===next?" is-next":""}${open.includes(String(m.i))?" open":""}" data-i="${m.i}" data-r style="--d:${j*.06}s">
    <button class="mh">
     <div class="d"><b>${m.k.getDate()}</b><small>${GG[m.k.getDay()]}</small></div>
     <div class="opp">${badge(m.avv,1)}<div><strong>${m.home===1?"vs ":"@ "}${m.avv}</strong><span>${m.comp}${m.stadio?" · "+m.stadio:""}</span></div></div>
     <div class="h" data-h="${m.i}">${headRight(m)}</div>
    </button>
-   <div class="mbody">${m.k<=now?scoreHTML(m):""}<div class="bar"><button class="btn ics1" data-m="${m.i}">${BELL}Notifiche</button></div><div class="plan">${planHTML(m)}</div></div>
+   <div class="mbody">${m.k<=now?scoreHTML(m):""}<div class="bar"><button class="btn ics1" data-m="${m.i}">${BELL}Calendario</button><button class="btn studio1" data-m="${m.i}">Studio</button></div><div class="plan">${planHTML(m)}</div></div>
   </article>`}).join("");
+ cal.querySelectorAll(".item").forEach(e=>{if(edit.includes(e.dataset.k))e.classList.add("edit")});
  cal.querySelectorAll("[data-r]").forEach(e=>animate?io.observe(e):e.classList.add("in"));
 }
+function centerTab(b,smooth){monthsEl.scrollTo({left:b.offsetLeft-monthsEl.clientWidth/2+b.offsetWidth/2,behavior:smooth?"smooth":"auto"})}
 monthsEl.addEventListener("click",e=>{const b=e.target.closest(".mbtn");if(!b)return;renderMonth(+b.dataset.m,false);centerTab(b,true)});
-function centerTab(b,smooth){monthsEl.scrollTo({left:b.offsetLeft-monthsEl.clientWidth/2+b.offsetWidth/2,behavior:smooth?"smooth":"auto"})};
 cal.addEventListener("click",e=>{const h=e.target.closest(".mh");if(h)h.parentNode.classList.toggle("open")});
 
-/* ---------- azioni piano (spunta / copia) ---------- */
-const toast=t=>{const el=document.getElementById("toast");el.textContent=t;el.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove("show"),1600)};
+/* ================= STUDIO: FORMAZIONE ================= */
+let stM;
+const xiOf=m=>{const x=store.json(m.id+":xi",null);return x&&MODS[x.mod]?{mod:x.mod,p:(x.p||[]).concat(Array(11).fill(null)).slice(0,11)}:{mod:"4-3-3",p:Array(11).fill(null)}};
+const xiText=xi=>{const p=xi.p.map(n=>n?PL[n].name:"?");return `(${xi.mod}) ${p[0]}; `+ (()=>{const parts=xi.mod.split("-").map(Number);let i=1;return parts.map(c=>{const s=p.slice(i,i+c).join(", ");i+=c;return s}).join("; ")})()+`. All. ${COACH}`};
+function renderMods(){const xi=xiOf(stM);$("mods").innerHTML=Object.keys(MODS).map(k=>`<button class="mod${k===xi.mod?" on":""}" data-mod="${k}">${k}</button>`).join("")}
+function renderPitch(){
+ const xi=xiOf(stM),pos=MODS[xi.mod],pitch=$("pitch");
+ let slots=pitch.querySelectorAll(".slot");
+ if(slots.length!==11){pitch.querySelectorAll(".slot").forEach(s=>s.remove());for(let i=0;i<11;i++)pitch.insertAdjacentHTML("beforeend",`<div class="slot" data-s="${i}"><div class="tok"></div><span></span></div>`);slots=pitch.querySelectorAll(".slot")}
+ slots.forEach((s,i)=>{
+  const n=xi.p[i],t=s.querySelector(".tok");
+  s.style.left=pos[i][0]+"%";s.style.top=pos[i][1]+"%";
+  t.className="tok"+(n?(i===0?" gk":""):" empty");t.textContent=n?n:"+";
+  s.querySelector("span").textContent=n?PL[n].name:(i===0?"Portiere":"");
+  s.querySelector("span").style.visibility=n||i===0?"visible":"hidden";
+ });
+}
+function saveXI(xi){store.set(stM.id+":xi",xi.p.some(Boolean)||xi.mod!=="4-3-3"?xi:null);renderPitch();renderVotes()}
+$("mods").addEventListener("click",e=>{const b=e.target.closest(".mod");if(!b)return;const xi=xiOf(stM);xi.mod=b.dataset.mod;saveXI(xi);renderMods()});
+
+function openPicker(slot){
+ const xi=xiOf(stM),cur=xi.p[slot];
+ const groups=slot===0?["P","D","C","A"]:["D","C","A","P"];
+ $("sheetBody").innerHTML=`<h3>${slot===0?"Portiere":"Scegli giocatore"}</h3>`+groups.map(r=>`<div class="vsub">${RUOLI[r]}</div><div class="plist">${SQUAD.filter(p=>p[2]===r).map(([n,name])=>`<button class="pbtn${xi.p.includes(n)?" used":""}${n===cur?" cur":""}" data-pick="${n}"><i>${n}</i>${name}</button>`).join("")}</div>`).join("")+(cur?`<button class="btn" data-pick="0" style="width:100%;justify-content:center;margin-top:8px">Svuota posizione</button>`:"");
+ $("sheetBody").onclick=e=>{const b=e.target.closest("[data-pick]");if(!b)return;const n=+b.dataset.pick||null;const xi=xiOf(stM);if(n){const o=xi.p.indexOf(n);if(o>-1)xi.p[o]=xi.p[slot]}xi.p[slot]=n;saveXI(xi);closeSheet()};
+ openSheet();
+}
+/* trascina per scambiare, tocca per scegliere */
+(()=>{
+ const pitch=$("pitch");let drag=null;
+ pitch.addEventListener("pointerdown",e=>{const s=e.target.closest(".slot");if(!s)return;drag={s,x:e.clientX,y:e.clientY,moved:false,ghost:null,over:null};pitch.setPointerCapture(e.pointerId)});
+ pitch.addEventListener("pointermove",e=>{
+  if(!drag)return;
+  if(!drag.moved&&Math.hypot(e.clientX-drag.x,e.clientY-drag.y)>8){
+   if(drag.s.querySelector(".tok.empty")){return}
+   drag.moved=true;drag.ghost=drag.s.cloneNode(true);drag.ghost.className="slot ghost";document.body.appendChild(drag.ghost);drag.s.style.opacity=.3;
+  }
+  if(drag.moved){
+   drag.ghost.style.left=e.clientX+"px";drag.ghost.style.top=e.clientY+"px";
+   drag.ghost.style.display="none";const el=document.elementFromPoint(e.clientX,e.clientY);drag.ghost.style.display="";
+   const o=el&&el.closest(".pitch .slot");if(drag.over&&drag.over!==o)drag.over.classList.remove("over");drag.over=o&&o!==drag.s?o:null;if(drag.over)drag.over.classList.add("over");
+  }
+ });
+ const end=()=>{
+  if(!drag)return;const d=drag;drag=null;
+  if(!d.moved){openPicker(+d.s.dataset.s);return}
+  d.ghost.remove();d.s.style.opacity="";
+  if(d.over){d.over.classList.remove("over");const xi=xiOf(stM),a=+d.s.dataset.s,b=+d.over.dataset.s;[xi.p[a],xi.p[b]]=[xi.p[b],xi.p[a]];saveXI(xi)}
+ };
+ pitch.addEventListener("pointerup",end);pitch.addEventListener("pointercancel",end);
+})();
+
+/* ================= STUDIO: PAGELLE ================= */
+const votesOf=m=>store.json(m.id+":vot",{v:{},mvp:null});
+const fmtV=v=>v==null?"SV":(v%1?String(v).replace(".",","):String(v));
+const vcls=v=>v>=7?"vgood":v>=6?"vok":"vbad";
+function votedList(m,v){
+ const xi=xiOf(m),order=[...xi.p.filter(Boolean),...SQUAD.map(p=>p[0]).filter(n=>!xi.p.includes(n))];
+ return order.filter(n=>v.v[n]!=null).map(n=>[n,v.v[n]]);
+}
+function renderVotes(){
+ const v=votesOf(stM),xi=xiOf(stM),inXI=xi.p.filter(Boolean);
+ const row=n=>{const val=v.v[n];return `<div class="vrow${val==null?" off":""}" data-n="${n}">
+  <div class="n">${n}</div><div><b>${PL[n].name}</b><small>${RUOLO[PL[n].r]}</small></div>
+  <div class="step"><button data-d="-0.5" aria-label="Meno">−</button><output class="${val!=null?vcls(val):""}">${val!=null?fmtV(val):"–"}</output><button data-d="0.5" aria-label="Più">+</button></div>
+  <button class="mvp${v.mvp==n?" on":""}" aria-label="Migliore in campo">⭐</button></div>`};
+ const others=SQUAD.map(p=>p[0]).filter(n=>!inXI.includes(n));
+ $("votes").innerHTML=(inXI.length?`<div class="vsub">Titolari</div>${inXI.map(row).join("")}<div class="vsub">Panchina</div>`:"")+others.map(row).join("");
+}
+$("votes").addEventListener("click",e=>{
+ const r=e.target.closest(".vrow");if(!r)return;const n=+r.dataset.n,v=votesOf(stM);
+ const st=e.target.closest("[data-d]");
+ if(st){const d=+st.dataset.d;let val=v.v[n];val=val==null?6:Math.min(10,Math.max(3,val+d));v.v[n]=val}
+ else if(e.target.closest(".mvp")){v.mvp=v.mvp==n?null:n;if(v.mvp&&v.v[n]==null)v.v[n]=7}
+ else if(e.target.closest("output")){delete v.v[n];if(v.mvp==n)v.mvp=null}
+ else return;
+ store.set(stM.id+":vot",Object.keys(v.v).length||v.mvp?v:null);renderVotes();
+});
+
+/* ================= STUDIO: generale ================= */
+function defaultStudio(){const past=[...M].reverse().find(m=>m.k<=now&&now-m.k<72*3600000);return past||next}
+function renderStudio(){
+ $("stMatch").innerHTML=M.map(m=>`<option value="${m.i}"${m===stM?" selected":""}>${m.k.getDate()} ${MESI[m.k.getMonth()].slice(0,3).toLowerCase()} · ${titolo(m)}</option>`).join("");
+ renderMods();renderPitch();renderVotes();
+}
+$("stMatch").addEventListener("change",e=>{stM=M[+e.target.value];renderMods();renderPitch();renderVotes()});
+document.querySelector(".seg").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;document.querySelectorAll(".seg button").forEach(x=>x.classList.toggle("on",x===b));$("paneXI").classList.toggle("on",b.dataset.t==="xi");$("paneVot").classList.toggle("on",b.dataset.t==="vot")});
+
+/* ================= BILANCIO ================= */
+function renderStats(){
+ const played=M.filter(m=>res(m)).map(m=>[m,res(m)]);
+ const c={V:0,N:0,P:0},gf=played.reduce((s,[,r])=>s+r.mg,0),gs=played.reduce((s,[,r])=>s+r.og,0);
+ played.forEach(([,r])=>c[r.e]++);
+ const pts=played.filter(([m])=>m.comp==="Serie A").reduce((s,[,r])=>s+(r.e==="V"?3:r.e==="N"?1:0),0);
+ const last=played.slice(-5);
+ const forma=Array.from({length:5},(_,i)=>{const x=last[i];return x?`<i class="${x[1].e}" title="${titolo(x[0])} ${x[1].h}-${x[1].a}">${x[1].e}</i>`:'<i class="x">–</i>'}).join("");
+ $("stats").innerHTML=`<div class="stats">
+  <div class="stat big" data-r><div><small>Punti Serie A</small><b>${pts}</b></div><div><small>Forma</small><div class="forma" style="margin-top:8px">${forma}</div></div></div>
+  <div class="stat green" data-r style="--d:.05s"><b>${c.V}</b><small>Vittorie</small></div>
+  <div class="stat goldc" data-r style="--d:.1s"><b>${c.N}</b><small>Pareggi</small></div>
+  <div class="stat redc" data-r style="--d:.15s"><b>${c.P}</b><small>Sconfitte</small></div>
+  <div class="stat" data-r style="--d:.05s"><b>${gf}</b><small>Gol fatti</small></div>
+  <div class="stat" data-r style="--d:.1s"><b>${gs}</b><small>Gol subiti</small></div>
+  <div class="stat" data-r style="--d:.15s"><b>${gf-gs>0?"+":""}${gf-gs}</b><small>Differenza</small></div>
+ </div>`;
+ $("stats").querySelectorAll("[data-r]").forEach(e=>statsSeen?e.classList.add("in"):io.observe(e));
+}
+let statsSeen=false;
+
+/* ================= AZIONI ================= */
 document.addEventListener("click",async e=>{
  const b1=e.target.closest(".ics1");if(b1){downloadICS([M[+b1.dataset.m]]);return}
+ const s1=e.target.closest(".studio1");if(s1){stM=M[+s1.dataset.m];renderStudio();$("studio").scrollIntoView({behavior:"smooth"});return}
  const it=e.target.closest(".item");if(!it)return;
  if(e.target.closest(".txt")){it.classList.toggle("edit");if(it.classList.contains("edit"))it.querySelector("textarea").focus({preventScroll:true});return}
  if(e.target.closest(".chk")){
@@ -407,8 +708,6 @@ document.addEventListener("click",async e=>{
   cp.classList.add("ok");setTimeout(()=>cp.classList.remove("ok"),1200);toast("Caption copiata");
  }
 });
-
-/* descrizione post */
 document.addEventListener("input",e=>{
  const t=e.target;
  if(t.matches(".item textarea")){
@@ -421,11 +720,19 @@ document.addEventListener("input",e=>{
   store.set(m.id+":res",h!==""&&a!==""?h+"-"+a:"");
   document.querySelectorAll(`.score[data-m="${m.i}"]`).forEach(o=>{if(o!==box){o.querySelector('[data-side="h"]').value=h;o.querySelector('[data-side="a"]').value=a}});
   document.querySelectorAll(`[data-h="${m.i}"]`).forEach(x=>x.innerHTML=headRight(m));
-  document.querySelectorAll(`.item[data-m="${m.i}"] textarea`).forEach(ta=>ta.placeholder=caption(m,ta.closest(".item").dataset.s,true));
+  renderStats();
  }
 });
 
-/* notifiche: file calendario con avviso all'ora di ogni post */
+/* ================= RIDISEGNO (dati arrivati da un altro telefono) ================= */
+let rrT=null,rrWait=false;
+const editing=()=>{const a=document.activeElement;return a&&(a.tagName==="TEXTAREA"||a.tagName==="INPUT")};
+function rerender(){clearTimeout(rrT);rrT=setTimeout(()=>{if(editing()){rrWait=true;return}rrWait=false;doRender()},150)}
+document.addEventListener("focusout",()=>{if(rrWait)setTimeout(rerender,50)});
+function doRender(){now=new Date();pickNext();renderNext();renderPlan();renderMonth(curMonth,false);renderMods();renderPitch();renderVotes();renderStats()}
+setInterval(()=>{const n=new Date();if(n.getMinutes()!==now.getMinutes())rerender()},30000);
+
+/* ================= NOTIFICHE ================= */
 function downloadICS(list){
  const z=d=>d.toISOString().replace(/[-:]/g,"").replace(/\.\d{3}/,""),e=s=>s.replace(/\\/g,"\\\\").replace(/\n/g,"\\n").replace(/[,;]/g,c=>"\\"+c);
  const L=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Tana del Diavolo//IT","CALSCALE:GREGORIAN","METHOD:PUBLISH","X-WR-CALNAME:Tana del Diavolo"];
@@ -442,21 +749,148 @@ function downloadICS(list){
  const a=document.createElement("a");a.href=url;a.download=list.length>1?"tana-del-diavolo-stagione.ics":`tana-del-diavolo-${list[0].avv.toLowerCase()}.ics`;
  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),4000);
 }
-document.getElementById("icsNext").onclick=()=>downloadICS([next]);
-document.getElementById("icsAll").onclick=()=>downloadICS(M);
+$("icsNext").onclick=()=>downloadICS([next]);
+$("icsAll").onclick=()=>downloadICS(M);
 
-/* ---------- reveal on scroll ---------- */
-const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}}),{rootMargin:"0px 0px -8% 0px"});
+const pushOK="serviceWorker" in navigator&&"PushManager" in window&&"Notification" in window;
+const standalone=matchMedia("(display-mode: standalone)").matches||navigator.standalone;
+const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+const b64=s=>{const p="=".repeat((4-s.length%4)%4);const r=atob((s+p).replace(/-/g,"+").replace(/_/g,"/"));return Uint8Array.from(r,c=>c.charCodeAt(0))};
+async function pushState(){
+ const btn=$("pushBtn");
+ if(!pushOK){btn.style.display=isIOS?"":"none";return}
+ try{const reg=await navigator.serviceWorker.getRegistration();const sub=reg&&await reg.pushManager.getSubscription();
+  if(sub&&Notification.permission==="granted"){btn.classList.remove("gold");btn.querySelector("span").textContent="Notifiche attive"}}catch(e){}
+}
+$("pushBtn").onclick=async()=>{
+ if(isIOS&&!standalone){
+  $("sheetBody").innerHTML=`<h3>Notifiche su iPhone</h3><div class="plan"><div class="item"><span class="chk" style="border-color:var(--gold)">1</span><div><b>Tocca Condividi in Safari</b></div></div><div class="item"><span class="chk" style="border-color:var(--gold)">2</span><div><b>Aggiungi alla schermata Home</b></div></div><div class="item"><span class="chk" style="border-color:var(--gold)">3</span><div><b>Apri Tana dalla Home e tocca di nuovo Attiva notifiche</b></div></div></div>`;
+  openSheet();return;
+ }
+ if(!pushOK){toast("Notifiche non supportate su questo browser");return}
+ try{
+  const perm=await Notification.requestPermission();if(perm!=="granted"){toast("Permesso negato");return}
+  const reg=await navigator.serviceWorker.register("sw.js");await navigator.serviceWorker.ready;
+  const sub=(await reg.pushManager.getSubscription())||await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64(VAPID)});
+  const json=sub.toJSON();
+  if(!sb)throw new Error("offline");
+  const {error}=await sb.from("tdd_push_subs").insert({endpoint:json.endpoint,sub:json});
+  if(error&&error.code!=="23505")throw error;
+  await sb.functions.invoke("tdd-push",{body:{test:true,endpoint:json.endpoint}});
+  toast("Notifiche attive");pushState();
+ }catch(e){toast("Non sono riuscito ad attivarle");console.error(e)}
+};
+
+/* ================= SHEET ================= */
+function openSheet(){$("sheet").classList.add("on")}
+function closeSheet(){$("sheet").classList.remove("on")}
+$("sheet").addEventListener("click",e=>{if(e.target.id==="sheet")closeSheet()});
+
+/* ================= GRAFICHE INSTAGRAM 1080x1350 ================= */
+const IMG={};
+const loadImg=src=>IMG[src]||(IMG[src]=new Promise((ok,ko)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=ko;i.src=src}));
+function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath()}
+function cbadge(c,team,x,y,r){
+ const [code,a,b]=TEAMS[team]||[team.slice(0,3),"#333","#555"];
+ c.save();c.beginPath();c.arc(x,y,r,0,7);c.clip();c.fillStyle=b;c.fillRect(x-r,y-r,2*r,2*r);
+ c.fillStyle=a;c.beginPath();c.moveTo(x-r,y-r);c.lineTo(x+r,y-r);c.lineTo(x-r,y+r);c.closePath();c.fill();c.restore();
+ c.lineWidth=r*.07;c.strokeStyle="rgba(255,255,255,.25)";c.beginPath();c.arc(x,y,r,0,7);c.stroke();
+ c.fillStyle="#fff";c.font=`${r*.62}px Anton`;c.textAlign="center";c.textBaseline="middle";c.shadowColor="rgba(0,0,0,.6)";c.shadowBlur=8;c.fillText(code,x,y+r*.04);c.shadowBlur=0;
+}
+async function frame(c,label){
+ const W=1080,H=1350,[photo,logo]=await Promise.all([loadImg("assets/milano.jpg"),loadImg("assets/logo.png")]);
+ c.fillStyle="#070707";c.fillRect(0,0,W,H);
+ const s=Math.max(W/photo.width,H/photo.height);c.globalAlpha=.32;c.drawImage(photo,(W-photo.width*s)/2,(H-photo.height*s)/2,photo.width*s,photo.height*s);c.globalAlpha=1;
+ let g=c.createLinearGradient(0,0,0,H);g.addColorStop(0,"rgba(7,7,7,.55)");g.addColorStop(.45,"rgba(7,7,7,.8)");g.addColorStop(1,"#070707");c.fillStyle=g;c.fillRect(0,0,W,H);
+ c.drawImage(logo,70,64,120,120);
+ c.textAlign="left";c.textBaseline="alphabetic";c.fillStyle="#f4f1ea";c.font="52px Anton";c.fillText("TANA DEL",214,118);c.fillStyle="#d0021b";c.fillText("DIAVOLO",214,172);
+ c.textAlign="right";c.fillStyle="#d9ad55";c.font="800 26px Inter";c.fillText(label,W-70,118);
+ c.fillStyle="#d0021b";c.fillRect(70,226,W-140,6);
+}
+function footer(c,m){
+ c.textAlign="center";c.fillStyle="#8b8781";c.font="700 30px Inter";
+ c.fillText(`${m.comp.toUpperCase()}${m.stadio?" · "+m.stadio.toUpperCase():""} · ${quando(m.k).toUpperCase()}`,540,1270);
+}
+const G={
+ async matchday(c,m){
+  await frame(c,"MATCHDAY");
+  c.textAlign="center";c.fillStyle="#d9ad55";c.font="800 34px Inter";c.fillText(quando(m.k).toUpperCase(),540,330);
+  cbadge(c,casa(m),540,480,105);c.fillStyle=casa(m)==="MILAN"?"#d0021b":"#f4f1ea";c.font="110px Anton";c.fillText(cap(casa(m)).toUpperCase(),540,700);
+  c.fillStyle="#8b8781";c.font="800 38px Inter";c.fillText("VS",540,770);
+  cbadge(c,ospite(m),540,900,105);c.fillStyle=ospite(m)==="MILAN"?"#d0021b":"#f4f1ea";c.font="110px Anton";c.fillText(cap(ospite(m)).toUpperCase(),540,1120);
+  footer(c,m);
+ },
+ async risultato(c,m){
+  const r=res(m);if(!r)throw new Error("Inserisci prima il risultato");
+  await frame(c,"FINALE");
+  cbadge(c,casa(m),290,470,130);cbadge(c,ospite(m),790,470,130);
+  c.textAlign="center";c.font="64px Anton";c.fillStyle=casa(m)==="MILAN"?"#d0021b":"#f4f1ea";c.fillText(cap(casa(m)).toUpperCase(),290,680);
+  c.fillStyle=ospite(m)==="MILAN"?"#d0021b":"#f4f1ea";c.fillText(cap(ospite(m)).toUpperCase(),790,680);
+  c.fillStyle="#f4f1ea";c.font="320px Anton";c.fillText(`${r.h}-${r.a}`,540,1010);
+  const lab={V:"VITTORIA",N:"PAREGGIO",P:"SCONFITTA"}[r.e],col={V:"#3ddc84",N:"#d9ad55",P:"#d0021b"}[r.e];
+  c.font="800 34px Inter";const w=c.measureText(lab).width+60;rr(c,540-w/2,1100,w,64,32);c.fillStyle=col;c.fill();c.fillStyle=r.e==="P"?"#fff":"#111";c.fillText(lab,540,1144);
+  footer(c,m);
+ },
+ async formazione(c,m){
+  const xi=xiOf(m);if(!xi.p.some(Boolean))throw new Error("Prepara prima la formazione");
+  await frame(c,"FORMAZIONE · "+xi.mod);
+  const X=110,Y=270,W=860,H=930;
+  rr(c,X,Y,W,H,36);c.fillStyle="rgba(15,22,16,.85)";c.fill();c.lineWidth=4;c.strokeStyle="rgba(255,255,255,.16)";c.stroke();
+  c.beginPath();c.moveTo(X,Y+H/2);c.lineTo(X+W,Y+H/2);c.stroke();c.beginPath();c.arc(X+W/2,Y+H/2,110,0,7);c.stroke();
+  c.strokeRect(X+W*.22,Y,W*.56,H*.15);c.strokeRect(X+W*.22,Y+H*.85,W*.56,H*.15);
+  MODS[xi.mod].forEach(([px,py],i)=>{
+   const n=xi.p[i],cx=X+W*px/100,cy=Y+H*py/100;
+   c.save();c.beginPath();c.arc(cx,cy,46,0,7);c.clip();c.fillStyle=i===0?"#5c4116":"#111";c.fillRect(cx-46,cy-46,92,92);c.fillStyle=i===0?"#d9ad55":"#d0021b";c.beginPath();c.moveTo(cx-46,cy-46);c.lineTo(cx+46,cy-46);c.lineTo(cx-46,cy+46);c.fill();c.restore();
+   c.lineWidth=4;c.strokeStyle="rgba(255,255,255,.35)";c.beginPath();c.arc(cx,cy,46,0,7);c.stroke();
+   c.textAlign="center";c.textBaseline="middle";c.fillStyle=i===0?"#111":"#fff";c.font="40px Anton";c.fillText(n||"?",cx,cy+2);
+   c.textBaseline="alphabetic";const name=(n?PL[n].name:"").toUpperCase();c.font="800 24px Inter";const w=c.measureText(name).width+20;
+   if(name){rr(c,cx-w/2,cy+56,w,36,8);c.fillStyle="rgba(0,0,0,.75)";c.fill();c.fillStyle="#f4f1ea";c.fillText(name,cx,cy+82)}
+  });
+  c.textAlign="center";c.fillStyle="#d9ad55";c.font="800 30px Inter";c.fillText(`${titolo(m).toUpperCase()} · ALL. ${COACH.toUpperCase()}`,540,1268);
+ },
+ async pagelle(c,m){
+  const v=votesOf(m),list=votedList(m,v).slice(0,16);if(!list.length)throw new Error("Inserisci prima i voti");
+  await frame(c,"PAGELLE");
+  const r=res(m);c.textAlign="left";c.fillStyle="#f4f1ea";c.font="64px Anton";c.fillText(r?resLine(m).toUpperCase():titolo(m).toUpperCase(),70,320);
+  const top=360,rowH=Math.min(54,(1210-top)/list.length);
+  list.forEach(([n,val],i)=>{
+   const y=top+i*rowH,mvp=v.mvp==n;
+   if(mvp){rr(c,60,y+4,960,rowH-8,14);c.fillStyle="rgba(217,173,85,.18)";c.fill()}
+   c.textBaseline="middle";c.textAlign="left";c.fillStyle="#8b8781";c.font=`${rowH*.55}px Anton`;c.fillText(n,84,y+rowH/2+2);
+   c.fillStyle=mvp?"#d9ad55":"#f4f1ea";c.font=`800 ${rowH*.5}px Inter`;c.fillText(PL[n].name.toUpperCase()+(mvp?"  ★":""),170,y+rowH/2+2);
+   c.textAlign="right";c.fillStyle=val>=7?"#3ddc84":val>=6?"#d9ad55":"#ff4d5e";c.font=`${rowH*.7}px Anton`;c.fillText(fmtV(val),996,y+rowH/2+2);
+  });
+  c.textBaseline="alphabetic";footer(c,m);
+ }
+};
+let lastBlob=null,lastName="";
+document.querySelector(".gfx").addEventListener("click",async e=>{
+ const b=e.target.closest(".gbtn");if(!b)return;
+ const cv=document.createElement("canvas");cv.width=1080;cv.height=1350;const c=cv.getContext("2d");
+ try{
+  await Promise.all([document.fonts.load("120px Anton"),document.fonts.load("800 30px Inter")]);
+  await G[b.dataset.g](c,stM);
+ }catch(err){toast(err.message||"Errore");return}
+ lastBlob=await new Promise(ok=>cv.toBlob(ok,"image/png"));lastName=`tana-${b.dataset.g}-${stM.avv.toLowerCase()}.png`;
+ const url=URL.createObjectURL(lastBlob);
+ $("sheetBody").innerHTML=`<img class="preview" src="${url}" alt=""><div class="row2"><button class="btn gold" id="gShare">Condividi</button><a class="btn" href="${url}" download="${lastName}">Scarica</a></div>`;
+ $("gShare").onclick=async()=>{const f=new File([lastBlob],lastName,{type:"image/png"});if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f]})}catch(_){}}else{const a=document.createElement("a");a.href=url;a.download=lastName;a.click()}};
+ openSheet();
+});
+
+/* ================= AVVIO ================= */
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target);if(e.target.closest("#stats"))statsSeen=true}}),{rootMargin:"0px 0px -8% 0px"});
+pickNext();stM=defaultStudio();
+renderNext();renderPlan();renderStudio();renderStats();
 document.querySelectorAll("[data-r]").forEach(e=>io.observe(e));
 const startM=next.k.getFullYear()*12+next.k.getMonth();
-renderMonth(startM,true);
-centerTab(monthsEl.querySelector(`[data-m="${startM}"]`),false);
+renderMonth(startM,true);centerTab(monthsEl.querySelector(`[data-m="${startM}"]`),false);
+initSync();pushState();
+if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
 
-/* ---------- moneta 3D ---------- */
-const coin=document.getElementById("coin");
+/* moneta 3D */
+const coin=$("coin");
 coin.innerHTML='<div class="face back"></div>'+Array.from({length:17},(_,i)=>`<div class="edge" style="transform:translateZ(${i-8}px);filter:brightness(${.7+.3*Math.abs(Math.cos(i/3))})"></div>`).join("")+'<div class="face front"></div>';
-
-/* moneta: gira da sola, si trascina col dito, un tocco la fa girare forte */
 (()=>{
  const st=document.querySelector(".stage"),idle=matchMedia("(prefers-reduced-motion: reduce)").matches?0:.45;
  let ang=0,vel=idle,drag=false,lx=0,moved=0;
@@ -467,14 +901,13 @@ coin.innerHTML='<div class="face back"></div>'+Array.from({length:17},(_,i)=>`<d
  (function loop(){if(!drag){vel+=(idle-vel)*.025;ang+=vel}coin.style.transform=`rotateY(${ang}deg)`;requestAnimationFrame(loop)})();
 })();
 
-/* ---------- motion legato allo scroll ---------- */
+/* motion legato allo scroll */
 const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
-const heroBg=document.getElementById("heroBg"),heroIn=document.getElementById("heroIn"),tilt=document.getElementById("tilt");
-const city=document.getElementById("city"),cityImg=document.getElementById("cityImg"),cityTxt=document.getElementById("cityTxt");
-const navLinks=[...document.querySelectorAll(".nav a")],secs=navLinks.map(a=>document.getElementById(a.dataset.s));
+const heroBg=$("heroBg"),heroIn=$("heroIn"),tilt=$("tilt"),city=$("city"),cityImg=$("cityImg"),cityTxt=$("cityTxt");
+const navLinks=[...document.querySelectorAll(".nav a")],secs=navLinks.map(a=>$(a.dataset.s));
 let px=0,py=0,ticking=false;
 const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v));
-function frame(){
+function onFrame(){
  ticking=false;
  const y=scrollY,vh=innerHeight,p=clamp(y/vh);
  document.body.classList.toggle("scrolled",y>vh*.6);
@@ -483,8 +916,7 @@ function frame(){
   heroIn.style.transform=`translateY(${y*.15}px) scale(${1-p*.25})`;
   heroIn.style.opacity=1-p*1.2;
   tilt.style.transform=`rotateX(${py*-14+p*50}deg) rotateY(${px*18}deg) translateZ(${p*-120}px)`;
-  const r=city.getBoundingClientRect(),cp=clamp(-r.top/(r.height-vh));
-  const ins=(1-cp*1.6);const k=clamp(ins);
+  const r=city.getBoundingClientRect(),cp=clamp(-r.top/(r.height-vh)),k=clamp(1-cp*1.6);
   cityImg.style.clipPath=`inset(${18*k}% ${14*k}% ${18*k}% ${14*k}% round ${28*k}px)`;
   cityImg.style.transform=`scale(${1.25-.25*clamp(cp*1.6)})`;
   cityTxt.style.transform=`translateY(${(cp-.5)*-120}px) scale(${.9+cp*.3})`;
@@ -493,14 +925,12 @@ function frame(){
  let cur=-1;secs.forEach((s,i)=>{if(s.getBoundingClientRect().top<vh*.45)cur=i});
  navLinks.forEach((a,i)=>a.classList.toggle("on",i===cur));
 }
-const req=()=>{if(!ticking){ticking=true;requestAnimationFrame(frame)}};
+const req=()=>{if(!ticking){ticking=true;requestAnimationFrame(onFrame)}};
 addEventListener("scroll",req,{passive:true});addEventListener("resize",req);
 addEventListener("pointermove",e=>{if(e.pointerType!=="mouse")return;px=e.clientX/innerWidth-.5;py=e.clientY/innerHeight-.5;req()});
-frame();
-
-/* tilt 3D sulle card con il dito / mouse */
+onFrame();
 document.querySelectorAll(".next,.tool").forEach(c=>{
- c.addEventListener("pointermove",e=>{const r=c.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;c.style.transform=`perspective(700px) rotateY(${x*10}deg) rotateX(${-y*10}deg)`});
+ c.addEventListener("pointermove",e=>{if(!c.classList.contains("in"))return;const r=c.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;c.style.transform=`perspective(700px) rotateY(${x*10}deg) rotateX(${-y*10}deg)`});
  c.addEventListener("pointerleave",()=>c.style.transform="");
 });
 </script>
