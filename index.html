@@ -609,6 +609,7 @@ body.intro-on{overflow:hidden}
         <div class="gfx">
           <button class="gbtn" data-g="matchday"><span>🗓️</span>Matchday</button>
           <button class="gbtn" data-g="formazione"><span>📋</span>Formazione</button>
+          <button class="gbtn" data-g="primotempo"><span>⏱️</span>Primo tempo</button>
           <button class="gbtn" data-g="risultato"><span>🏁</span>Risultato</button>
           <button class="gbtn" data-g="pagelle"><span>⭐</span>Pagelle</button>
           <button class="gbtn" data-g="topflop"><span>🔥</span>Top e flop</button>
@@ -815,6 +816,7 @@ const ICO_LOCK='<svg viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="1
 const BELL='<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>';
 const IC={
  check:'<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg>',
+ img:'<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>',
  copy:'<svg viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>',
  search:'<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>'
 };
@@ -893,14 +895,15 @@ const STEPS=[
 ];
 function caption(m,key,tpl){
  const own=!tpl&&store.get(m.id+":"+key+":txt");if(own)return own;
- const s=STEPS.find(x=>x[0]===key),r=["fin","pag","top"].includes(key)&&resLine(m);
+ const s=STEPS.find(x=>x[0]===key),r=key==="pt"?((golsOf(m).length||!res(m))?htLine(m):""):["fin","pag","top"].includes(key)&&resLine(m);
  let extra="";
  if(key==="uff"||key==="prob"){const xi=xiOf(m);if(xi.p.some(Boolean))extra="\n\n"+xiText(xi)}
  if(key==="top"){const t=tfMatchBody(m);if(t)extra="\n\n"+t}
- if(key==="fin"||key==="pt"){const a=golLine(m,"m"),b=golLine(m,"o");if(a||b)extra="\n\n"+(a?`⚽ Milan: ${a}`:"")+(a&&b?"\n":"")+(b?`⚽ ${nm(m.avv)}: ${b}`:"")}
+ if(key==="fin"||key==="pt"){const only=key==="pt"?half:null,a=golLine(m,"m",only),b=golLine(m,"o",only);if(a||b)extra="\n\n"+(a?`⚽ Milan: ${a}`:"")+(a&&b?"\n":"")+(b?`⚽ ${nm(m.avv)}: ${b}`:"")}
  if(key==="pag"){const v=votesOf(m);const list=votedList(m,v);if(list.length||v.coach!=null||v.team!=null)extra="\n\n"+list.map(([n,val])=>`${PL[n].name} ${fmtV(val)}${v.mvp==n?" ⭐":""}`).join("\n")+(v.coach!=null?`\n\nAll. ${COACH} ${fmtV(v.coach)}`:"")+(v.team!=null?`\nSquadra ${fmtV(v.team)}`:"")}
  return `${s[1]} ${s[5]} | ${titolo(m).toUpperCase()}\n${r?r.toUpperCase():m.comp+(m.stadio?" · "+m.stadio:"")+" · "+quando(m.k)}${extra}\n\n${TAGS} ${tagH(m)} #tanadeldiavolo`;
 }
+const PGFX={pre:"matchday",prob:"formazione",uff:"formazione",pt:"primotempo",fin:"risultato",pag:"pagelle",top:"topflop"};
 function planHTML(m){
  let flagged=false;
  return STEPS.map(([key,emo,name,fn,query])=>{
@@ -912,7 +915,7 @@ function planHTML(m){
   return `<div class="item ${cls}" data-k="${k}" data-m="${m.i}" data-s="${key}">
    <button class="chk" aria-label="Pubblicato">${IC.check}</button>
    <div class="txt"><b>${emo} ${name}${txt?"<em>✎</em>":""}</b><small>${quando(d)}</small></div>
-   <div class="acts"><button class="ic cp" aria-label="Copia caption">${IC.copy}</button><a class="ic" aria-label="Cerca" target="_blank" rel="noopener" href="${q(query+" Milan "+m.avv)}">${IC.search}</a></div>
+   <div class="acts">${PGFX[key]?`<button class="ic pg" aria-label="Grafica">${IC.img}</button>`:""}<button class="ic cp" aria-label="Copia caption">${IC.copy}</button><a class="ic" aria-label="Cerca" target="_blank" rel="noopener" href="${q(query+" Milan "+m.avv)}">${IC.search}</a></div>
    <div class="ed"><textarea data-k="${k}" placeholder="${esc(caption(m,key,true))}">${esc(txt)}</textarea></div>
   </div>`}).join("");
 }
@@ -1250,14 +1253,17 @@ const golsOf=m=>store.json(m.id+":gol",[]).filter(g=>g&&(g.t==="m"||g.t==="o"));
 const minN=s=>{const [a,b]=String(s||"0").split("+");return (+a||0)+(+b||0)/100};
 const golWho=g=>g.t==="m"?(g.og?(g.p||"?"):(PL[g.n]?PL[g.n].name:"?")):(g.og?(PL[g.n]?PL[g.n].name:(g.p||"?")):(g.p||"?"));
 const golTag=g=>(g.pen?" (rig.)":"")+(g.og?" (aut.)":"");
-function golGroups(m,side){
+const half=g=>minN(g.min)<46;
+function htOf(m){const gl=golsOf(m).filter(half),mg=gl.filter(g=>g.t==="m").length,og=gl.filter(g=>g.t==="o").length;return casa(m)==="MILAN"?{h:mg,a:og}:{h:og,a:mg}}
+const htLine=m=>{const x=htOf(m);return `${nm(casa(m))} ${x.h}-${x.a} ${nm(ospite(m))}`};
+function golGroups(m,side,only){
  const out=[],by={};
- golsOf(m).filter(g=>g.t===side).sort((a,b)=>minN(a.min)-minN(b.min)).forEach(g=>{
+ golsOf(m).filter(g=>g.t===side&&(!only||only(g))).sort((a,b)=>minN(a.min)-minN(b.min)).forEach(g=>{
   const k=golWho(g)+golTag(g);if(!by[k]){by[k]={who:golWho(g),tag:golTag(g),mins:[]};out.push(by[k])}by[k].mins.push((g.min||"?")+"'");
  });
  return out;
 }
-const golLine=(m,side)=>golGroups(m,side).map(x=>`${x.who} ${x.mins.join(", ")}${x.tag}`).join(", ");
+const golLine=(m,side,only)=>golGroups(m,side,only).map(x=>`${x.who} ${x.mins.join(", ")}${x.tag}`).join(", ");
 function golsHTML(m){
  const list=golsOf(m).map((g,i)=>[g,i]).sort((a,b)=>minN(a[0].min)-minN(b[0].min));
  return `<div class="gols">${list.map(([g,i])=>`<button class="gchip ${g.t}" data-g="${i}" data-m="${m.i}"><b>${esc(g.min||"?")}'</b>${esc(golWho(g))}${g.pen?" ·R":""}${g.og?" ·AG":""}${g.t==="m"&&g.a&&PL[g.a]?`<i>${esc(PL[g.a].name)}</i>`:""}</button>`).join("")}<button class="gchip add" data-m="${m.i}">+ Gol</button></div>`;
@@ -1403,6 +1409,7 @@ document.addEventListener("click",async e=>{
  const b1=e.target.closest(".ics1");if(b1){downloadICS([M[+b1.dataset.m]]);return}
  const s1=e.target.closest(".studio1");if(s1){stM=M[+s1.dataset.m];renderStudio();$("studio").scrollIntoView({behavior:"smooth"});return}
  const it=e.target.closest(".item");if(!it)return;
+ const pgb=e.target.closest(".pg");if(pgb){stM=M[+it.dataset.m];renderStudio();renderTF();makeGfx(PGFX[it.dataset.s]);return}
  if(e.target.closest(".txt")){it.classList.toggle("edit");if(it.classList.contains("edit"))it.querySelector("textarea").focus({preventScroll:true});return}
  if(e.target.closest(".chk")){
   const on=!it.classList.contains("done");store.set(it.dataset.k,on);
@@ -1544,21 +1551,15 @@ const G={
  },
  async risultato(c,m){
   const r=res(m);if(!r)throw new Error("Inserisci prima il risultato");
-  await frame(c,"FINALE");
-  cshirt(c,casa(m),290,440,150);cshirt(c,ospite(m),790,440,150);
-  c.textAlign="center";c.font="56px Anton";c.fillStyle=casa(m)==="MILAN"?"#d0021b":"#f4f1ea";c.fillText(nm(casa(m)).toUpperCase(),290,600);
-  c.fillStyle=ospite(m)==="MILAN"?"#d0021b":"#f4f1ea";c.fillText(nm(ospite(m)).toUpperCase(),790,600);
-  const sideOf=t=>t==="MILAN"?"m":"o";
-  [[casa(m),290],[ospite(m),790]].forEach(([t,x])=>{
-   const gr=golGroups(m,sideOf(t));let lines=gr.map(g=>`${g.who} ${g.mins.join(" ")}${g.tag}`.toUpperCase());
-   if(lines.length>4)lines=[...lines.slice(0,3),"+"+(lines.length-3)+" ALTRI"];
-   c.font="700 26px Inter";c.fillStyle="rgba(244,241,234,.78)";
-   lines.forEach((l,i)=>{let fs=26;while(fs>18&&(c.font=`700 ${fs}px Inter`,c.measureText(l).width>440))fs--;c.fillText(l,x,646+i*36)});
-  });
-  c.font="700 26px Inter";
-  c.fillStyle="#f4f1ea";c.font="300px Anton";c.fillText(`${r.h}-${r.a}`,540,1040);
+  await drawScore(c,m,"FINALE",r,null);
   if(r.e!=="P"){const lab=r.e==="V"?"VITTORIA":"PAREGGIO",col=r.e==="V"?"#3ddc84":"#d9ad55";
    c.font="800 34px Inter";const w=c.measureText(lab).width+60;rr(c,540-w/2,1100,w,64,32);c.fillStyle=col;c.fill();c.fillStyle="#111";c.fillText(lab,540,1144)}
+  footer(c,m);
+ },
+ async primotempo(c,m){
+  const r=res(m);if(r&&!golsOf(m).length&&(r.h||r.a))throw new Error("Inserisci i gol per calcolare il primo tempo");
+  await drawScore(c,m,"PRIMO TEMPO",htOf(m),half);
+  const lab="FINE PRIMO TEMPO";c.font="800 34px Inter";const w=c.measureText(lab).width+60;rr(c,540-w/2,1100,w,64,32);c.fillStyle="#d9ad55";c.fill();c.fillStyle="#111";c.fillText(lab,540,1144);
   footer(c,m);
  },
  async formazione(c,m){
@@ -1668,6 +1669,19 @@ const G={
   c.textBaseline="alphabetic";c.textAlign="center";c.fillStyle="#8b8781";c.font="700 30px Inter";c.fillText("AGGIORNATA AL "+quando(now).split(" · ")[0].toUpperCase(),540,1286);
  }
 };
+async function drawScore(c,m,label,sc,only){
+ await frame(c,label);
+ cshirt(c,casa(m),290,440,150);cshirt(c,ospite(m),790,440,150);
+ c.textAlign="center";c.textBaseline="alphabetic";c.font="56px Anton";c.fillStyle=casa(m)==="MILAN"?"#d0021b":"#f4f1ea";c.fillText(nm(casa(m)).toUpperCase(),290,600);
+ c.fillStyle=ospite(m)==="MILAN"?"#d0021b":"#f4f1ea";c.fillText(nm(ospite(m)).toUpperCase(),790,600);
+ [[casa(m),290],[ospite(m),790]].forEach(([t,x])=>{
+  let lines=golGroups(m,t==="MILAN"?"m":"o",only).map(g=>`${g.who} ${g.mins.join(" ")}${g.tag}`.toUpperCase());
+  if(lines.length>4)lines=[...lines.slice(0,3),"+"+(lines.length-3)+" ALTRI"];
+  c.fillStyle="rgba(244,241,234,.78)";
+  lines.forEach((l,i)=>{let fs=26;while(fs>18&&(c.font=`700 ${fs}px Inter`,c.measureText(l).width>440))fs--;c.fillText(l,x,646+i*36)});
+ });
+ c.fillStyle="#f4f1ea";c.font="300px Anton";c.fillText(`${sc.h}-${sc.a}`,540,1040);
+}
 let lastBlob=null,lastName="";
 async function storyOf(src){
  const cv=document.createElement("canvas");cv.width=1080;cv.height=1920;const c=cv.getContext("2d");
