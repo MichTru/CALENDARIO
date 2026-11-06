@@ -292,13 +292,23 @@ details.more[open] summary::after{content:" −"}
 .stat.green b{color:var(--green)}.stat.goldc b{color:var(--gold)}.stat.redc b{color:#ff5a6b}
 
 /* CITY */
-.city{position:relative;height:220vh;margin-top:50px}
-.city-in{position:sticky;top:0;height:100svh;overflow:hidden;display:grid;place-items:center}
-.city-img{position:absolute;inset:0;background:url(assets/milano.jpg) center/cover;will-change:clip-path,transform;clip-path:inset(18% 14% 18% 14% round 28px)}
-.city-txt{position:relative;z-index:1;text-align:center;font-size:clamp(44px,12.5vw,120px);will-change:transform,opacity;text-shadow:0 6px 30px rgba(0,0,0,.6)}
-.city-txt span{display:block}
+.city{margin-top:50px;padding:0 14px}
+.city-in{position:relative;height:min(76svh,620px);max-width:1080px;margin:0 auto;border-radius:32px;overflow:hidden;display:grid;place-items:center;border:1px solid var(--edge);box-shadow:0 30px 70px rgba(0,0,0,.5)}
+.city-img{position:absolute;inset:-8%;background:url(assets/milano.jpg) center/cover}
+.city-in::before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(6,6,6,.15),rgba(6,6,6,.55) 70%,rgba(6,6,6,.85))}
+.city-in::after{content:"";position:absolute;inset:-50% -120%;z-index:1;background:linear-gradient(105deg,transparent 42%,rgba(208,2,27,.38) 50%,transparent 58%);transform:translateX(-60%)}
+.city-txt{position:relative;z-index:2;text-align:center;font-size:clamp(44px,12.5vw,120px);text-shadow:0 6px 30px rgba(0,0,0,.6)}
+.city-txt span{display:block;opacity:0}
 .city-txt .r{color:var(--red)}
 .city-txt .o{color:transparent;-webkit-text-stroke:2px #fff}
+.city.play .city-img{animation:kb 9s ease-in-out infinite alternate}
+.city.play .city-in::after{animation:sweep 6s cubic-bezier(.6,0,.3,1) infinite}
+.city.play .city-txt .o{animation:cityL 6s cubic-bezier(.2,.8,.2,1) infinite}
+.city.play .city-txt .r{animation:cityR 6s cubic-bezier(.2,.8,.2,1) .18s infinite}
+@keyframes kb{0%{transform:scale(1) translate(0,0)}100%{transform:scale(1.16) translate(-3%,2%)}}
+@keyframes sweep{0%,30%{transform:translateX(-60%)}60%,100%{transform:translateX(60%)}}
+@keyframes cityL{0%{opacity:0;transform:translateX(-14%);letter-spacing:.18em;filter:blur(6px)}14%{opacity:1;transform:none;letter-spacing:.02em;filter:none}78%{opacity:1;transform:none}92%,100%{opacity:0;transform:translateY(-18px)}}
+@keyframes cityR{0%{opacity:0;transform:translateX(14%) scale(.96);filter:blur(6px)}14%{opacity:1;transform:none;filter:none}78%{opacity:1;transform:none}92%,100%{opacity:0;transform:translateY(-18px)}}
 
 /* STRUMENTI */
 .tools{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -319,6 +329,39 @@ footer p{margin-top:10px;font-family:Anton,sans-serif;letter-spacing:2px;text-tr
 .nav svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 @media (max-width:899px){.nav{left:50%;bottom:calc(14px + env(safe-area-inset-bottom));transform:translate(-50%,160%)}body.scrolled .nav{transform:translate(-50%,0)}}
 @media (min-width:900px){.nav{left:22px;top:50%;flex-direction:column;transform:translate(-160%,-50%)}body.scrolled .nav{transform:translate(0,-50%)}.wrap{padding-left:100px}}
+
+/* MENU */
+.nav-menu{display:grid;place-items:center;width:52px;height:52px;border-radius:50%;color:#fff;background:linear-gradient(135deg,var(--red),var(--red2));box-shadow:0 6px 18px rgba(208,2,27,.45);transition:scale .2s}
+.nav-menu:active{scale:.9}
+.nav-menu svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linejoin:round}
+.top .me{cursor:pointer}
+.menu{position:fixed;inset:0;z-index:140;overflow:hidden;background:radial-gradient(70% 50% at 50% 50%,rgba(208,2,27,.22),transparent 70%),rgba(4,4,4,.94);opacity:0;transition:opacity .35s;-webkit-user-select:none;user-select:none;touch-action:none}
+.menu[hidden]{display:none}
+.menu.on{opacity:1}
+.mn-stage{position:absolute;inset:0;display:grid;place-items:center;perspective:1100px;cursor:grab}
+.mn-stage:active{cursor:grabbing}
+.mn-ring{position:relative;width:var(--cw);height:var(--ch);transform-style:preserve-3d;transition:scale .6s cubic-bezier(.2,.8,.2,1);scale:.72}
+.menu.on .mn-ring{scale:1}
+.mn-card{position:absolute;inset:0;border-radius:28px;overflow:hidden;text-align:left;color:#fff;backface-visibility:hidden;will-change:transform,opacity,filter;
+ -webkit-mask:radial-gradient(130% 9% at 50% 0,#0000 97%,#000) top/100% 51% no-repeat,radial-gradient(130% 9% at 50% 100%,#0000 97%,#000) bottom/100% 51% no-repeat;
+ mask:radial-gradient(130% 9% at 50% 0,#0000 97%,#000) top/100% 51% no-repeat,radial-gradient(130% 9% at 50% 100%,#0000 97%,#000) bottom/100% 51% no-repeat}
+.mn-bg{position:absolute;inset:0}
+.mn-bg::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.05) 30%,rgba(0,0,0,.82))}
+.v-photo .mn-bg{background:url(assets/milano.jpg) center/cover}
+.v-photo .mn-bg::before{content:"";position:absolute;inset:0;background:linear-gradient(160deg,rgba(208,2,27,.55),transparent 60%)}
+.v-smoke .mn-bg{background:url(assets/smoke.jpg) center/cover}
+.v-stripes .mn-bg{background:repeating-linear-gradient(90deg,#b80018 0 34px,#0b0b0b 34px 68px)}
+.v-gold .mn-bg{background:radial-gradient(80% 60% at 50% 30%,rgba(217,173,85,.45),transparent 70%),#0b0b0b}
+.v-gold .mn-bg::before{content:"";position:absolute;left:50%;top:18%;width:60%;aspect-ratio:1;transform:translateX(-50%);background:url(assets/logo.png) center/contain no-repeat;opacity:.9}
+.mn-ico{position:absolute;top:22px;left:22px;font-size:40px;filter:drop-shadow(0 6px 14px rgba(0,0,0,.6))}
+.v-gold .mn-ico{display:none}
+.mn-txt{position:absolute;left:22px;right:22px;bottom:30px}
+.mn-txt b{display:block;font-family:Anton,Impact,sans-serif;text-transform:uppercase;font-size:clamp(30px,9vw,44px);line-height:.95;letter-spacing:.5px}
+.mn-txt small{display:block;margin-top:8px;font-size:13px;font-weight:700;color:rgba(255,255,255,.75)}
+.mn-card.front{box-shadow:inset 0 0 0 2px rgba(217,173,85,.7)}
+.mn-close{position:absolute;top:calc(18px + env(safe-area-inset-top));right:18px;width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+.mn-close svg{width:20px;height:20px;stroke:#fff;fill:none;stroke-width:2.2;stroke-linecap:round}
+body.menu-on{overflow:hidden}
 
 /* SHEET */
 .sheet{position:fixed;inset:0;z-index:150;background:rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .25s;display:flex;align-items:flex-end}
@@ -448,7 +491,7 @@ body.intro-on{overflow:hidden}
 @media (prefers-reduced-motion:reduce){
   .ind{transition:none}.ind.jump,.nav a.on svg{animation:none}
   [data-r]{opacity:1;transform:none;transition:none}
-  .city{height:auto}.city-in{position:relative;height:70svh}.city-img{clip-path:none}
+  .city-txt span{opacity:1}.city.play .city-img,.city.play .city-in::after,.city.play .city-txt span{animation:none}
 }
 </style>
 </head>
@@ -597,11 +640,11 @@ body.intro-on{overflow:hidden}
 
   <section class="block" id="bilancio">
     <div class="head" data-r><div><div class="eyebrow">Bilancio</div><h2 class="display">Stagione 26/27</h2></div></div>
+    <div class="pills glass" id="rnF" data-r style="--d:.04s;margin-bottom:12px"><button data-c="" class="on">Totale</button><button data-c="Serie A">Serie A</button><button data-c="Europa League">Europa League</button><button data-c="Coppa Italia">Coppa Italia</button></div>
     <div class="glass panel" data-r style="--d:.06s"><div id="stats"></div></div>
     <div class="glass panel" data-r style="--d:.1s;margin-top:12px">
       <div class="inf-head"><div class="w-label" style="margin:0">⚽ Marcatori</div>
         <div class="bar"><button class="btn" id="scCopy"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>Caption</button><button class="btn" id="scGfx"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>Grafica</button></div></div>
-      <div class="pills glass" id="scF" style="margin-bottom:12px"><button data-c="" class="on">Tutte</button><button data-c="Serie A">Serie A</button><button data-c="Europa League">Europa</button><button data-c="Coppa Italia">Coppa</button></div>
       <div class="shead"><span></span><b style="font-weight:800">Giocatore</b><span>Gol</span><span>Ass.</span></div>
       <div id="scorers"></div>
     </div>
@@ -630,7 +673,13 @@ body.intro-on{overflow:hidden}
   <a href="#studio" data-s="studio" aria-label="Studio"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 12h18"/><circle cx="12" cy="12" r="3"/></svg></a>
   <a href="#calendario" data-s="calendario" aria-label="Calendario"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg></a>
   <a href="#bilancio" data-s="bilancio" aria-label="Bilancio"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></a>
+  <button class="nav-menu" id="menuBtn" aria-label="Menu"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg></button>
 </nav>
+
+<div class="menu" id="menu" hidden>
+  <div class="mn-stage" id="mnStage"><div class="mn-ring" id="mnRing"></div></div>
+  <button class="mn-close" id="mnClose" aria-label="Chiudi"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+</div>
 
 <div class="sheet" id="sheet"><div class="sheet-in glass"><div class="grab"></div><div id="sheetBody"></div></div></div>
 <div class="toast" id="toast"></div>
@@ -1272,7 +1321,7 @@ function renderScorers(){
  const rows=scorerTable();
  el.innerHTML=rows.length?rows.map((r,i)=>`<div class="srow">${kit(r.n)}<div><b>${PL[r.n].name}</b><small>${RUOLO[PL[r.n].r]}${r.pen?` · ${r.pen} rig.`:""}</small></div><span class="sg">${r.g}</span><span class="sa">${r.a}</span></div>`).join(""):`<div class="inf-empty">Nessun gol inserito</div>`;
 }
-$("scF").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;scF=b.dataset.c;$("scF").querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));renderScorers()});
+$("rnF").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;scF=b.dataset.c;$("rnF").querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));renderStats();renderScorers()});
 $("scCopy").onclick=()=>{const r=scorerTable().filter(x=>x.g);if(!r.length){toast("Nessun gol inserito");return}
  copyText(`⚽ CLASSIFICA MARCATORI ROSSONERI\n${scF||"Tutte le competizioni"}\n\n${r.map((x,i)=>`${i+1}. ${PL[x.n].name} ${x.g}${x.a?` (${x.a} assist)`:""}`).join("\n")}\n\n${TAGS} #marcatori #milan #tanadeldiavolo`)};
 $("scGfx").onclick=()=>makeGfx("marcatori");
@@ -1330,14 +1379,15 @@ async function copyText(txt){
 
 /* ================= BILANCIO ================= */
 function renderStats(){
- const played=M.filter(m=>res(m)).map(m=>[m,res(m)]);
+ const played=M.filter(m=>(!scF||m.comp===scF)&&res(m)).map(m=>[m,res(m)]);
  const c={V:0,N:0,P:0},gf=played.reduce((s,[,r])=>s+r.mg,0),gs=played.reduce((s,[,r])=>s+r.og,0);
  played.forEach(([,r])=>c[r.e]++);
- const pts=played.filter(([m])=>m.comp==="Serie A").reduce((s,[,r])=>s+(r.e==="V"?3:r.e==="N"?1:0),0);
+ const hasPts=scF==="Serie A"||scF==="Europa League";
+ const pts=hasPts?played.reduce((s,[,r])=>s+(r.e==="V"?3:r.e==="N"?1:0),0):played.length;
  const last=played.slice(-5);
  const forma=Array.from({length:5},(_,i)=>{const x=last[i];return x?`<i class="${x[1].e}" title="${titolo(x[0])} ${x[1].h}-${x[1].a}">${x[1].e}</i>`:'<i class="x">–</i>'}).join("");
  $("stats").innerHTML=`<div class="stats">
-  <div class="tile stat big"><div><small>Punti Serie A</small><b>${pts}</b></div><div><small>Forma</small><div class="forma" style="margin-top:8px">${forma}</div></div></div>
+  <div class="tile stat big"><div><small>${hasPts?"Punti "+scF:"Partite giocate"}</small><b>${pts}</b></div><div><small>Forma</small><div class="forma" style="margin-top:8px">${forma}</div></div></div>
   <div class="tile stat green"><b>${c.V}</b><small>Vittorie</small></div>
   <div class="tile stat goldc"><b>${c.N}</b><small>Pareggi</small></div>
   <div class="tile stat redc"><b>${c.P}</b><small>Sconfitte</small></div>
@@ -1687,6 +1737,82 @@ function tabInd(box){
 }
 document.querySelectorAll(".pills,.nav").forEach(tabInd);
 
+/* ================= MENU SCORCIATOIE ================= */
+const goTo=id=>{const el=$(id);if(el)el.scrollIntoView({behavior:"smooth",block:"start"})};
+const studioTab=t=>{const b=document.querySelector(`.seg button[data-t="${t}"]`);if(b)b.click();goTo("studio")};
+function menuItems(){
+ const np=nextPost(),inf=infOf(),bd=nextBdays(366)[0],sc=scorerTable()[0];
+ const npS=np?`${STEPS.find(x=>x[0]===np[1])[2]} · ${ora(np[2])}`:"";
+ return [
+  {t:"Prossima",s:`${titolo(next)} · ${quando(next.k)}`,e:"⚽",v:"photo",go:()=>goTo("prossima")},
+  {t:"Piano post",s:npS,e:"📝",v:"stripes",go:()=>goTo("contenuti")},
+  {t:"Formazione",s:titolo(stM),e:"📋",v:"smoke",go:()=>studioTab("xi")},
+  {t:"Pagelle",s:titolo(stM),e:"⭐",v:"gold",go:()=>studioTab("vot")},
+  {t:"Top e flop",s:titolo(stM),e:"🔥",v:"photo",go:()=>studioTab("tf")},
+  {t:"Matchday",s:titolo(next),e:"🗓️",v:"stripes",go:()=>{stM=next;renderStudio();makeGfx("matchday")}},
+  {t:"Ufficiale",s:"Calciomercato",e:"🚨",v:"smoke",go:()=>uffForm()},
+  {t:"Infermeria",s:inf.length?inf.length+(inf.length>1?" giocatori":" giocatore"):"Nessun infortunato",e:"🩹",v:"photo",go:()=>{const el=$("infList");el&&el.scrollIntoView({behavior:"smooth",block:"center"})}},
+  {t:"Compleanni",s:bd?`${PL[bd.n].name} · ${bd.dd===0?"oggi":bd.dt.getDate()+" "+MESI[bd.dt.getMonth()].slice(0,3).toLowerCase()}`:"",e:"🎂",v:"gold",go:()=>{const el=$("bdList");el&&el.scrollIntoView({behavior:"smooth",block:"center"})}},
+  {t:"Calendario",s:`${M.length} partite`,e:"📅",v:"stripes",go:()=>goTo("calendario")},
+  {t:"Bilancio",s:"Stagione 26/27",e:"📊",v:"smoke",go:()=>goTo("bilancio")},
+  {t:"Marcatori",s:sc&&sc.g?`${PL[sc.n].name} · ${sc.g} gol`:"",e:"🥅",v:"photo",go:()=>{const el=$("scorers");el&&el.scrollIntoView({behavior:"smooth",block:"center"})}}
+ ];
+}
+(()=>{
+ const menu=$("menu"),ring=$("mnRing"),stage=$("mnStage");
+ let items=[],N=12,step=30,R0=0,rot=0,vel=0,target=null,drag=null,raf=0,open=false;
+ const norm=a=>((a%360)+540)%360-180;
+ function layout(){
+  const cw=Math.min(innerWidth*.64,300),ch=Math.min(cw*1.32,innerHeight*.62);
+  ring.style.setProperty("--cw",cw+"px");ring.style.setProperty("--ch",ch+"px");
+  R0=(cw/2)/Math.tan(Math.PI/N)*1.06;
+  ring.querySelectorAll(".mn-card").forEach((c,i)=>c.dataset.a=i*step);
+ }
+ function frame(){
+  if(!drag){
+   if(target!=null){rot+=(target-rot)*.12;if(Math.abs(target-rot)<.05){rot=target}}
+   else{vel*=.93;rot+=vel;if(Math.abs(vel)<.25)target=Math.round(rot/step)*step}
+  }
+  ring.style.transform=`translateZ(${-R0}px) rotateY(${-rot}deg)`;
+  ring.querySelectorAll(".mn-card").forEach(c=>{
+   const d=norm(+c.dataset.a-rot),a=Math.abs(d);
+   c.style.transform=`rotateY(${c.dataset.a}deg) translateZ(${R0}px)`;
+   c.style.opacity=a>80?0:1;c.style.filter=`brightness(${1-Math.min(a,90)/140})`;
+   c.style.pointerEvents=a>80?"none":"";c.classList.toggle("front",a<step/2);
+  });
+  if(open)raf=requestAnimationFrame(frame);
+ }
+ window.openMenu=()=>{
+  items=menuItems();N=items.length;step=360/N;
+  ring.innerHTML=items.map((it,i)=>`<button class="mn-card v-${it.v}" data-i="${i}"><span class="mn-bg"></span><span class="mn-ico">${it.e}</span><span class="mn-txt"><b>${it.t}</b>${it.s?`<small>${esc(it.s)}</small>`:""}</span></button>`).join("");
+  layout();menu.hidden=false;document.body.classList.add("menu-on");
+  rot=-step*3;vel=0;target=0;open=true;cancelAnimationFrame(raf);frame();
+  requestAnimationFrame(()=>menu.classList.add("on"));
+ };
+ function close(after){
+  if(!open)return;menu.classList.remove("on");
+  setTimeout(()=>{open=false;cancelAnimationFrame(raf);menu.hidden=true;document.body.classList.remove("menu-on");if(after)after()},330);
+ }
+ stage.addEventListener("pointerdown",e=>{drag={x:e.clientX,y:e.clientY,lx:e.clientX,moved:0,t:e.target};target=null;vel=0;stage.setPointerCapture(e.pointerId)});
+ stage.addEventListener("pointermove",e=>{if(!drag)return;const dx=e.clientX-drag.lx;drag.lx=e.clientX;drag.moved+=Math.abs(dx);const k=step/(parseFloat(ring.style.getPropertyValue("--cw"))||260);rot-=dx*k;vel=-dx*k});
+ const up=e=>{
+  if(!drag)return;const d=drag;drag=null;
+  if(d.moved>8){target=null;return}
+  const card=d.t.closest&&d.t.closest(".mn-card");
+  if(!card){close();return}
+  const i=+card.dataset.i,dd=norm(i*step-rot);
+  if(Math.abs(dd)<step/2){const it=items[i];close(()=>it.go())}
+  else target=rot+dd;
+ };
+ stage.addEventListener("pointerup",up);stage.addEventListener("pointercancel",()=>{drag=null;target=null});
+ stage.addEventListener("wheel",e=>{e.preventDefault();target=null;vel=(Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY)*.04},{passive:false});
+ addEventListener("keydown",e=>{if(!open)return;if(e.key==="Escape")close();if(e.key==="ArrowRight")target=Math.round(rot/step)*step+step;if(e.key==="ArrowLeft")target=Math.round(rot/step)*step-step;if(e.key==="Enter"){const i=((Math.round(rot/step)%N)+N)%N;const it=items[i];close(()=>it.go())}});
+ addEventListener("resize",()=>{if(open)layout()});
+ $("mnClose").onclick=()=>close();
+ $("menuBtn").onclick=()=>openMenu();
+ document.querySelector(".top .me").onclick=()=>openMenu();
+})();
+
 /* moneta 3D */
 const coin=$("coin");
 coin.innerHTML='<div class="face back"></div>'+Array.from({length:17},(_,i)=>`<div class="edge" style="transform:translateZ(${i-8}px);filter:brightness(${.7+.3*Math.abs(Math.cos(i/3))})"></div>`).join("")+'<div class="face front"></div>';
@@ -1702,7 +1828,8 @@ coin.innerHTML='<div class="face back"></div>'+Array.from({length:17},(_,i)=>`<d
 
 /* motion legato allo scroll */
 const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
-const heroBg=$("heroBg"),heroIn=$("heroIn"),tilt=$("tilt"),city=$("city"),cityImg=$("cityImg"),cityTxt=$("cityTxt");
+const heroBg=$("heroBg"),heroIn=$("heroIn"),tilt=$("tilt");
+new IntersectionObserver(es=>es.forEach(e=>$("city").classList.toggle("play",e.isIntersecting))).observe($("city"));
 const navLinks=[...document.querySelectorAll(".nav a")],secs=navLinks.map(a=>$(a.dataset.s));
 let px=0,py=0,ticking=false;
 const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v));
@@ -1715,11 +1842,6 @@ function onFrame(){
   heroIn.style.transform=`translateY(${y*.15}px) scale(${1-p*.25})`;
   heroIn.style.opacity=1-p*1.2;
   tilt.style.transform=`rotateX(${py*-14+p*50}deg) rotateY(${px*18}deg) translateZ(${p*-120}px)`;
-  const r=city.getBoundingClientRect(),cp=clamp(-r.top/(r.height-vh)),k=clamp(1-cp*1.6);
-  cityImg.style.clipPath=`inset(${18*k}% ${14*k}% ${18*k}% ${14*k}% round ${28*k}px)`;
-  cityImg.style.transform=`scale(${1.25-.25*clamp(cp*1.6)})`;
-  cityTxt.style.transform=`translateY(${(cp-.5)*-120}px) scale(${.9+cp*.3})`;
-  cityTxt.style.opacity=clamp(cp*3)*(1-clamp((cp-.75)*4));
  }
  let cur=-1;secs.forEach((s,i)=>{if(s.getBoundingClientRect().top<vh*.45)cur=i});
  navLinks.forEach((a,i)=>a.classList.toggle("on",i===cur));
