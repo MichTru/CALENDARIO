@@ -788,7 +788,7 @@ const store={
  }
 };
 async function flush(){
- if(!sb)return;
+ if(!sb||!PIN||!Object.keys(pending).length)return;
  const ent=Object.entries(pending);Object.keys(pending).forEach(k=>delete pending[k]);
  const ups=ent.filter(([,v])=>v).map(([key,value])=>({key,value,updated_at:new Date().toISOString()}));
  const dels=ent.filter(([,v])=>!v).map(([k])=>k);
