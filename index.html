@@ -1234,9 +1234,14 @@ const G={
   c.strokeRect(X+W*.22,Y,W*.56,H*.15);c.strokeRect(X+W*.22,Y+H*.85,W*.56,H*.15);
   MODS[xi.mod].forEach(([px,py],i)=>{
    const n=xi.p[i],cx=X+W*px/100,cy=Y+H*py/100;
-   if(n)cshirt(c,i===0?"GK":"MILAN",cx,cy,100,n);else{c.lineWidth=3;c.strokeStyle="rgba(255,255,255,.35)";c.beginPath();c.arc(cx,cy,40,0,7);c.stroke()}
-   c.textBaseline="alphabetic";const name=(n?PL[n].name:"").toUpperCase();c.font="800 24px Inter";const w=c.measureText(name).width+20;
-   if(name){rr(c,cx-w/2,cy+56,w,36,8);c.fillStyle="rgba(0,0,0,.75)";c.fill();c.fillStyle="#f4f1ea";c.fillText(name,cx,cy+82)}
+   if(n)cshirt(c,i===0?"GK":"MILAN",cx,cy-6,88,n);else{c.lineWidth=3;c.strokeStyle="rgba(255,255,255,.35)";c.beginPath();c.arc(cx,cy,36,0,7);c.stroke()}
+   const name=(n?PL[n].name:"").toUpperCase();
+   if(name){
+    let fs=24;c.font=`800 ${fs}px Inter`;while(fs>16&&c.measureText(name).width>164){fs--;c.font=`800 ${fs}px Inter`}
+    const w=Math.min(c.measureText(name).width,164)+20;
+    rr(c,cx-w/2,cy+42,w,34,8);c.fillStyle="rgba(0,0,0,.78)";c.fill();
+    c.textAlign="center";c.textBaseline="middle";c.fillStyle="#f4f1ea";c.fillText(name,cx,cy+60,164);c.textBaseline="alphabetic";
+   }
   });
   c.textAlign="center";const xs=xiOf(m).sub;if(xs.length){c.fillStyle="#f4f1ea";c.font="700 24px Inter";c.fillText(("SUBENTRATI: "+xs.map(n=>PL[n].name).join(", ")).toUpperCase(),540,1236)}c.fillStyle="#d9ad55";c.font="800 30px Inter";c.fillText(`${titolo(m).toUpperCase()} · ALL. ${COACH.toUpperCase()}`,540,1286);
  },
