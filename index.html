@@ -1152,7 +1152,7 @@ async function enablePush(){
  if($("pushSwitch").classList.contains("on")){toast("Notifiche già attive");return}
  try{
   const perm=await Notification.requestPermission();if(perm!=="granted"){toast("Permesso negato");return}
-  const reg=await navigator.serviceWorker.register("sw.js");await navigator.serviceWorker.ready;
+  const reg=await navigator.serviceWorker.register("sw.js",{updateViaCache:"none"});await navigator.serviceWorker.ready;
   const sub=(await reg.pushManager.getSubscription())||await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64(VAPID)});
   const json=sub.toJSON();
   if(!sb)throw new Error("offline");
@@ -1322,7 +1322,7 @@ track.innerHTML=LIST().map(cardHTML).join("");
 requestAnimationFrame(()=>{toCard(next.i,false);cfFrame()});
 initSync();pushState();
 
-if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
+if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>r.update()).catch(()=>{});
 
 /* moneta 3D */
 const coin=$("coin");

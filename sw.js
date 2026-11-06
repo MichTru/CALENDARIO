@@ -1,5 +1,17 @@
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", e => e.waitUntil(self.clients.claim()));
+// la pagina arriva sempre fresca dalla rete; la copia salvata serve solo senza connessione
+self.addEventListener("fetch", e => {
+  const r = e.request;
+  if (r.method !== "GET" || new URL(r.url).origin !== location.origin) return;
+  const page = r.mode === "navigate" || /\.(html|js|json)$/.test(new URL(r.url).pathname);
+  if (!page) return;
+  e.respondWith(
+    fetch(r, { cache: "no-store" })
+      .then(res => { const c = res.clone(); caches.open("tdd-v1").then(k => k.put(r, c)); return res; })
+      .catch(() => caches.match(r).then(m => m || Response.error()))
+  );
+});
 self.addEventListener("push", e => {
   let d = {};
   try { d = e.data.json(); } catch (_) { d = { title: "Tana del Diavolo", body: e.data ? e.data.text() : "" }; }
