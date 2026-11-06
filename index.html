@@ -386,7 +386,21 @@ footer p{margin-top:10px;font-family:Anton,sans-serif;letter-spacing:2px;text-tr
 .intro.hit .i-title{animation:iTitle .9s cubic-bezier(.2,.8,.2,1) .25s forwards}
 @keyframes iTitle{0%{opacity:0;letter-spacing:.3em;padding-left:.3em;filter:blur(6px)}100%{opacity:1;letter-spacing:.04em;padding-left:.04em;filter:none}}
 body.intro-on{overflow:hidden}
+
+/* indicatore animato delle schede */
+.pills{position:relative}
+.ind{position:absolute;left:0;top:0;border-radius:999px;background:#f4f1ea;box-shadow:0 6px 16px rgba(0,0,0,.35);z-index:0;pointer-events:none;opacity:0;
+  transition:transform .55s cubic-bezier(.3,1.35,.45,1),width .55s cubic-bezier(.3,1.35,.45,1),height .55s cubic-bezier(.3,1.35,.45,1),opacity .25s;will-change:transform,width}
+.ind.jump{animation:squish .55s cubic-bezier(.3,1,.4,1)}
+@keyframes squish{25%{scale:1.14 .84}55%{scale:.96 1.05}100%{scale:1 1}}
+.has-ind>button,.has-ind>a{position:relative;z-index:1}
+.has-ind>.on{background:transparent!important;box-shadow:none!important}
+.pills button:active,.nav a:active{scale:.92}
+.pills button,.nav a{transition:background .3s,color .3s,scale .2s}
+.nav a.on svg{animation:pop .55s cubic-bezier(.3,1.6,.5,1)}
+@keyframes pop{0%{transform:scale(.55) rotate(-14deg)}100%{transform:none}}
 @media (prefers-reduced-motion:reduce){
+  .ind{transition:none}.ind.jump,.nav a.on svg{animation:none}
   [data-r]{opacity:1;transform:none;transition:none}
   .city{height:auto}.city-in{position:relative;height:70svh}.city-img{clip-path:none}
 }
@@ -1323,6 +1337,32 @@ requestAnimationFrame(()=>{toCard(next.i,false);cfFrame()});
 initSync();pushState();
 
 if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>r.update()).catch(()=>{});
+
+
+/* indicatore animato delle schede: segue il pulsante attivo */
+function tabInd(box){
+ if(box.__ind)return;
+ const ind=document.createElement("span");ind.className="ind";box.prepend(ind);box.classList.add("has-ind");box.__ind=ind;
+ let last=null;
+ const place=()=>{
+  if(ind.parentNode!==box){box.prepend(ind);return}
+  const on=[...box.children].find(c=>c!==ind&&c.classList.contains("on"));
+  if(!on){ind.style.opacity=0;last=null;return}
+  if(!on.offsetWidth)return;
+  const instant=!last||!last.isConnected;
+  if(instant)ind.style.transition="none";
+  ind.style.opacity=1;ind.style.width=on.offsetWidth+"px";ind.style.height=on.offsetHeight+"px";
+  ind.style.transform=`translate(${on.offsetLeft}px,${on.offsetTop}px)`;
+  if(instant){void ind.offsetWidth;ind.style.transition=""}
+  else if(last!==on){ind.classList.remove("jump");void ind.offsetWidth;ind.classList.add("jump")}
+  last=on;
+ };
+ new MutationObserver(()=>requestAnimationFrame(place)).observe(box,{subtree:true,childList:true,attributes:true,attributeFilter:["class"]});
+ addEventListener("resize",()=>{last=null;place()});
+ requestAnimationFrame(place);
+ if(document.fonts)document.fonts.ready.then(()=>{last=null;place()});
+}
+document.querySelectorAll(".pills,.nav").forEach(tabInd);
 
 /* moneta 3D */
 const coin=$("coin");
