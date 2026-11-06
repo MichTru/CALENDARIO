@@ -387,6 +387,28 @@ footer p{margin-top:10px;font-family:Anton,sans-serif;letter-spacing:2px;text-tr
 @keyframes iTitle{0%{opacity:0;letter-spacing:.3em;padding-left:.3em;filter:blur(6px)}100%{opacity:1;letter-spacing:.04em;padding-left:.04em;filter:none}}
 body.intro-on{overflow:hidden}
 
+.lock{position:relative;width:44px;height:44px;flex:0 0 44px;border-radius:50%;display:grid;place-items:center;background:var(--glass3);border:1px solid var(--edge);color:var(--muted)}
+.lock svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.lock.on{color:var(--gold)}
+@media (max-width:380px){.top .search{padding:0 10px}}
+.gols{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;justify-content:center}
+.gchip{display:inline-flex;align-items:center;gap:6px;padding:7px 11px;border-radius:999px;background:var(--glass2);border:1px solid var(--edge);font-size:12.5px;font-weight:700}
+.gchip b{font-weight:900;color:var(--gold)}
+.gchip i{font-style:normal;color:var(--muted);font-weight:600}
+.gchip i::before{content:"· "}
+.gchip.m{border-color:rgba(208,2,27,.55);background:rgba(208,2,27,.12)}
+.gchip.add{color:var(--muted);border-style:dashed}
+.srow{display:grid;grid-template-columns:36px 1fr 44px 44px;gap:10px;align-items:center;padding:8px 10px 8px 8px;border-radius:16px;background:var(--glass2);border:1px solid var(--edge);margin-bottom:6px}
+.srow .ktok{width:36px;height:36px}
+.srow b{display:block;font-size:14px;font-weight:700}
+.srow small{font-size:11px;color:var(--muted);font-weight:600}
+.srow .sg,.srow .sa{text-align:center;font-family:Anton,sans-serif;font-size:22px}
+.srow .sa{color:var(--muted);font-size:18px}
+.shead{display:grid;grid-template-columns:36px 1fr 44px 44px;gap:10px;padding:0 10px 6px 8px;font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)}
+.shead span{text-align:center}
+.inf-row.bd{cursor:default}
+.inf-row.today{border-color:var(--gold);background:linear-gradient(90deg,rgba(217,173,85,.16),var(--glass2))}
+.fmt{margin-bottom:12px}
 /* indicatore animato delle schede */
 .pills{position:relative}
 .ind{position:absolute;left:0;top:0;border-radius:999px;background:#f4f1ea;box-shadow:0 6px 16px rgba(0,0,0,.35);z-index:0;pointer-events:none;opacity:0;
@@ -457,6 +479,7 @@ body.intro-on{overflow:hidden}
   <div class="top glass">
     <div class="me"><img src="assets/logo.png" alt=""><b>Tana del Diavolo<span>AC Milan 26/27</span></b></div>
     <form class="search" id="searchF"><span class="orb"></span><input id="searchQ" type="search" placeholder="Cerca notizie sul Milan…" enterkeyhint="search"></form>
+    <button class="lock" id="lockBtn" aria-label="Sblocca modifiche"></button>
     <button class="bell" id="bell" aria-label="Notifiche"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></button>
   </div>
 
@@ -477,6 +500,10 @@ body.intro-on{overflow:hidden}
       <div class="inf-head"><div class="w-label" style="margin:0">🩹 Infermeria</div>
         <div class="bar"><button class="btn" id="infAdd"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Aggiungi</button><button class="btn" id="infCopy"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>Caption</button><button class="btn" id="infGfx"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>Grafica</button></div></div>
       <div id="infList"></div>
+    </div>
+    <div class="glass panel" data-r style="--d:.12s;margin-top:12px">
+      <div class="inf-head"><div class="w-label" style="margin:0">🎂 Compleanni</div></div>
+      <div id="bdList"></div>
     </div>
   </section>
 
@@ -506,6 +533,7 @@ body.intro-on{overflow:hidden}
           <button class="gbtn" data-g="risultato"><span>🏁</span>Risultato</button>
           <button class="gbtn" data-g="pagelle"><span>⭐</span>Pagelle</button>
           <button class="gbtn" data-g="topflop"><span>🔥</span>Top e flop</button>
+          <button class="gbtn" data-g="ufficiale"><span>🚨</span>Ufficiale</button>
           <button class="gbtn" data-g="infermeria"><span>🩹</span>Infermeria</button>
         </div>
       </div>
@@ -534,6 +562,13 @@ body.intro-on{overflow:hidden}
   <section class="block" id="bilancio">
     <div class="head" data-r><div><div class="eyebrow">Bilancio</div><h2 class="display">Stagione 26/27</h2></div></div>
     <div class="glass panel" data-r style="--d:.06s"><div id="stats"></div></div>
+    <div class="glass panel" data-r style="--d:.1s;margin-top:12px">
+      <div class="inf-head"><div class="w-label" style="margin:0">⚽ Marcatori</div>
+        <div class="bar"><button class="btn" id="scCopy"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>Caption</button><button class="btn" id="scGfx"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>Grafica</button></div></div>
+      <div class="pills glass" id="scF" style="margin-bottom:12px"><button data-c="" class="on">Tutte</button><button data-c="Serie A">Serie A</button><button data-c="Europa League">Europa</button><button data-c="Coppa Italia">Coppa</button></div>
+      <div class="shead"><span></span><b style="font-weight:800">Giocatore</b><span>Gol</span><span>Ass.</span></div>
+      <div id="scorers"></div>
+    </div>
   </section>
 
   <section class="block" id="strumenti">
@@ -591,6 +626,16 @@ const TEAMS={
  UDINESE:["UDI","#f2f2f2","#111","s","Udinese"]
 };
 const M=[
+ ["2026-08-23T20:45","TORINO",0,"Olimpico Grande Torino","Serie A"],
+ ["2026-08-28T20:45","VENEZIA",1,"San Siro","Serie A"],
+ ["2026-09-06T20:45","JUVENTUS",0,"Allianz Stadium","Serie A"],
+ ["2026-09-12T18:00","LAZIO",0,"Olimpico","Serie A"],
+ ["2026-09-20T20:45","LECCE",1,"San Siro","Serie A"],
+ ["2026-10-11T18:00","SASSUOLO",0,"Mapei Stadium","Serie A"],
+ ["2026-10-18T18:00","ATALANTA",1,"San Siro","Serie A"],
+ ["2026-10-25T20:45","UDINESE",0,"Bluenergy Stadium","Serie A"],
+ ["2026-10-28T18:30","BOLOGNA",1,"San Siro","Serie A"],
+ ["2026-10-31T20:45","INTER",1,"San Siro","Serie A"],
  ["2026-09-16T21:00","BENFICA",1,"San Siro","Europa League"],
  ["2026-10-15T18:45","SALZBURG",0,"Red Bull Arena","Europa League"],
  ["2026-10-22T21:00","BOURNEMOUTH",0,"Vitality Stadium","Europa League"],
@@ -603,7 +648,7 @@ const M=[
  ["2026-12-10T21:00","SUNDERLAND",1,"San Siro","Europa League"],
  ["2026-12-13T20:45","NAPOLI",0,"Maradona","Serie A"],
  ["2026-12-19T18:00","COMO",1,"San Siro","Serie A"],
- ["2027-01-02T20:45","MONZA",0,"","Serie A"],
+ ["2027-01-02T20:45","MONZA",0,"U-Power Stadium","Serie A"],
  ["2027-01-05T20:45","FIORENTINA",1,"San Siro","Serie A"],
  ["2027-01-09T18:00","ROMA",0,"Olimpico","Serie A"],
  ["2027-01-13T21:00","MONZA",1,"San Siro","Coppa Italia"],
@@ -613,7 +658,7 @@ const M=[
  ["2027-01-28T21:00","ARARAT",1,"San Siro","Europa League"],
  ["2027-01-31T15:00","JUVENTUS",1,"San Siro","Serie A"],
  ["2027-02-07T15:00","BOLOGNA",0,"Dall'Ara","Serie A"],
- ["2027-02-14T15:00","INTER",2,"San Siro","Serie A"],
+ ["2027-02-14T15:00","INTER",0,"San Siro","Serie A"],
  ["2027-02-21T15:00","GENOA",1,"San Siro","Serie A"],
  ["2027-02-28T15:00","COMO",0,"Sinigaglia","Serie A"],
  ["2027-03-07T15:00","CAGLIARI",1,"San Siro","Serie A"],
@@ -661,6 +706,7 @@ const add=(d,min)=>new Date(d.getTime()+min*60000);
 const cap=s=>s.charAt(0)+s.slice(1).toLowerCase();
 const q=s=>"https://www.google.com/search?q="+encodeURIComponent(s);
 const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+const isDerby=m=>m.avv==="INTER";
 const nm=t=>(TEAMS[t]&&TEAMS[t][4])||cap(t);
 const SHIRT="M30 10 L40 5 Q50 13 60 5 L70 10 L93 25 L84 43 L74 37 L74 95 L26 95 L26 37 L16 43 L7 25 Z";
 let kitN=0;
@@ -680,6 +726,7 @@ const titolo=m=>`${nm(casa(m))} - ${nm(ospite(m))}`;
 const tagH=m=>"#"+plain(nm(casa(m))+nm(ospite(m)));
 const TAGS="#forzamilan #sempremilan";
 const toast=t=>{const el=$("toast");el.textContent=t;el.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove("show"),1800)};
+const ICO_LOCK='<svg viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>',ICO_UNLOCK='<svg viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.5-2"/></svg>';
 const BELL='<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>';
 const IC={
  check:'<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg>',
@@ -696,10 +743,12 @@ const store={
  get:k=>k in CACHE?CACHE[k]:null,
  json(k,d){try{return JSON.parse(CACHE[k])||d}catch(e){return d}},
  set(k,v){
+  if(!PIN){askPin();rerender();return false}
   v=v?(v===true?"1":typeof v==="object"?JSON.stringify(v):String(v)):null;
   if(v)CACHE[k]=v;else delete CACHE[k];
   try{v?localStorage.setItem(k,v):localStorage.removeItem(k)}catch(e){}
   pending[k]=v;clearTimeout(flushT);flushT=setTimeout(flush,500);
+  return true;
  }
 };
 async function flush(){
@@ -708,19 +757,26 @@ async function flush(){
  const ups=ent.filter(([,v])=>v).map(([key,value])=>({key,value,updated_at:new Date().toISOString()}));
  const dels=ent.filter(([,v])=>!v).map(([k])=>k);
  try{
-  if(ups.length){const {error}=await sb.from("tdd_state").upsert(ups);if(error)throw error}
-  if(dels.length){const {error}=await sb.from("tdd_state").delete().in("key",dels);if(error)throw error}
- }catch(e){ent.forEach(([k,v])=>{if(!(k in pending))pending[k]=v});clearTimeout(flushT);flushT=setTimeout(flush,5000)}
+  const {error}=await sb.rpc("tdd_write",{p_pin:PIN,p_ups:ups.map(({key,value})=>({key,value})),p_dels:dels});
+  if(error)throw error;
+ }catch(e){
+  if(/pin|tentativi/i.test(e.message||"")){PIN=null;try{localStorage.removeItem(PIN_K)}catch(_){}lockUI();toast("PIN non valido: modifiche non salvate");reload();return}
+  ent.forEach(([k,v])=>{if(!(k in pending))pending[k]=v});clearTimeout(flushT);flushT=setTimeout(flush,5000)}
 }
+function applyRemote(data){
+ const remote=Object.fromEntries(data.map(r=>[r.key,r.value]));
+ Object.keys(CACHE).filter(k=>!(k in remote)&&!(k in pending)).forEach(k=>{delete CACHE[k];try{localStorage.removeItem(k)}catch(e){}});
+ for(const k in remote){if(k in pending)continue;CACHE[k]=remote[k];try{localStorage.setItem(k,remote[k])}catch(e){}}
+ rerender();
+}
+async function reload(){if(!sb)return;Object.keys(pending).forEach(k=>delete pending[k]);const {data,error}=await sb.from("tdd_state").select("key,value");if(!error)applyRemote(data)}
 async function initSync(){
  if(!window.supabase)return;
  sb=supabase.createClient(SB_URL,SB_KEY);
  const {data,error}=await sb.from("tdd_state").select("key,value");
  if(error){sb=null;return}
- const remote=Object.fromEntries(data.map(r=>[r.key,r.value]));
- Object.keys(CACHE).filter(k=>!(k in remote)).forEach(k=>pending[k]=CACHE[k]);
- for(const k in remote){CACHE[k]=remote[k];try{localStorage.setItem(k,remote[k])}catch(e){}}
- flush();rerender();
+ applyRemote(data);
+ flush();
  sb.channel("tdd").on("postgres_changes",{event:"*",schema:"public",table:"tdd_state"},p=>{
   const k=(p.new&&p.new.key)||(p.old&&p.old.key);if(!k||k in pending)return;
   if(p.eventType==="DELETE"){delete CACHE[k];try{localStorage.removeItem(k)}catch(e){}}
@@ -732,12 +788,13 @@ async function initSync(){
 /* ================= RISULTATI ================= */
 function res(m){const v=store.get(m.id+":res");if(!v)return null;const [h,a]=v.split("-").map(Number);const mg=casa(m)==="MILAN"?h:a,og=casa(m)==="MILAN"?a:h;return {h,a,mg,og,e:mg>og?"V":mg<og?"P":"N"}}
 const resLine=m=>{const r=res(m);return r?`${nm(casa(m))} ${r.h}-${r.a} ${nm(ospite(m))}`:""};
-function scoreHTML(m){const r=res(m);return `<div class="score" data-m="${m.i}">
+function scoreHTML(m){return scoreBox(m)+golsHTML(m)}
+function scoreBox(m){const r=res(m);return `<div class="score" data-m="${m.i}">
  <div class="s">${badge(casa(m),1)}<input inputmode="numeric" maxlength="2" data-side="h" value="${r?r.h:""}" aria-label="Gol ${nm(casa(m))}"></div>
  <span class="dash">-</span>
  <div class="s">${badge(ospite(m),1)}<input inputmode="numeric" maxlength="2" data-side="a" value="${r?r.a:""}" aria-label="Gol ${nm(ospite(m))}"></div>
 </div>`}
-const headRight=m=>{const r=res(m);const tipo=m.home===2?'<i class="derby">DERBY</i>':m.home?'<i class="home">CASA</i>':'<i class="away">TRASFERTA</i>';return r?`${r.h}-${r.a}<span class="esito ${r.e}">${r.e}</span>${tipo}`:`${ora(m.k)}${tipo}`};
+const headRight=m=>{const r=res(m);const tipo=isDerby(m)?'<i class="derby">DERBY</i>':m.home?'<i class="home">CASA</i>':'<i class="away">TRASFERTA</i>';return r?`${r.h}-${r.a}<span class="esito ${r.e}">${r.e}</span>${tipo}`:`${ora(m.k)}${tipo}`};
 
 /* ================= PIANO CONTENUTI ================= */
 const STEPS=[
@@ -755,6 +812,7 @@ function caption(m,key,tpl){
  let extra="";
  if(key==="uff"||key==="prob"){const xi=xiOf(m);if(xi.p.some(Boolean))extra="\n\n"+xiText(xi)}
  if(key==="top"){const t=tfMatchBody(m);if(t)extra="\n\n"+t}
+ if(key==="fin"||key==="pt"){const a=golLine(m,"m"),b=golLine(m,"o");if(a||b)extra="\n\n"+(a?`⚽ Milan: ${a}`:"")+(a&&b?"\n":"")+(b?`⚽ ${nm(m.avv)}: ${b}`:"")}
  if(key==="pag"){const v=votesOf(m);const list=votedList(m,v);if(list.length||v.coach!=null||v.team!=null)extra="\n\n"+list.map(([n,val])=>`${PL[n].name} ${fmtV(val)}${v.mvp==n?" ⭐":""}`).join("\n")+(v.coach!=null?`\n\nAll. ${COACH} ${fmtV(v.coach)}`:"")+(v.team!=null?`\nSquadra ${fmtV(v.team)}`:"")}
  return `${s[1]} ${s[5]} | ${titolo(m).toUpperCase()}\n${r?r.toUpperCase():m.comp+(m.stadio?" · "+m.stadio:"")+" · "+quando(m.k)}${extra}\n\n${TAGS} ${tagH(m)} #tanadeldiavolo`;
 }
@@ -783,7 +841,7 @@ const ICO={
  cup:'<svg viewBox="0 0 24 24"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg>',
  home:'<svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>'
 };
-const infoPills=m=>`<span class="chip gold">${ICO.clock}${quando(m.k)}</span>${m.stadio?`<span class="chip">${ICO.pin}${m.stadio}</span>`:""}<span class="chip">${ICO.cup}${m.comp}</span><span class="chip${m.home===2?" red":""}">${ICO.home}${m.home===2?"Derby":m.home?"Casa":"Trasferta"}</span>`;
+const infoPills=m=>`<span class="chip gold">${ICO.clock}${quando(m.k)}</span>${m.stadio?`<span class="chip">${ICO.pin}${m.stadio}</span>`:""}<span class="chip">${ICO.cup}${m.comp}</span><span class="chip${isDerby(m)?" red":""}">${ICO.home}${isDerby(m)?"Derby":m.home?"Casa":"Trasferta"}</span>`;
 function nextPost(){
  for(const m of M.slice(next.i)){for(const [key,,,fn] of STEPS){const d=fn(m);if(!store.get(m.id+":"+key)&&now-d<180*60000)return [m,key,d]}}
  return null;
@@ -833,7 +891,7 @@ function cardHTML(m){
   <div class="cf-bg ${m.home?"home":"away"}"></div>
   <div class="cf-top">${badge(m.avv,1)}<span class="cf-date">${GG[m.k.getDay()]} ${m.k.getDate()} · ${ora(m.k)}</span></div>
   ${r?`<div class="cf-res">${r.h}-${r.a}<span class="esito ${r.e}">${r.e}</span></div>`:""}
-  <div class="cf-txt"><b>${m.home===1?"vs ":m.home===2?"Derby · ":"@ "}${nm(m.avv)}</b><small>${m.stadio||nm(m.avv)} · ${m.comp}</small></div>
+  <div class="cf-txt"><b>${isDerby(m)?"Derby · ":m.home===1?"vs ":"@ "}${nm(m.avv)}</b><small>${m.stadio||nm(m.avv)} · ${m.comp}</small></div>
  </button>`;
 }
 function renderCarousel(){
@@ -1065,6 +1123,162 @@ $("tfCopy").onclick=async()=>{
 };
 $("tfGfx").onclick=()=>makeGfx("topflop");
 
+
+/* ================= PIN ================= */
+const PIN_K="tdd-pin";
+let PIN=null;try{PIN=localStorage.getItem(PIN_K)}catch(e){}
+let pinOpen=false;
+function lockUI(){const b=$("lockBtn");if(!b)return;b.classList.toggle("on",!!PIN);b.innerHTML=PIN?ICO_UNLOCK:ICO_LOCK;b.setAttribute("aria-label",PIN?"Blocca modifiche":"Sblocca modifiche")}
+function askPin(){
+ if(pinOpen)return;pinOpen=true;
+ $("sheetBody").onclick=null;
+ $("sheetBody").innerHTML=`<h3>PIN</h3><form id="pinF"><input class="fin" id="pinI" type="password" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••"><button class="btn white" style="width:100%;justify-content:center;padding:14px">Sblocca</button></form>`;
+ openSheet();setTimeout(()=>$("pinI")&&$("pinI").focus(),350);
+ $("pinF").onsubmit=async e=>{
+  e.preventDefault();const v=$("pinI").value.trim();if(!v)return;
+  if(!sb){toast("Serve la connessione");return}
+  const {data,error}=await sb.rpc("tdd_check_pin",{p_pin:v});
+  if(error){toast(/tentativi/.test(error.message)?"Troppi tentativi, riprova tra 10 minuti":"Errore, riprova");return}
+  if(!data){toast("PIN errato");$("pinI").value="";return}
+  PIN=v;try{localStorage.setItem(PIN_K,v)}catch(_){}
+  lockUI();closeSheet();toast("Modifiche sbloccate");
+ };
+}
+function lockNow(){PIN=null;try{localStorage.removeItem(PIN_K)}catch(e){}lockUI();toast("Modifiche bloccate")}
+
+/* ================= MARCATORI ================= */
+const golsOf=m=>store.json(m.id+":gol",[]).filter(g=>g&&(g.t==="m"||g.t==="o"));
+const minN=s=>{const [a,b]=String(s||"0").split("+");return (+a||0)+(+b||0)/100};
+const golWho=g=>g.t==="m"?(g.og?(g.p||"?"):(PL[g.n]?PL[g.n].name:"?")):(g.og?(PL[g.n]?PL[g.n].name:(g.p||"?")):(g.p||"?"));
+const golTag=g=>(g.pen?" (rig.)":"")+(g.og?" (aut.)":"");
+function golGroups(m,side){
+ const out=[],by={};
+ golsOf(m).filter(g=>g.t===side).sort((a,b)=>minN(a.min)-minN(b.min)).forEach(g=>{
+  const k=golWho(g)+golTag(g);if(!by[k]){by[k]={who:golWho(g),tag:golTag(g),mins:[]};out.push(by[k])}by[k].mins.push((g.min||"?")+"'");
+ });
+ return out;
+}
+const golLine=(m,side)=>golGroups(m,side).map(x=>`${x.who} ${x.mins.join(", ")}${x.tag}`).join(", ");
+function golsHTML(m){
+ const list=golsOf(m).map((g,i)=>[g,i]).sort((a,b)=>minN(a[0].min)-minN(b[0].min));
+ return `<div class="gols">${list.map(([g,i])=>`<button class="gchip ${g.t}" data-g="${i}" data-m="${m.i}"><b>${esc(g.min||"?")}'</b>${esc(golWho(g))}${g.pen?" ·R":""}${g.og?" ·AG":""}${g.t==="m"&&g.a&&PL[g.a]?`<i>${esc(PL[g.a].name)}</i>`:""}</button>`).join("")}<button class="gchip add" data-m="${m.i}">+ Gol</button></div>`;
+}
+function saveGols(m,list){
+ store.set(m.id+":gol",list.length?list:null);
+ if(store.get(m.id+":gol")===null&&list.length)return;
+ const mg=list.filter(g=>g.t==="m").length,og=list.filter(g=>g.t==="o").length;
+ if(list.length||store.get(m.id+":res"))store.set(m.id+":res",casa(m)==="MILAN"?`${mg}-${og}`:`${og}-${mg}`);
+ rerender();renderStats();renderScorers();
+}
+function golForm(m,idx){
+ if(!PIN){askPin();return}
+ const list=golsOf(m),cur=idx!=null?{...list[idx]}:{t:"m",n:null,p:"",min:"",a:null,pen:false,og:false};
+ const plist=(sel,attr,none)=>["P","D","C","A"].map(r=>`<div class="plist">${SQUAD.filter(p=>p[2]===r).map(([n,name])=>`<button class="pbtn${n===sel?" cur":""}" data-${attr}="${n}"><i>${n}</i>${name}</button>`).join("")}</div>`).join("")+(none?`<button class="opt${sel?"":" on"}" data-${attr}="0">Nessuno</button>`:"");
+ const draw=()=>{
+  const milanPlayer=(cur.t==="m"&&!cur.og)||(cur.t==="o"&&cur.og);
+  $("sheetBody").innerHTML=`<h3>${idx!=null?"Modifica gol":"Nuovo gol"}</h3>
+  <div class="opts"><button class="opt${cur.t==="m"?" on":""}" data-gt="m">Milan</button><button class="opt${cur.t==="o"?" on":""}" data-gt="o">${esc(nm(m.avv))}</button><button class="opt${cur.pen?" on":""}" data-gf="pen">Rigore</button><button class="opt${cur.og?" on":""}" data-gf="og">Autogol</button></div>
+  <div class="flab">Minuto</div><input class="fin" id="gMin" inputmode="text" placeholder="es. 64 o 90+3" value="${esc(cur.min||"")}">
+  <div class="flab">Marcatore</div>${milanPlayer?plist(cur.n,"gn",false):`<input class="fin" id="gP" placeholder="Cognome" value="${esc(cur.p||"")}">`}
+  ${cur.t==="m"&&!cur.og?`<div class="flab">Assist</div>${plist(cur.a,"ga",true)}`:""}
+  <div class="row2" style="margin-top:12px">${idx!=null?`<button class="btn" id="gDel">Elimina</button>`:`<button class="btn" id="gCancel">Annulla</button>`}<button class="btn white" id="gSave">Salva</button></div>`;
+ };
+ const keep=()=>{const a=$("gMin"),b=$("gP");if(a)cur.min=a.value.trim();if(b)cur.p=b.value.trim()};
+ draw();openSheet();
+ $("sheetBody").onclick=e=>{
+  const t=e.target.closest("[data-gt]"),f=e.target.closest("[data-gf]"),n=e.target.closest("[data-gn]"),a=e.target.closest("[data-ga]");
+  if(t||f||n||a){keep();if(t){cur.t=t.dataset.gt;cur.n=null;cur.a=null}if(f){cur[f.dataset.gf]=!cur[f.dataset.gf];if(f.dataset.gf==="og"){cur.n=null;cur.a=null}}if(n)cur.n=+n.dataset.gn;if(a)cur.a=+a.dataset.ga||null;draw();return}
+  if(e.target.closest("#gCancel")){closeSheet();return}
+  if(e.target.closest("#gDel")){list.splice(idx,1);saveGols(m,list);closeSheet();return}
+  if(e.target.closest("#gSave")){
+   keep();const milanPlayer=(cur.t==="m"&&!cur.og)||(cur.t==="o"&&cur.og);
+   if(milanPlayer&&!cur.n){toast("Scegli il marcatore");return}
+   if(!milanPlayer&&!cur.p){toast("Scrivi il marcatore");return}
+   const g={t:cur.t,min:cur.min.replace(/'/g,"")};
+   if(milanPlayer)g.n=cur.n;else g.p=cur.p;
+   if(cur.t==="m"&&!cur.og&&cur.a&&cur.a!==cur.n)g.a=cur.a;
+   if(cur.pen)g.pen=true;if(cur.og)g.og=true;
+   if(idx!=null)list[idx]=g;else list.push(g);
+   saveGols(m,list);closeSheet();toast("Gol salvato");
+  }
+ };
+}
+document.addEventListener("click",e=>{
+ const c=e.target.closest(".gchip");if(!c)return;
+ const m=M[+c.dataset.m];if(c.classList.contains("add"))golForm(m,null);else golForm(m,+c.dataset.g);
+});
+
+/* classifica marcatori */
+let scF="";
+function scorerTable(){
+ const t={};
+ M.filter(m=>!scF||m.comp===scF).forEach(m=>golsOf(m).forEach(g=>{
+  if(g.t==="m"&&!g.og&&PL[g.n]){(t[g.n]=t[g.n]||{n:g.n,g:0,a:0,pen:0}).g++;if(g.pen)t[g.n].pen++}
+  if(g.t==="m"&&!g.og&&g.a&&PL[g.a])(t[g.a]=t[g.a]||{n:g.a,g:0,a:0,pen:0}).a++;
+ }));
+ return Object.values(t).sort((x,y)=>y.g-x.g||y.a-x.a||PL[x.n].name.localeCompare(PL[y.n].name));
+}
+function renderScorers(){
+ const el=$("scorers");if(!el)return;
+ const rows=scorerTable();
+ el.innerHTML=rows.length?rows.map((r,i)=>`<div class="srow">${kit(r.n)}<div><b>${PL[r.n].name}</b><small>${RUOLO[PL[r.n].r]}${r.pen?` · ${r.pen} rig.`:""}</small></div><span class="sg">${r.g}</span><span class="sa">${r.a}</span></div>`).join(""):`<div class="inf-empty">Nessun gol inserito</div>`;
+}
+$("scF").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;scF=b.dataset.c;$("scF").querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));renderScorers()});
+$("scCopy").onclick=()=>{const r=scorerTable().filter(x=>x.g);if(!r.length){toast("Nessun gol inserito");return}
+ copyText(`⚽ CLASSIFICA MARCATORI ROSSONERI\n${scF||"Tutte le competizioni"}\n\n${r.map((x,i)=>`${i+1}. ${PL[x.n].name} ${x.g}${x.a?` (${x.a} assist)`:""}`).join("\n")}\n\n${TAGS} #marcatori #milan #tanadeldiavolo`)};
+$("scGfx").onclick=()=>makeGfx("marcatori");
+
+/* ================= UFFICIALE ================= */
+const UFF={tipo:"Acquisto",nome:"",num:"",club:"",det:""};
+const UTIPI=["Acquisto","Cessione","Prestito","Riscatto","Rinnovo","Ritorno"];
+const clubLab=t=>t==="Cessione"?"Al club":t==="Rinnovo"?"":"Dal club";
+function uffCaption(){
+ const club=UFF.club&&clubLab(UFF.tipo)?(UFF.tipo==="Cessione"?` al ${UFF.club}`:` dal ${UFF.club}`):"";
+ return `🚨 UFFICIALE | ${UFF.tipo.toUpperCase()}\n\n${UFF.nome}${club}${UFF.num?` · maglia ${UFF.num}`:""}${UFF.det?`\n${UFF.det}`:""}\n\n${TAGS} #ufficiale #calciomercato${UFF.nome?" #"+plain(UFF.nome):""} #tanadeldiavolo`;
+}
+function uffForm(){
+ const draw=()=>{
+  const cl=clubLab(UFF.tipo);
+  $("sheetBody").innerHTML=`<h3>Ufficiale</h3>
+  <div class="opts">${UTIPI.map(t=>`<button class="opt${t===UFF.tipo?" on":""}" data-ut="${t}">${t}</button>`).join("")}</div>
+  <div class="flab">Giocatore</div><input class="fin" id="uNome" placeholder="Nome e cognome" value="${esc(UFF.nome)}">
+  <div class="flab">Numero di maglia</div><input class="fin" id="uNum" inputmode="numeric" maxlength="2" placeholder="es. 10" value="${esc(UFF.num)}">
+  ${cl?`<div class="flab">${cl}</div><input class="fin" id="uClub" placeholder="es. Benfica" value="${esc(UFF.club)}">`:""}
+  <div class="flab">Dettaglio</div><input class="fin" id="uDet" placeholder="es. Contratto fino al 2030" value="${esc(UFF.det)}">
+  <div class="row2"><button class="btn" id="uCap">Caption</button><button class="btn white" id="uGfx">Grafica</button></div>`;
+ };
+ const keep=()=>{[["uNome","nome"],["uNum","num"],["uClub","club"],["uDet","det"]].forEach(([id,k])=>{const x=$(id);if(x)UFF[k]=x.value.trim()});UFF.num=UFF.num.replace(/\D/g,"").slice(0,2)};
+ draw();openSheet();
+ $("sheetBody").onclick=e=>{
+  const t=e.target.closest("[data-ut]");if(t){keep();UFF.tipo=t.dataset.ut;draw();return}
+  if(e.target.closest("#uCap")){keep();if(!UFF.nome){toast("Scrivi il giocatore");return}copyText(uffCaption());return}
+  if(e.target.closest("#uGfx")){keep();if(!UFF.nome){toast("Scrivi il giocatore");return}makeGfx("ufficiale",UFF)}
+ };
+}
+
+/* ================= COMPLEANNI ================= */
+const BIRTH={16:"1995-07-03",1:"1990-03-08",96:"2005-01-31",2:"1998-01-21",5:"2002-06-12",13:"2006-01-13",23:"1997-12-19",31:"2001-05-24",33:"2005-12-29",34:"2000-08-29",35:"2008-06-04",42:"2003-02-08",46:"1999-10-21",8:"1996-01-23",11:"1998-09-18",12:"1995-04-03",14:"1985-09-09",20:"2003-10-30",22:"2004-08-06",28:"2008-04-25",30:"2002-07-30",56:"1999-06-27",70:"2006-10-22",80:"2002-11-29",9:"2001-06-20",21:"1999-05-22",73:"2008-03-10"};
+function nextBdays(days){
+ const t0=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+ return Object.entries(BIRTH).filter(([n])=>PL[n]).map(([n,b])=>{const [y,mo,d]=b.split("-").map(Number);let dt=new Date(t0.getFullYear(),mo-1,d);if(dt<t0)dt=new Date(t0.getFullYear()+1,mo-1,d);return {n:+n,dt,age:dt.getFullYear()-y,dd:Math.round((dt-t0)/864e5)}}).filter(x=>x.dd<=days).sort((a,b)=>a.dd-b.dd);
+}
+const bdayCaption=x=>`🎂 BUON COMPLEANNO ${PL[x.n].name.toUpperCase()}!\n\n${x.dd===0?"Oggi":"Il "+x.dt.getDate()+" "+MESI[x.dt.getMonth()].toLowerCase()} ${PL[x.n].name} ${x.dd===0?"compie":"compirà"} ${x.age} anni. Tanti auguri dalla Tana del Diavolo 🔴⚫\n\n${TAGS} #buoncompleanno #${plain(PL[x.n].name)} #tanadeldiavolo`;
+function renderBdays(){
+ const el=$("bdList");if(!el)return;
+ const l=nextBdays(45);
+ el.innerHTML=l.length?l.map(x=>`<div class="inf-row bd${x.dd===0?" today":""}" data-n="${x.n}">${kit(x.n)}<div><b>${PL[x.n].name}</b><small>${x.dd===0?"Oggi":x.dd===1?"Domani":x.dt.getDate()+" "+MESI[x.dt.getMonth()].slice(0,3).toLowerCase()} · ${x.age} anni</small></div><div class="acts"><button class="ic bdc" aria-label="Copia caption">${IC.copy}</button><button class="ic bdg" aria-label="Grafica"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg></button></div></div>`).join(""):`<div class="inf-empty">Nessun compleanno nei prossimi 45 giorni</div>`;
+}
+$("bdList").addEventListener("click",e=>{
+ const r=e.target.closest(".inf-row");if(!r)return;const x=nextBdays(366).find(y=>y.n===+r.dataset.n);if(!x)return;
+ if(e.target.closest(".bdc"))copyText(bdayCaption(x));
+ if(e.target.closest(".bdg"))makeGfx("compleanno",x);
+});
+
+async function copyText(txt){
+ try{await navigator.clipboard.writeText(txt)}catch(_){const t=document.createElement("textarea");t.value=txt;document.body.appendChild(t);t.select();document.execCommand("copy");t.remove()}
+ toast("Caption copiata");
+}
+
 /* ================= BILANCIO ================= */
 function renderStats(){
  const played=M.filter(m=>res(m)).map(m=>[m,res(m)]);
@@ -1125,7 +1339,7 @@ let rrT=null,rrWait=false;
 const editing=()=>{const a=document.activeElement;return a&&(a.tagName==="TEXTAREA"||a.tagName==="INPUT")};
 function rerender(){clearTimeout(rrT);rrT=setTimeout(()=>{if(editing()){rrWait=true;return}rrWait=false;doRender()},150)}
 document.addEventListener("focusout",()=>{if(rrWait)setTimeout(rerender,50)});
-function doRender(){now=new Date();pickNext();renderWidgets();renderPlan();renderCarousel();renderMods();renderPitch();renderVotes();renderStats();renderInf();renderTF()}
+function doRender(){now=new Date();pickNext();renderWidgets();renderPlan();renderCarousel();renderMods();renderPitch();renderVotes();renderStats();renderInf();renderTF();renderScorers();renderBdays()}
 setInterval(()=>{const n=new Date();if(n.getMinutes()!==now.getMinutes())rerender()},30000);
 
 /* ================= NOTIFICHE ================= */
@@ -1176,13 +1390,14 @@ async function enablePush(){
   toast("Notifiche attive");pushState();
  }catch(e){toast("Non sono riuscito ad attivarle");console.error(e)}
 }
-$("bell").onclick=enablePush;$("wPush").onclick=enablePush;
+$("bell").onclick=enablePush;
+$("lockBtn").onclick=()=>PIN?lockNow():askPin();$("wPush").onclick=enablePush;
 $("searchF").onsubmit=e=>{e.preventDefault();const v=$("searchQ").value.trim();if(v)window.open(q("Milan "+v),"_blank","noopener")};
 
 
 /* ================= SHEET ================= */
 function openSheet(){$("sheet").classList.add("on")}
-function closeSheet(){$("sheet").classList.remove("on")}
+function closeSheet(){$("sheet").classList.remove("on");pinOpen=false}
 $("sheet").addEventListener("click",e=>{if(e.target.id==="sheet")closeSheet()});
 
 /* ================= GRAFICHE INSTAGRAM 1080x1350 ================= */
@@ -1231,12 +1446,20 @@ const G={
  async risultato(c,m){
   const r=res(m);if(!r)throw new Error("Inserisci prima il risultato");
   await frame(c,"FINALE");
-  cshirt(c,casa(m),290,450,150);cshirt(c,ospite(m),790,450,150);
-  c.textAlign="center";c.font="56px Anton";c.fillStyle=casa(m)==="MILAN"?"#d0021b":"#f4f1ea";c.fillText(nm(casa(m)).toUpperCase(),290,610);
-  c.fillStyle=ospite(m)==="MILAN"?"#d0021b":"#f4f1ea";c.fillText(nm(ospite(m)).toUpperCase(),790,610);
-  c.fillStyle="#f4f1ea";c.font="320px Anton";c.fillText(`${r.h}-${r.a}`,540,1000);
+  cshirt(c,casa(m),290,440,150);cshirt(c,ospite(m),790,440,150);
+  c.textAlign="center";c.font="56px Anton";c.fillStyle=casa(m)==="MILAN"?"#d0021b":"#f4f1ea";c.fillText(nm(casa(m)).toUpperCase(),290,600);
+  c.fillStyle=ospite(m)==="MILAN"?"#d0021b":"#f4f1ea";c.fillText(nm(ospite(m)).toUpperCase(),790,600);
+  const sideOf=t=>t==="MILAN"?"m":"o";
+  [[casa(m),290],[ospite(m),790]].forEach(([t,x])=>{
+   const gr=golGroups(m,sideOf(t));let lines=gr.map(g=>`${g.who} ${g.mins.join(" ")}${g.tag}`.toUpperCase());
+   if(lines.length>4)lines=[...lines.slice(0,3),"+"+(lines.length-3)+" ALTRI"];
+   c.font="700 26px Inter";c.fillStyle="rgba(244,241,234,.78)";
+   lines.forEach((l,i)=>{let fs=26;while(fs>18&&(c.font=`700 ${fs}px Inter`,c.measureText(l).width>440))fs--;c.fillText(l,x,646+i*36)});
+  });
+  c.font="700 26px Inter";
+  c.fillStyle="#f4f1ea";c.font="300px Anton";c.fillText(`${r.h}-${r.a}`,540,1040);
   if(r.e!=="P"){const lab=r.e==="V"?"VITTORIA":"PAREGGIO",col=r.e==="V"?"#3ddc84":"#d9ad55";
-   c.font="800 34px Inter";const w=c.measureText(lab).width+60;rr(c,540-w/2,1090,w,64,32);c.fillStyle=col;c.fill();c.fillStyle="#111";c.fillText(lab,540,1134)}
+   c.font="800 34px Inter";const w=c.measureText(lab).width+60;rr(c,540-w/2,1100,w,64,32);c.fillStyle=col;c.fill();c.fillStyle="#111";c.fillText(lab,540,1144)}
   footer(c,m);
  },
  async formazione(c,m){
@@ -1297,6 +1520,41 @@ const G={
   card(x.flop[0],810,"FLOP","#ff5a6b");
   footer(c,m);
  },
+ async marcatori(c){
+  const rows=scorerTable().filter(x=>x.g).slice(0,8);if(!rows.length)throw new Error("Nessun gol inserito");
+  await frame(c,"MARCATORI");
+  c.textAlign="left";c.textBaseline="alphabetic";c.fillStyle="#f4f1ea";c.font="80px Anton";c.fillText("CLASSIFICA",70,340);c.fillStyle="#d0021b";c.fillText("MARCATORI",70,430);
+  c.textAlign="right";c.fillStyle="#8b8781";c.font="800 24px Inter";c.fillText("GOL",880,490);c.fillText("ASSIST",1000,490);
+  const top=510,RH=Math.min(92,(1230-top)/rows.length);
+  rows.forEach((x,i)=>{const y=top+i*RH;rr(c,60,y+5,960,RH-10,20);c.fillStyle=i===0?"rgba(217,173,85,.16)":"rgba(255,255,255,.06)";c.fill();
+   cshirt(c,PL[x.n].r==="P"?"GK":"MILAN",128,y+RH/2,RH*.72,x.n);
+   c.textBaseline="middle";c.textAlign="left";c.fillStyle="#f4f1ea";c.font=`${RH*.4}px Anton`;c.fillText(PL[x.n].name.toUpperCase(),190,y+RH/2+2);
+   c.textAlign="right";c.fillStyle=i===0?"#d9ad55":"#f4f1ea";c.font=`${RH*.55}px Anton`;c.fillText(String(x.g),870,y+RH/2+3);
+   c.fillStyle="#8b8781";c.font=`${RH*.42}px Anton`;c.fillText(String(x.a),990,y+RH/2+3);c.textBaseline="alphabetic"});
+  c.textAlign="center";c.fillStyle="#8b8781";c.font="700 30px Inter";c.fillText((scF||"Tutte le competizioni").toUpperCase()+" · STAGIONE 26/27",540,1286);
+ },
+ async ufficiale(c,u){
+  await frame(c,"CALCIOMERCATO");
+  c.textAlign="center";c.textBaseline="alphabetic";c.fillStyle="#d0021b";c.font="150px Anton";c.fillText("UFFICIALE",540,420);
+  c.fillStyle="#d9ad55";c.font="800 34px Inter";c.fillText(u.tipo.toUpperCase(),540,480);
+  cshirt(c,"MILAN",540,720,340,u.num||"");
+  let fs=110;const n=u.nome.toUpperCase();c.font=`${fs}px Anton`;while(fs>56&&c.measureText(n).width>940){fs-=4;c.font=`${fs}px Anton`}
+  c.fillStyle="#f4f1ea";c.fillText(n,540,1010);
+  const club=u.club&&clubLab(u.tipo)?(u.tipo==="Cessione"?"AL ":"DAL ")+u.club.toUpperCase():"";
+  if(club){c.fillStyle="#f4f1ea";c.font="800 38px Inter";c.fillText(club,540,1080)}
+  if(u.det){c.fillStyle="#8b8781";c.font="700 32px Inter";c.fillText(u.det.toUpperCase(),540,club?1136:1080,960)}
+  c.fillStyle="#8b8781";c.font="700 30px Inter";c.fillText(quando(now).split(" · ")[0].toUpperCase(),540,1286);
+ },
+ async compleanno(c,x){
+  await frame(c,"AUGURI");
+  const p=PL[x.n];
+  c.textAlign="center";c.textBaseline="alphabetic";c.fillStyle="#f4f1ea";c.font="120px Anton";c.fillText("BUON",540,400);c.fillStyle="#d0021b";c.fillText("COMPLEANNO",540,520);
+  cshirt(c,p.r==="P"?"GK":"MILAN",540,770,320,x.n);
+  let fs=110;const n=p.name.toUpperCase();c.font=`${fs}px Anton`;while(fs>56&&c.measureText(n).width>940){fs-=4;c.font=`${fs}px Anton`}
+  c.fillStyle="#f4f1ea";c.fillText(n,540,1050);
+  c.fillStyle="#d9ad55";c.font="80px Anton";c.fillText(x.age+" ANNI",540,1150);
+  c.fillStyle="#8b8781";c.font="700 30px Inter";c.fillText(`${x.dt.getDate()} ${MESI[x.dt.getMonth()].toUpperCase()} ${x.dt.getFullYear()}`,540,1286);
+ },
  async infermeria(c){
   const list=infOf();if(!list.length)throw new Error("Nessun giocatore in infermeria");
   await frame(c,"INFERMERIA");
@@ -1312,17 +1570,32 @@ const G={
  }
 };
 let lastBlob=null,lastName="";
-async function makeGfx(kind){
+async function storyOf(src){
+ const cv=document.createElement("canvas");cv.width=1080;cv.height=1920;const c=cv.getContext("2d");
+ const bg=await loadImg("assets/smoke.jpg");
+ c.fillStyle="#070707";c.fillRect(0,0,1080,1920);
+ const k=Math.max(1080/bg.width,1920/bg.height);c.globalAlpha=.7;c.drawImage(bg,(1080-bg.width*k)/2,(1920-bg.height*k)/2,bg.width*k,bg.height*k);c.globalAlpha=1;
+ c.save();c.shadowColor="rgba(0,0,0,.65)";c.shadowBlur=70;c.shadowOffsetY=24;c.fillStyle="#070707";c.fillRect(0,285,1080,1350);c.restore();
+ c.drawImage(src,0,285);
+ return cv;
+}
+async function makeGfx(kind,arg){
+ if(kind==="ufficiale"&&!arg){uffForm();return}
  const cv=document.createElement("canvas");cv.width=1080;cv.height=1350;const c=cv.getContext("2d");
  try{
   await Promise.all([document.fonts.load("120px Anton"),document.fonts.load("800 30px Inter")]);
-  await G[kind](c,stM);
+  await G[kind](c,arg||stM);
  }catch(err){toast(err.message||"Errore");return}
- lastBlob=await new Promise(ok=>cv.toBlob(ok,"image/png"));lastName=`tana-${kind}${kind==="infermeria"?"":"-"+plain(nm(stM.avv))}.png`;
- const url=URL.createObjectURL(lastBlob);
+ const st=await storyOf(cv);
+ const blobs=await Promise.all([cv,st].map(x=>new Promise(ok=>x.toBlob(ok,"image/png"))));
+ const tail=kind==="infermeria"||kind==="marcatori"?"":kind==="ufficiale"?"-"+plain(arg.nome):kind==="compleanno"?"-"+plain(PL[arg.n].name):"-"+plain(nm(stM.avv));
+ const names=[`tana-${kind}${tail}.png`,`tana-${kind}${tail}-storia.png`];
+ const urls=blobs.map(b=>URL.createObjectURL(b));let cur=0;
  $("sheetBody").onclick=null;
- $("sheetBody").innerHTML=`<img class="preview" src="${url}" alt=""><div class="row2"><button class="btn gold" id="gShare">Condividi</button><a class="btn" href="${url}" download="${lastName}">Scarica</a></div>`;
- $("gShare").onclick=async()=>{const f=new File([lastBlob],lastName,{type:"image/png"});if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f]})}catch(_){}}else{const a=document.createElement("a");a.href=url;a.download=lastName;a.click()}};
+ $("sheetBody").innerHTML=`<div class="pills full glass fmt" id="fmtP"><button class="on" data-f="0">Post 4:5</button><button data-f="1">Storia 9:16</button></div><img class="preview" id="gPrev" src="${urls[0]}" alt=""><div class="row2"><button class="btn gold" id="gShare">Condividi</button><a class="btn" id="gDl" href="${urls[0]}" download="${names[0]}">Scarica</a></div>`;
+ tabInd($("fmtP"));
+ $("fmtP").onclick=e=>{const b=e.target.closest("button");if(!b)return;cur=+b.dataset.f;$("fmtP").querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));$("gPrev").src=urls[cur];$("gDl").href=urls[cur];$("gDl").download=names[cur]};
+ $("gShare").onclick=async()=>{const f=new File([blobs[cur]],names[cur],{type:"image/png"});if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f]})}catch(_){}}else{const a=document.createElement("a");a.href=urls[cur];a.download=names[cur];a.click()}};
  openSheet();
 }
 document.querySelector(".gfx").addEventListener("click",e=>{const b=e.target.closest(".gbtn");if(b)makeGfx(b.dataset.g)});
@@ -1330,7 +1603,7 @@ document.querySelector(".gfx").addEventListener("click",e=>{const b=e.target.clo
 /* ================= AVVIO ================= */
 const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}}),{rootMargin:"0px 0px -8% 0px"});
 pickNext();stM=defaultStudio();
-renderWidgets();renderPlan();renderStudio();renderStats();renderInf();renderTF();
+renderWidgets();renderPlan();renderStudio();renderStats();renderInf();renderTF();renderScorers();renderBdays();lockUI();
 document.querySelectorAll("[data-r]").forEach(e=>io.observe(e));
 track.innerHTML=LIST().map(cardHTML).join("");
 requestAnimationFrame(()=>{toCard(next.i,false);cfFrame()});
