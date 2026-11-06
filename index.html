@@ -171,6 +171,7 @@ h2.display{font-size:34px}
 .pills.full.three{grid-template-columns:1fr 1fr 1fr}
 .pills.three button{padding:10px 4px;font-size:13px}
 .tfsel{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.tfpick{min-height:0!important}
 .tfpick{padding:12px;border-radius:18px;background:rgba(0,0,0,.25);border:1px solid var(--edge);min-height:84px}
 .tfpick small{display:block;font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
 .tfpick.t small{color:var(--green)}.tfpick.f small{color:#ff5a6b}
@@ -183,9 +184,9 @@ h2.display{font-size:34px}
 .tfrow b{display:block;font-size:14px;font-weight:700}
 .tfrow small{font-size:11px;color:var(--muted);font-weight:600}
 .tfb{padding:8px 12px;border-radius:999px;font-size:12px;font-weight:800;background:rgba(255,255,255,.07);border:1px solid var(--edge);color:var(--muted)}
-.tfb.top.on{background:var(--green);border-color:var(--green);color:#111}
-.tfb.flop.on{background:var(--red);border-color:var(--red);color:#fff}
-#tfMonthW{margin-top:10px}
+.tfb[data-w=top].on{background:var(--green);border-color:var(--green);color:#111}
+.tfb[data-w=flop].on{background:var(--red);border-color:var(--red);color:#fff}
+
 
 /* CAROSELLO */
 .cf-head{text-align:center;margin-bottom:6px}
@@ -397,8 +398,6 @@ footer p{margin-top:10px;font-family:Anton,sans-serif;letter-spacing:2px;text-tr
         </div>
         <div class="pane" id="paneVot"><div id="votes"></div></div>
         <div class="pane" id="paneTF">
-          <div class="pills full glass" id="tfMode" style="margin-top:12px"><button data-x="g" class="on">Partita</button><button data-x="m">Mese</button></div>
-          <div class="selwrap" id="tfMonthW" hidden><select id="tfMonth" class="sel" aria-label="Mese"></select></div>
           <div id="tfSel"></div>
           <div class="bar tfbar"><button class="btn" id="tfAuto"><svg viewBox="0 0 24 24"><path d="M12 3l2.6 5.6L20 9.3l-4 4 1 5.7-5-2.8-5 2.8 1-5.7-4-4 5.4-.7z"/></svg>Suggerisci</button><button class="btn" id="tfCopy"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>Caption</button><button class="btn" id="tfGfx"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>Grafica</button></div>
           <div id="tf"></div>
@@ -925,74 +924,51 @@ function renderStudio(){
 }
 $("stMatch").addEventListener("change",e=>{stM=M[+e.target.value];renderMods();renderPitch();renderVotes()});
 document.querySelector(".seg").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;document.querySelectorAll(".seg button").forEach(x=>x.classList.toggle("on",x===b));$("paneXI").classList.toggle("on",b.dataset.t==="xi");$("paneVot").classList.toggle("on",b.dataset.t==="vot");$("paneTF").classList.toggle("on",b.dataset.t==="tf")});
-$("stMatch").addEventListener("change",()=>{tfMonth=monthKey(stM.k);renderTF()});
+$("stMatch").addEventListener("change",()=>renderTF());
 
 /* ================= STUDIO: TOP E FLOP ================= */
-let tfMode="g",tfMonth=null;
-const monthKey=d=>d.getFullYear()+"-"+pad(d.getMonth()+1);
-const monthName=k=>{const [y,mm]=k.split("-");return MESI[+mm-1]+" "+y};
-const fmtA=v=>(Math.round(v*10)/10).toFixed(1).replace(".",",");
-const tfKey=()=>tfMode==="g"?stM.id+":tf":"global:tf:"+tfMonth;
-const tfOf=k=>{const x=store.json(k,{})||{};return {top:(x.top||[]).filter(n=>PL[n]),flop:(x.flop||[]).filter(n=>PL[n])}};
-function monthStats(mk){
- const ms=M.filter(m=>monthKey(m.k)===mk),agg={};
- ms.forEach(m=>{const v=votesOf(m);for(const n in v.v){const a=agg[n]=agg[n]||{s:0,c:0,mvp:0};a.s+=v.v[n];a.c++}if(v.mvp){const a=agg[v.mvp]=agg[v.mvp]||{s:0,c:0,mvp:0};a.mvp++}});
- const list=Object.entries(agg).filter(([n,a])=>a.c&&PL[n]).map(([n,a])=>({n:+n,val:a.s/a.c,c:a.c,mvp:a.mvp})).sort((a,b)=>b.val-a.val||b.c-a.c);
- return {ms,list,played:ms.filter(m=>Object.keys(votesOf(m).v).length).length};
-}
+const tfKey=m=>m.id+":tf";
+const tfOf=m=>{const x=store.json(tfKey(m),{})||{};const one=a=>(a||[]).filter(n=>PL[n]).slice(0,1);return {top:one(x.top),flop:one(x.flop)}};
 function tfCands(){
- if(tfMode==="g"){
-  const v=votesOf(stM),xi=xiOf(stM);
-  const main=votedList(stM,v).sort((a,b)=>b[1]-a[1]).map(([n,val])=>({n,val,mvp:v.mvp==n}));
-  [...xi.p.filter(Boolean),...xi.sub].forEach(n=>{if(v.v[n]==null)main.push({n,val:null})});
-  const ids=main.map(x=>x.n);return {main,rest:SQUAD.map(p=>p[0]).filter(n=>!ids.includes(n)).map(n=>({n,val:null}))};
- }
- const {list}=monthStats(tfMonth),ids=list.map(x=>x.n);
- return {main:list,rest:SQUAD.map(p=>p[0]).filter(n=>!ids.includes(n)).map(n=>({n,val:null}))};
+ const v=votesOf(stM),xi=xiOf(stM);
+ const main=votedList(stM,v).sort((a,b)=>b[1]-a[1]).map(([n,val])=>({n,val,mvp:v.mvp==n}));
+ [...xi.p.filter(Boolean),...xi.sub].forEach(n=>{if(v.v[n]==null)main.push({n,val:null})});
+ const ids=main.map(x=>x.n);return {main,rest:SQUAD.map(p=>p[0]).filter(n=>!ids.includes(n)).map(n=>({n,val:null}))};
 }
 const kit=n=>`<span class="ktok">${shirtSVG(PL[n].r==="P"?"GK":"MILAN",n)}</span>`;
 function renderTF(){
  if(!stM)return;
- if(!tfMonth)tfMonth=monthKey(stM.k);
- $("tfMonth").innerHTML=[...new Set(M.map(m=>monthKey(m.k)))].map(k=>`<option value="${k}"${k===tfMonth?" selected":""}>${monthName(k)}</option>`).join("");
- $("tfMonthW").hidden=tfMode!=="m";
- const x=tfOf(tfKey()),{main,rest}=tfCands();
+ const x=tfOf(stM),{main,rest}=tfCands();
  const pick=(arr,cls,lab)=>`<div class="tfpick ${cls}"><small>${lab}</small><div class="bchips">${arr.length?arr.map(n=>`<span class="bchip">${kit(n)}${PL[n].name}</span>`).join(""):'<span class="tfnone">–</span>'}</div></div>`;
  $("tfSel").innerHTML=`<div class="tfsel">${pick(x.top,"t","Top")}${pick(x.flop,"f","Flop")}</div>`;
- const info=c=>c.val==null?RUOLO[PL[c.n].r]:tfMode==="g"?"Voto "+fmtV(c.val)+(c.mvp?" · ⭐":""):"Media "+fmtA(c.val)+" · "+c.c+(c.c>1?" partite":" partita")+(c.mvp?" · ⭐"+(c.mvp>1?"×"+c.mvp:""):"");
- const row=c=>`<div class="tfrow" data-n="${c.n}">${kit(c.n)}<div><b>${PL[c.n].name}</b><small>${info(c)}</small></div><button class="tfb top${x.top.includes(c.n)?" on":""}" data-w="top">Top</button><button class="tfb flop${x.flop.includes(c.n)?" on":""}" data-w="flop">Flop</button></div>`;
+ const info=c=>c.val==null?RUOLO[PL[c.n].r]:"Voto "+fmtV(c.val)+(c.mvp?" · ⭐":"");
+ const row=c=>`<div class="tfrow" data-n="${c.n}">${kit(c.n)}<div><b>${PL[c.n].name}</b><small>${info(c)}</small></div><button class="tfb${x.top.includes(c.n)?" on":""}" data-w="top">Top</button><button class="tfb${x.flop.includes(c.n)?" on":""}" data-w="flop">Flop</button></div>`;
  const wasOpen=$("tf").querySelector("details.more")?.open;
  $("tf").innerHTML=main.map(row).join("")+(rest.length?`<details class="more"${!main.length||wasOpen?" open":""}><summary>${main.length?"Altri":"Rosa"}</summary>${rest.map(row).join("")}</details>`:"");
 }
-$("tfMode").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;tfMode=b.dataset.x;$("tfMode").querySelectorAll("button").forEach(y=>y.classList.toggle("on",y===b));renderTF()});
-$("tfMonth").addEventListener("change",e=>{tfMonth=e.target.value;renderTF()});
 $("tf").addEventListener("click",e=>{
  const b=e.target.closest(".tfb");if(!b)return;
- const n=+b.closest(".tfrow").dataset.n,w=b.dataset.w,o=w==="top"?"flop":"top",k=tfKey(),x=tfOf(k),i=x[w].indexOf(n);
- if(i>-1)x[w].splice(i,1);else{if(x[w].length>=3){toast("Massimo 3");return}x[w].push(n);x[o]=x[o].filter(y=>y!==n)}
- store.set(k,x.top.length||x.flop.length?x:null);renderTF();
+ const n=+b.closest(".tfrow").dataset.n,w=b.dataset.w,o=w==="top"?"flop":"top",x=tfOf(stM);
+ if(x[w][0]===n)x[w]=[];else{x[w]=[n];x[o]=x[o].filter(y=>y!==n)}
+ store.set(tfKey(stM),x.top.length||x.flop.length?x:null);renderTF();
 });
 $("tfAuto").onclick=()=>{
  const v=tfCands().main.filter(c=>c.val!=null);if(!v.length){toast("Inserisci prima i voti");return}
- const top=v.slice(0,3).map(c=>c.n),flop=v.slice().reverse().filter(c=>!top.includes(c.n)).slice(0,3).map(c=>c.n);
- store.set(tfKey(),{top,flop});renderTF();
+ const top=[v[0].n],flop=v.length>1?[v[v.length-1].n]:[];
+ store.set(tfKey(stM),{top,flop});renderTF();
 };
-function tfSort(x,val){const k=(n,d)=>{const v=val(n);return v==null?d:v};return {top:[...x.top].sort((a,b)=>k(b,-1)-k(a,-1)),flop:[...x.flop].sort((a,b)=>k(a,99)-k(b,99))}}
-function tfBody(x,val,fmt){x=tfSort(x,val);const line=n=>PL[n].name+(val(n)!=null?" "+fmt(val(n)):"");return `🔝 TOP\n${x.top.map(line).join("\n")||"–"}\n\n👎 FLOP\n${x.flop.map(line).join("\n")||"–"}`}
-function tfMatchBody(m){const x=tfOf(m.id+":tf");if(!x.top.length&&!x.flop.length)return "";const v=votesOf(m);return tfBody(x,n=>v.v[n],fmtV)}
-function tfMonthData(mk){const st=monthStats(mk),avg={};st.list.forEach(c=>avg[c.n]=c.val);return {x:tfOf("global:tf:"+mk),avg,played:st.played}}
-function tfMonthCaption(mk){
- const {x,avg,played}=tfMonthData(mk);if(!x.top.length&&!x.flop.length)return null;
- return `🔥 TOP & FLOP DI ${monthName(mk).toUpperCase()}\n${played} ${played===1?"partita":"partite"} · media voto\n\n${tfBody(x,n=>avg[n],fmtA)}\n\n${TAGS} #topeflop #milan #tanadeldiavolo`;
+function tfMatchBody(m){
+ const x=tfOf(m);if(!x.top.length&&!x.flop.length)return "";const v=votesOf(m);
+ const line=n=>n?PL[n].name+(v.v[n]!=null?" "+fmtV(v.v[n]):""):"–";
+ return `🔝 TOP: ${line(x.top[0])}\n👎 FLOP: ${line(x.flop[0])}`;
 }
 $("tfCopy").onclick=async()=>{
- let txt;
- if(tfMode==="g"){if(!tfMatchBody(stM)){toast("Scegli prima top e flop");return}txt=caption(stM,"top",true)}
- else{txt=tfMonthCaption(tfMonth);if(!txt){toast("Scegli prima top e flop");return}}
+ if(!tfMatchBody(stM)){toast("Scegli prima top e flop");return}
+ const txt=caption(stM,"top",true);
  try{await navigator.clipboard.writeText(txt)}catch(_){const t=document.createElement("textarea");t.value=txt;document.body.appendChild(t);t.select();document.execCommand("copy");t.remove()}
  toast("Caption copiata");
 };
-$("tfGfx").onclick=()=>makeGfx(tfMode==="g"?"topflop":"topflopMese");
+$("tfGfx").onclick=()=>makeGfx("topflop");
 
 /* ================= BILANCIO ================= */
 function renderStats(){
@@ -1203,15 +1179,23 @@ const G={
   c.textBaseline="alphabetic";footer(c,m);
  },
  async topflop(c,m){
-  const x=tfOf(m.id+":tf");if(!x.top.length&&!x.flop.length)throw new Error("Scegli prima top e flop");
+  const x=tfOf(m);if(!x.top.length&&!x.flop.length)throw new Error("Scegli prima top e flop");
   const v=votesOf(m);
-  await drawTF(c,"TOP & FLOP",resLine(m)?resLine(m).toUpperCase():titolo(m).toUpperCase(),x,n=>v.v[n],fmtV);
+  await frame(c,"TOP & FLOP");
+  c.textAlign="left";c.textBaseline="alphabetic";c.fillStyle="#f4f1ea";c.font="64px Anton";c.fillText(resLine(m)?resLine(m).toUpperCase():titolo(m).toUpperCase(),70,330);
+  const card=(n,y,lab,color)=>{
+   rr(c,60,y,960,400,36);c.fillStyle="rgba(255,255,255,.06)";c.fill();c.lineWidth=3;c.strokeStyle=color;c.globalAlpha=.55;c.stroke();c.globalAlpha=1;
+   c.textAlign="left";c.textBaseline="alphabetic";c.fillStyle=color;c.font="800 34px Inter";c.fillText(lab,110,y+76);
+   if(!n){c.fillStyle="#8b8781";c.font="120px Anton";c.fillText("–",110,y+280);return}
+   cshirt(c,PL[n].r==="P"?"GK":"MILAN",250,y+240,230,n);
+   c.fillStyle="#f4f1ea";c.font="92px Anton";const nmT=PL[n].name.toUpperCase();
+   let fs=92;while(fs>48&&(c.font=`${fs}px Anton`,c.measureText(nmT).width>560))fs-=4;
+   c.fillText(nmT,410,y+232);
+   const vv=v.v[n];if(vv!=null){c.fillStyle=color;c.font="150px Anton";c.fillText(fmtV(vv),410,y+370)}
+  };
+  card(x.top[0],380,"TOP","#3ddc84");
+  card(x.flop[0],810,"FLOP","#ff5a6b");
   footer(c,m);
- },
- async topflopMese(c){
-  const {x,avg,played}=tfMonthData(tfMonth);if(!x.top.length&&!x.flop.length)throw new Error("Scegli prima top e flop");
-  await drawTF(c,"TOP & FLOP DEL MESE",monthName(tfMonth).toUpperCase(),x,n=>avg[n],fmtA);
-  c.textAlign="center";c.fillStyle="#8b8781";c.font="700 30px Inter";c.fillText(`${played} ${played===1?"PARTITA":"PARTITE"} · MEDIA VOTO`,540,1286);
  },
  async infermeria(c){
   const list=infOf();if(!list.length)throw new Error("Nessun giocatore in infermeria");
@@ -1227,23 +1211,6 @@ const G={
   c.textBaseline="alphabetic";c.textAlign="center";c.fillStyle="#8b8781";c.font="700 30px Inter";c.fillText("AGGIORNATA AL "+quando(now).split(" · ")[0].toUpperCase(),540,1286);
  }
 };
-async function drawTF(c,label,title,x,val,fmt){x=tfSort(x,val);
- await frame(c,label);
- c.textAlign="left";c.textBaseline="alphabetic";c.fillStyle="#f4f1ea";c.font="68px Anton";c.fillText(title,70,330);
- const RH=112;
- const block=(arr,y0,lab,color)=>{
-  c.textAlign="left";c.textBaseline="alphabetic";c.fillStyle=color;c.font="800 30px Inter";c.fillText(lab,70,y0);c.fillRect(70,y0+14,940,3);
-  if(!arr.length){c.fillStyle="#8b8781";c.font="800 34px Inter";c.fillText("–",70,y0+70);return y0+90}
-  arr.forEach((n,i)=>{const y=y0+34+i*RH;rr(c,60,y,960,RH-10,24);c.fillStyle="rgba(255,255,255,.06)";c.fill();
-   cshirt(c,PL[n].r==="P"?"GK":"MILAN",132,y+(RH-10)/2,84,n);
-   c.textBaseline="middle";c.textAlign="left";c.fillStyle="#f4f1ea";c.font="46px Anton";c.fillText(PL[n].name.toUpperCase(),200,y+(RH-10)/2+2);
-   const vv=val(n);if(vv!=null){c.textAlign="right";c.fillStyle=color;c.font="58px Anton";c.fillText(fmt(vv),990,y+(RH-10)/2+3)}
-   c.textBaseline="alphabetic"});
-  return y0+34+arr.length*RH;
- };
- const y=block(x.top,420,"TOP","#3ddc84");
- block(x.flop,y+50,"FLOP","#ff5a6b");
-}
 let lastBlob=null,lastName="";
 async function makeGfx(kind){
  const cv=document.createElement("canvas");cv.width=1080;cv.height=1350;const c=cv.getContext("2d");
@@ -1251,7 +1218,7 @@ async function makeGfx(kind){
   await Promise.all([document.fonts.load("120px Anton"),document.fonts.load("800 30px Inter")]);
   await G[kind](c,stM);
  }catch(err){toast(err.message||"Errore");return}
- lastBlob=await new Promise(ok=>cv.toBlob(ok,"image/png"));lastName=`tana-${kind}${kind==="infermeria"?"":kind==="topflopMese"?"-"+plain(monthName(tfMonth)):"-"+plain(nm(stM.avv))}.png`;
+ lastBlob=await new Promise(ok=>cv.toBlob(ok,"image/png"));lastName=`tana-${kind}${kind==="infermeria"?"":"-"+plain(nm(stM.avv))}.png`;
  const url=URL.createObjectURL(lastBlob);
  $("sheetBody").onclick=null;
  $("sheetBody").innerHTML=`<img class="preview" src="${url}" alt=""><div class="row2"><button class="btn gold" id="gShare">Condividi</button><a class="btn" href="${url}" download="${lastName}">Scarica</a></div>`;
