@@ -380,10 +380,11 @@ footer p{margin-top:10px;font-family:Anton,sans-serif;letter-spacing:2px;text-tr
 .i-sparks i{position:absolute;left:0;top:-1px;width:18px;height:2px;border-radius:2px;background:linear-gradient(90deg,#fff3d0,#d9ad55);opacity:0;transform:rotate(var(--a)) translateX(60px)}
 .intro.hit .i-sparks i{animation:spark .7s cubic-bezier(.1,.8,.3,1) var(--t) forwards}
 @keyframes spark{0%{opacity:1;transform:rotate(var(--a)) translateX(calc(min(29vw,145px) - 10px)) scaleX(1.6)}100%{opacity:0;transform:rotate(var(--a)) translateX(var(--d)) scaleX(.4)}}
-.i-title{font-family:Anton,Impact,sans-serif;text-transform:uppercase;font-size:clamp(30px,9vw,54px);letter-spacing:.5em;opacity:0;white-space:nowrap;text-align:center;padding-left:.5em}
+.i-title{font-family:Anton,Impact,sans-serif;text-transform:uppercase;font-size:clamp(30px,10.5vw,58px);line-height:1;letter-spacing:.3em;opacity:0;text-align:center;max-width:92vw;padding-left:.3em}
+.i-title b{display:block}
 .i-title b{font-weight:400;color:var(--red)}
 .intro.hit .i-title{animation:iTitle .9s cubic-bezier(.2,.8,.2,1) .25s forwards}
-@keyframes iTitle{0%{opacity:0;letter-spacing:.5em;filter:blur(6px)}100%{opacity:1;letter-spacing:.06em;filter:none;padding-left:.06em}}
+@keyframes iTitle{0%{opacity:0;letter-spacing:.3em;padding-left:.3em;filter:blur(6px)}100%{opacity:1;letter-spacing:.04em;padding-left:.04em;filter:none}}
 body.intro-on{overflow:hidden}
 @media (prefers-reduced-motion:reduce){
   [data-r]{opacity:1;transform:none;transition:none}
@@ -397,7 +398,7 @@ body.intro-on{overflow:hidden}
   <div class="i-stage">
     <div class="i-med"><img class="i-ring" src="assets/ring.png" alt=""><div class="i-flash"></div><div class="i-triw"><img class="i-tri" src="assets/trident.png" alt=""></div></div>
     <div class="i-wave"></div><div class="i-wave w2"></div><div class="i-sparks" id="iSparks"></div>
-    <div class="i-title">Tana del <b>Diavolo</b></div>
+    <div class="i-title">Tana del<b>Diavolo</b></div>
   </div>
 </div>
 <script>
