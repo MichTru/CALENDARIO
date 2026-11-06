@@ -338,6 +338,53 @@ footer p{margin-top:10px;font-family:Anton,sans-serif;letter-spacing:2px;text-tr
 .toast{position:fixed;left:50%;bottom:calc(var(--nav) + 40px);transform:translate(-50%,20px);opacity:0;padding:10px 16px;border-radius:999px;background:#f4f1ea;color:#111;font-size:13px;font-weight:800;z-index:160;transition:.3s;pointer-events:none}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 
+
+/* INTRO */
+.intro{position:fixed;inset:0;z-index:500;overflow:hidden;perspective:1000px;cursor:pointer;-webkit-user-select:none;user-select:none}
+.intro .door{position:absolute;top:0;bottom:0;width:50.5%;background:#060606 url(assets/smoke.jpg) 0 0/100vw 100vh no-repeat;transition:transform 1s cubic-bezier(.75,0,.2,1)}
+.intro .door::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at var(--x) 50%,rgba(208,2,27,.16),rgba(6,6,6,.6) 55%,rgba(6,6,6,.92))}
+.intro .door.l{left:0;--x:100%}
+.intro .door.r{right:0;background-position:-50vw 0;--x:0%}
+.intro .door.l{box-shadow:inset -2px 0 0 rgba(208,2,27,0)}
+.intro.hit .door.l{animation:seamL 1.1s ease-out 1 forwards}
+.intro.hit .door.r{animation:seamR 1.1s ease-out 1 forwards}
+@keyframes seamL{0%{box-shadow:inset -3px 0 0 rgba(255,60,70,.0)}20%{box-shadow:inset -3px 0 18px rgba(255,60,70,.9)}100%{box-shadow:inset -2px 0 10px rgba(208,2,27,.5)}}
+@keyframes seamR{0%{box-shadow:inset 3px 0 0 rgba(255,60,70,.0)}20%{box-shadow:inset 3px 0 18px rgba(255,60,70,.9)}100%{box-shadow:inset 2px 0 10px rgba(208,2,27,.5)}}
+.intro.open .door.l{transform:translateX(-101%)}
+.intro.open .door.r{transform:translateX(101%)}
+.i-stage{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:34px;transition:transform .9s cubic-bezier(.6,0,.2,1),opacity .7s}
+.intro.hit .i-stage{animation:shake .45s cubic-bezier(.36,.07,.19,.97)}
+.intro.open .i-stage{transform:scale(2.4);opacity:0}
+@keyframes shake{10%,90%{translate:-2px 1px}20%,80%{translate:4px -3px}30%,50%,70%{translate:-7px 4px}40%,60%{translate:7px -4px}}
+.i-med{position:relative;width:min(58vw,290px);aspect-ratio:1;transform-style:preserve-3d}
+.i-ring{position:absolute;inset:0;width:100%;height:100%;opacity:0}
+.intro.run .i-ring{animation:iRing 1s cubic-bezier(.2,.8,.2,1) both}
+@keyframes iRing{0%{opacity:0;transform:scale(.55) rotateY(-140deg)}55%{opacity:1}100%{opacity:1;transform:none}}
+.intro.hit .i-med{animation:iHit .5s cubic-bezier(.3,1.6,.5,1)}
+@keyframes iHit{0%{transform:scale(1)}30%{transform:scale(.92)}100%{transform:scale(1)}}
+.i-triw{position:absolute;left:32.6%;top:24.6%;width:34.8%}
+.intro.hit .i-triw{animation:glow 1.4s ease-out forwards}
+@keyframes glow{0%{filter:drop-shadow(0 0 0 rgba(255,210,120,0))}15%{filter:drop-shadow(0 0 22px rgba(255,210,120,1)) brightness(1.5)}100%{filter:drop-shadow(0 0 8px rgba(255,190,90,.45))}}
+.i-tri{display:block;width:100%;opacity:0}
+.intro.run .i-tri{animation:iTri .5s cubic-bezier(.55,0,.95,.45) .5s both}
+@keyframes iTri{0%{opacity:0;transform:translateY(-120vh) scale(1.6);filter:blur(8px)}20%{opacity:1}100%{opacity:1;transform:none;filter:none}}
+.i-flash{position:absolute;inset:-40%;border-radius:50%;background:radial-gradient(circle,rgba(255,246,220,.95),rgba(255,200,100,.5) 25%,rgba(208,2,27,.25) 45%,transparent 65%);opacity:0;pointer-events:none}
+.intro.hit .i-flash{animation:flash .6s ease-out}
+@keyframes flash{0%{opacity:0;transform:scale(.4)}15%{opacity:1}100%{opacity:0;transform:scale(1.3)}}
+.i-wave{position:absolute;left:50%;top:50%;width:min(58vw,290px);aspect-ratio:1;border-radius:50%;border:3px solid rgba(255,214,140,.9);transform:translate(-50%,-50%) scale(1);opacity:0;pointer-events:none}
+.i-wave.w2{border-color:rgba(208,2,27,.9);border-width:5px}
+.intro.hit .i-wave{animation:wave .9s cubic-bezier(.1,.7,.3,1)}
+.intro.hit .i-wave.w2{animation:wave 1.1s cubic-bezier(.1,.7,.3,1) .1s}
+@keyframes wave{0%{opacity:.95;transform:translate(-50%,-50%) scale(.9)}100%{opacity:0;transform:translate(-50%,-50%) scale(3.4)}}
+.i-sparks{position:absolute;left:50%;top:50%;width:0;height:0}
+.i-sparks i{position:absolute;left:0;top:-1px;width:18px;height:2px;border-radius:2px;background:linear-gradient(90deg,#fff3d0,#d9ad55);opacity:0;transform:rotate(var(--a)) translateX(60px)}
+.intro.hit .i-sparks i{animation:spark .7s cubic-bezier(.1,.8,.3,1) var(--t) forwards}
+@keyframes spark{0%{opacity:1;transform:rotate(var(--a)) translateX(calc(min(29vw,145px) - 10px)) scaleX(1.6)}100%{opacity:0;transform:rotate(var(--a)) translateX(var(--d)) scaleX(.4)}}
+.i-title{font-family:Anton,Impact,sans-serif;text-transform:uppercase;font-size:clamp(30px,9vw,54px);letter-spacing:.5em;opacity:0;white-space:nowrap;text-align:center;padding-left:.5em}
+.i-title b{font-weight:400;color:var(--red)}
+.intro.hit .i-title{animation:iTitle .9s cubic-bezier(.2,.8,.2,1) .25s forwards}
+@keyframes iTitle{0%{opacity:0;letter-spacing:.5em;filter:blur(6px)}100%{opacity:1;letter-spacing:.06em;filter:none;padding-left:.06em}}
+body.intro-on{overflow:hidden}
 @media (prefers-reduced-motion:reduce){
   [data-r]{opacity:1;transform:none;transition:none}
   .city{height:auto}.city-in{position:relative;height:70svh}.city-img{clip-path:none}
@@ -345,6 +392,39 @@ footer p{margin-top:10px;font-family:Anton,sans-serif;letter-spacing:2px;text-tr
 </style>
 </head>
 <body>
+<div class="intro" id="intro" aria-hidden="true">
+  <div class="door l"></div><div class="door r"></div>
+  <div class="i-stage">
+    <div class="i-med"><img class="i-ring" src="assets/ring.png" alt=""><div class="i-flash"></div><div class="i-triw"><img class="i-tri" src="assets/trident.png" alt=""></div></div>
+    <div class="i-wave"></div><div class="i-wave w2"></div><div class="i-sparks" id="iSparks"></div>
+    <div class="i-title">Tana del <b>Diavolo</b></div>
+  </div>
+</div>
+<script>
+(()=>{
+ const el=document.getElementById("intro");let seen=false;
+ try{seen=sessionStorage.getItem("tdd-intro")==="1"}catch(e){}
+ if(/[?&]intro\b/.test(location.search))seen=false;
+ if(seen||matchMedia("(prefers-reduced-motion: reduce)").matches){el.remove();return}
+ try{sessionStorage.setItem("tdd-intro","1")}catch(e){}
+ document.body.classList.add("intro-on");scrollTo(0,0);
+ document.getElementById("iSparks").innerHTML=Array.from({length:16},(_,i)=>`<i style="--a:${i*22.5+Math.random()*10}deg;--d:${150+Math.random()*120}px;--t:${Math.random()*.08}s"></i>`).join("");
+ const T=[];let done=false;
+ const open=()=>{if(done)return;done=true;T.forEach(clearTimeout);el.classList.add("open");setTimeout(()=>{el.remove();document.body.classList.remove("intro-on")},1050)};
+ let started=false;
+ const go=()=>{
+  if(started)return;started=true;el.classList.add("run");
+  let hitDone=false;
+  const hit=()=>{if(hitDone||done)return;hitDone=true;el.classList.add("hit");try{navigator.vibrate&&navigator.vibrate(35)}catch(e){}T.push(setTimeout(open,1600))};
+  el.querySelector(".i-tri").addEventListener("animationend",hit,{once:true});
+  T.push(setTimeout(hit,2200));
+ };
+ el.addEventListener("click",open);
+ const imgs=[...el.querySelectorAll("img")];
+ Promise.all(imgs.map(i=>i.complete?1:new Promise(r=>{i.onload=i.onerror=r}))).then(go);
+ setTimeout(()=>{if(!el.classList.contains("hit"))go()},2500);
+})();
+</script>
 <div class="ambient"></div>
 
 <header class="hero" id="top">
