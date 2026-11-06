@@ -339,6 +339,30 @@ footer p{margin-top:10px;font-family:Anton,sans-serif;letter-spacing:2px;text-tr
 .toast.show{opacity:1;transform:translate(-50%,0)}
 
 
+/* PIN */
+.gate{position:fixed;inset:0;z-index:450;display:grid;place-items:center;background:#060606 url(assets/smoke.jpg) center/cover;-webkit-user-select:none;user-select:none}
+.gate::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 35%,rgba(208,2,27,.18),rgba(6,6,6,.75) 60%,rgba(6,6,6,.95))}
+.gate[hidden]{display:none}
+.gate.out{animation:gateOut .5s cubic-bezier(.6,0,.2,1) forwards}
+@keyframes gateOut{to{opacity:0;transform:scale(1.08)}}
+.g-in{position:relative;display:flex;flex-direction:column;align-items:center;gap:26px;padding:24px;animation:gateIn .6s cubic-bezier(.2,.8,.2,1)}
+@keyframes gateIn{from{opacity:0;transform:translateY(24px)}}
+.g-logo{width:96px;height:96px;filter:drop-shadow(0 10px 24px rgba(0,0,0,.6))}
+.g-dots{display:flex;gap:14px}
+.g-dots i{width:14px;height:14px;border-radius:50%;border:2px solid rgba(244,241,234,.45);transition:background .15s,border-color .15s,transform .15s}
+.g-dots i.on{background:#f4f1ea;border-color:#f4f1ea;transform:scale(1.1)}
+.g-dots.bad{animation:gShake .45s}
+.g-dots.bad i{border-color:var(--red)}
+.g-dots.ok i{background:var(--green);border-color:var(--green)}
+@keyframes gShake{20%,60%{transform:translateX(-10px)}40%,80%{transform:translateX(10px)}}
+.g-pad{display:grid;grid-template-columns:repeat(3,76px);gap:14px 22px}
+.g-pad button{width:76px;height:76px;border-radius:50%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);font:500 30px Inter,sans-serif;color:#f4f1ea;transition:background .15s,transform .1s}
+.g-pad button:active{background:rgba(255,255,255,.28);transform:scale(.94)}
+.g-pad button[data-k=del]{background:none;border:none;display:grid;place-items:center}
+.g-pad button[data-k=del] svg{width:28px;height:28px;stroke:#f4f1ea;fill:none;stroke-width:1.8;stroke-linejoin:round;stroke-linecap:round}
+.g-msg{min-height:20px;font-size:13px;font-weight:700;color:#ff5a6b}
+body.gate-on{overflow:hidden}
+
 /* INTRO */
 .intro{position:fixed;inset:0;z-index:500;overflow:hidden;perspective:1000px;cursor:pointer;-webkit-user-select:none;user-select:none}
 .intro .door{position:absolute;top:0;bottom:0;width:50.5%;background:#060606 url(assets/smoke.jpg) 0 0/100vw 100vh no-repeat;transition:transform 1s cubic-bezier(.75,0,.2,1)}
@@ -429,6 +453,19 @@ body.intro-on{overflow:hidden}
 </style>
 </head>
 <body>
+<div class="gate" id="gate" hidden>
+  <div class="g-in">
+    <img class="g-logo" src="assets/logo.png" alt="">
+    <div class="g-dots" id="gDots"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="g-pad" id="gPad">
+      <button data-k="1">1</button><button data-k="2">2</button><button data-k="3">3</button>
+      <button data-k="4">4</button><button data-k="5">5</button><button data-k="6">6</button>
+      <button data-k="7">7</button><button data-k="8">8</button><button data-k="9">9</button>
+      <span></span><button data-k="0">0</button><button data-k="del" aria-label="Cancella"><svg viewBox="0 0 24 24"><path d="M21 5H9l-7 7 7 7h12z"/><path d="M18 9l-6 6M12 9l6 6"/></svg></button>
+    </div>
+    <div class="g-msg" id="gMsg"></div>
+  </div>
+</div>
 <div class="intro" id="intro" aria-hidden="true">
   <div class="door l"></div><div class="door r"></div>
   <div class="i-stage">
@@ -479,7 +516,6 @@ body.intro-on{overflow:hidden}
   <div class="top glass">
     <div class="me"><img src="assets/logo.png" alt=""><b>Tana del Diavolo<span>AC Milan 26/27</span></b></div>
     <form class="search" id="searchF"><span class="orb"></span><input id="searchQ" type="search" placeholder="Cerca notizie sul Milan…" enterkeyhint="search"></form>
-    <button class="lock" id="lockBtn" aria-label="Sblocca modifiche"></button>
     <button class="bell" id="bell" aria-label="Notifiche"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></button>
   </div>
 
@@ -743,7 +779,7 @@ const store={
  get:k=>k in CACHE?CACHE[k]:null,
  json(k,d){try{return JSON.parse(CACHE[k])||d}catch(e){return d}},
  set(k,v){
-  if(!PIN){askPin();rerender();return false}
+  if(!PIN){rerender();return false}
   v=v?(v===true?"1":typeof v==="object"?JSON.stringify(v):String(v)):null;
   if(v)CACHE[k]=v;else delete CACHE[k];
   try{v?localStorage.setItem(k,v):localStorage.removeItem(k)}catch(e){}
@@ -760,7 +796,7 @@ async function flush(){
   const {error}=await sb.rpc("tdd_write",{p_pin:PIN,p_ups:ups.map(({key,value})=>({key,value})),p_dels:dels});
   if(error)throw error;
  }catch(e){
-  if(/pin|tentativi/i.test(e.message||"")){PIN=null;try{localStorage.removeItem(PIN_K)}catch(_){}lockUI();toast("PIN non valido: modifiche non salvate");reload();return}
+  if(/pin|tentativi/i.test(e.message||"")){PIN=null;try{sessionStorage.removeItem(PIN_K)}catch(_){}reload();showGate("PIN cambiato, inseriscilo di nuovo");return}
   ent.forEach(([k,v])=>{if(!(k in pending))pending[k]=v});clearTimeout(flushT);flushT=setTimeout(flush,5000)}
 }
 function applyRemote(data){
@@ -1126,25 +1162,39 @@ $("tfGfx").onclick=()=>makeGfx("topflop");
 
 /* ================= PIN ================= */
 const PIN_K="tdd-pin";
-let PIN=null;try{PIN=localStorage.getItem(PIN_K)}catch(e){}
-let pinOpen=false;
-function lockUI(){const b=$("lockBtn");if(!b)return;b.classList.toggle("on",!!PIN);b.innerHTML=PIN?ICO_UNLOCK:ICO_LOCK;b.setAttribute("aria-label",PIN?"Blocca modifiche":"Sblocca modifiche")}
-function askPin(){
- if(pinOpen)return;pinOpen=true;
- $("sheetBody").onclick=null;
- $("sheetBody").innerHTML=`<h3>PIN</h3><form id="pinF"><input class="fin" id="pinI" type="password" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••"><button class="btn white" style="width:100%;justify-content:center;padding:14px">Sblocca</button></form>`;
- openSheet();setTimeout(()=>$("pinI")&&$("pinI").focus(),350);
- $("pinF").onsubmit=async e=>{
-  e.preventDefault();const v=$("pinI").value.trim();if(!v)return;
-  if(!sb){toast("Serve la connessione");return}
-  const {data,error}=await sb.rpc("tdd_check_pin",{p_pin:v});
-  if(error){toast(/tentativi/.test(error.message)?"Troppi tentativi, riprova tra 10 minuti":"Errore, riprova");return}
-  if(!data){toast("PIN errato");$("pinI").value="";return}
-  PIN=v;try{localStorage.setItem(PIN_K,v)}catch(_){}
-  lockUI();closeSheet();toast("Modifiche sbloccate");
+let PIN=null;try{PIN=sessionStorage.getItem(PIN_K)}catch(e){}
+try{localStorage.removeItem(PIN_K)}catch(e){}
+function showGate(msg){
+ const g=$("gate");let code="",busy=false;
+ g.hidden=false;g.classList.remove("out");document.body.classList.add("gate-on");
+ const dots=[...$("gDots").children];
+ const paint=()=>dots.forEach((d,i)=>d.classList.toggle("on",i<code.length));
+ $("gMsg").textContent=msg||"";paint();
+ const check=async()=>{
+  busy=true;
+  try{
+   if(!sb&&window.supabase)sb=supabase.createClient(SB_URL,SB_KEY);
+   if(!sb)throw new Error("rete");
+   const {data,error}=await sb.rpc("tdd_check_pin",{p_pin:code});
+   if(error)throw error;
+   if(data){
+    PIN=code;try{sessionStorage.setItem(PIN_K,code)}catch(_){}
+    $("gDots").classList.add("ok");
+    setTimeout(()=>{g.classList.add("out");setTimeout(()=>{g.hidden=true;g.classList.remove("out");$("gDots").classList.remove("ok");document.body.classList.remove("gate-on")},480)},250);
+    return;
+   }
+   $("gMsg").textContent="";$("gDots").classList.remove("bad");void $("gDots").offsetWidth;$("gDots").classList.add("bad");
+   try{navigator.vibrate&&navigator.vibrate([40,40,40])}catch(_){}
+  }catch(e){$("gMsg").textContent=/tentativi/.test(e.message||"")?"Troppi tentativi, riprova tra 10 minuti":"Serve la connessione"}
+  setTimeout(()=>{code="";paint();busy=false},450);
  };
+ $("gPad").onclick=e=>{
+  const k=e.target.closest("[data-k]");if(!k||busy)return;
+  if(k.dataset.k==="del")code=code.slice(0,-1);else if(code.length<6)code+=k.dataset.k;
+  paint();if(code.length===6)check();
+ };
+ document.onkeydown=e=>{if(g.hidden||busy)return;if(/^\d$/.test(e.key)&&code.length<6){code+=e.key;paint();if(code.length===6)check()}else if(e.key==="Backspace"){code=code.slice(0,-1);paint()}};
 }
-function lockNow(){PIN=null;try{localStorage.removeItem(PIN_K)}catch(e){}lockUI();toast("Modifiche bloccate")}
 
 /* ================= MARCATORI ================= */
 const golsOf=m=>store.json(m.id+":gol",[]).filter(g=>g&&(g.t==="m"||g.t==="o"));
@@ -1171,7 +1221,6 @@ function saveGols(m,list){
  rerender();renderStats();renderScorers();
 }
 function golForm(m,idx){
- if(!PIN){askPin();return}
  const list=golsOf(m),cur=idx!=null?{...list[idx]}:{t:"m",n:null,p:"",min:"",a:null,pen:false,og:false};
  const plist=(sel,attr,none)=>["P","D","C","A"].map(r=>`<div class="plist">${SQUAD.filter(p=>p[2]===r).map(([n,name])=>`<button class="pbtn${n===sel?" cur":""}" data-${attr}="${n}"><i>${n}</i>${name}</button>`).join("")}</div>`).join("")+(none?`<button class="opt${sel?"":" on"}" data-${attr}="0">Nessuno</button>`:"");
  const draw=()=>{
@@ -1391,13 +1440,13 @@ async function enablePush(){
  }catch(e){toast("Non sono riuscito ad attivarle");console.error(e)}
 }
 $("bell").onclick=enablePush;
-$("lockBtn").onclick=()=>PIN?lockNow():askPin();$("wPush").onclick=enablePush;
+$("wPush").onclick=enablePush;
 $("searchF").onsubmit=e=>{e.preventDefault();const v=$("searchQ").value.trim();if(v)window.open(q("Milan "+v),"_blank","noopener")};
 
 
 /* ================= SHEET ================= */
 function openSheet(){$("sheet").classList.add("on")}
-function closeSheet(){$("sheet").classList.remove("on");pinOpen=false}
+function closeSheet(){$("sheet").classList.remove("on")}
 $("sheet").addEventListener("click",e=>{if(e.target.id==="sheet")closeSheet()});
 
 /* ================= GRAFICHE INSTAGRAM 1080x1350 ================= */
@@ -1603,7 +1652,8 @@ document.querySelector(".gfx").addEventListener("click",e=>{const b=e.target.clo
 /* ================= AVVIO ================= */
 const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}}),{rootMargin:"0px 0px -8% 0px"});
 pickNext();stM=defaultStudio();
-renderWidgets();renderPlan();renderStudio();renderStats();renderInf();renderTF();renderScorers();renderBdays();lockUI();
+renderWidgets();renderPlan();renderStudio();renderStats();renderInf();renderTF();renderScorers();renderBdays();
+if(!PIN)showGate();
 document.querySelectorAll("[data-r]").forEach(e=>io.observe(e));
 track.innerHTML=LIST().map(cardHTML).join("");
 requestAnimationFrame(()=>{toCard(next.i,false);cfFrame()});
