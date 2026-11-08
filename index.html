@@ -608,7 +608,9 @@ body.intro-on{overflow:hidden}
         <div class="w-label">Grafiche Instagram</div>
         <div class="gfx">
           <button class="gbtn" data-g="matchday"><span>🗓️</span>Matchday</button>
-          <button class="gbtn" data-g="formazione"><span>📋</span>Formazione</button>
+          <button class="gbtn" data-g="probabili"><span>📋</span>Probabili formazioni</button>
+          <button class="gbtn" data-g="titolari"><span>✅</span>Formazione ufficiale</button>
+          <button class="gbtn" data-g="dichiarazioni"><span>🎙️</span>Dichiarazioni</button>
           <button class="gbtn" data-g="primotempo"><span>⏱️</span>Primo tempo</button>
           <button class="gbtn" data-g="risultato"><span>🏁</span>Risultato</button>
           <button class="gbtn" data-g="pagelle"><span>⭐</span>Pagelle</button>
@@ -903,7 +905,7 @@ function caption(m,key,tpl){
  if(key==="pag"){const v=votesOf(m);const list=votedList(m,v);if(list.length||v.coach!=null||v.team!=null)extra="\n\n"+list.map(([n,val])=>`${PL[n].name} ${fmtV(val)}${v.mvp==n?" ⭐":""}`).join("\n")+(v.coach!=null?`\n\nAll. ${COACH} ${fmtV(v.coach)}`:"")+(v.team!=null?`\nSquadra ${fmtV(v.team)}`:"")}
  return `${s[1]} ${s[5]} | ${titolo(m).toUpperCase()}\n${r?r.toUpperCase():m.comp+(m.stadio?" · "+m.stadio:"")+" · "+quando(m.k)}${extra}\n\n${TAGS} ${tagH(m)} #tanadeldiavolo`;
 }
-const PGFX={pre:"matchday",prob:"formazione",uff:"formazione",pt:"primotempo",fin:"risultato",pag:"pagelle",top:"topflop"};
+const PGFX={pre:"matchday",prob:"probabili",uff:"titolari",pt:"primotempo",fin:"risultato",pag:"pagelle",top:"topflop"};
 function planHTML(m){
  let flagged=false;
  return STEPS.map(([key,emo,name,fn,query])=>{
@@ -1361,6 +1363,33 @@ function uffForm(){
  };
 }
 
+/* ================= DICHIARAZIONI ================= */
+const DIC={chi:"",ctx:"Conferenza pre-partita",txt:""};
+const DCTX=["Conferenza pre-partita","Post-partita","Intervista","Social"];
+const dicCaption=()=>`🎙️ ${DIC.chi.toUpperCase()}${DIC.ctx?` | ${DIC.ctx.toUpperCase()}`:""}\n\n“${DIC.txt}”\n\n${TAGS} #dichiarazioni${DIC.chi?" #"+plain(DIC.chi):""} #tanadeldiavolo`;
+function dicForm(){
+ const who=[COACH,...SQUAD.map(p=>p[1])];
+ const draw=()=>{
+  $("sheetBody").innerHTML=`<h3>Dichiarazioni</h3>
+  <div class="flab">Chi parla</div><input class="fin" id="dChi" list="dWho" placeholder="es. ${COACH}" value="${esc(DIC.chi)}"><datalist id="dWho">${who.map(w=>`<option value="${esc(w)}">`).join("")}</datalist>
+  <div class="flab">Contesto</div><div class="opts">${DCTX.map(t=>`<button class="opt${t===DIC.ctx?" on":""}" data-dc="${t}">${t}</button>`).join("")}</div>
+  <div class="flab">Dichiarazione</div><textarea class="fin" id="dTxt" rows="5" style="resize:vertical;min-height:120px;font:500 15px/1.45 Inter,sans-serif" placeholder="Scrivi o incolla la frase">${esc(DIC.txt)}</textarea>
+  <div class="row2"><button class="btn" id="dCap">Caption</button><button class="btn white" id="dGfx">Grafica</button></div>`;
+ };
+ const keep=()=>{const a=$("dChi"),b=$("dTxt");if(a)DIC.chi=a.value.trim();if(b)DIC.txt=b.value.trim().replace(/^["“”«»]+|["“”«»]+$/g,"")};
+ draw();openSheet();
+ $("sheetBody").onclick=e=>{
+  const t=e.target.closest("[data-dc]");if(t){keep();DIC.ctx=DIC.ctx===t.dataset.dc?"":t.dataset.dc;draw();return}
+  if(e.target.closest("#dCap")||e.target.closest("#dGfx")){keep();if(!DIC.chi||!DIC.txt){toast("Scrivi chi parla e la dichiarazione");return}
+   if(e.target.closest("#dCap"))copyText(dicCaption());else makeGfx("dichiarazioni",{...DIC})}
+ };
+}
+function wrapLines(c,txt,maxW){
+ const out=[];let line="";
+ txt.split(/\s+/).forEach(w=>{const t=line?line+" "+w:w;if(c.measureText(t).width>maxW&&line){out.push(line);line=w}else line=t});
+ if(line)out.push(line);return out;
+}
+
 /* ================= COMPLEANNI ================= */
 const BIRTH={16:"1995-07-03",1:"1990-03-08",96:"2005-01-31",2:"1998-01-21",5:"2002-06-12",13:"2006-01-13",23:"1997-12-19",31:"2001-05-24",33:"2005-12-29",34:"2000-08-29",35:"2008-06-04",42:"2003-02-08",46:"1999-10-21",8:"1996-01-23",11:"1998-09-18",12:"1995-04-03",14:"1985-09-09",20:"2003-10-30",22:"2004-08-06",28:"2008-04-25",30:"2002-07-30",56:"1999-06-27",70:"2006-10-22",80:"2002-11-29",9:"2001-06-20",21:"1999-05-22",73:"2008-03-10"};
 function nextBdays(days){
@@ -1563,10 +1592,14 @@ const G={
   const lab="FINE PRIMO TEMPO";c.font="800 34px Inter";const w=c.measureText(lab).width+60;rr(c,540-w/2,1100,w,64,32);c.fillStyle="#d9ad55";c.fill();c.fillStyle="#111";c.fillText(lab,540,1144);
   footer(c,m);
  },
- async formazione(c,m){
+ async probabili(c,m){return drawXI(c,m,"PROBABILI","FORMAZIONI",true)},
+ async titolari(c,m){return drawXI(c,m,"FORMAZIONE","UFFICIALE")},
+ async formazione(c,m){return drawXI(c,m,"FORMAZIONE","UFFICIALE")},
+ async drawXI_(c,m,t1,t2,prob){
   const xi=xiOf(m);if(!xi.p.some(Boolean))throw new Error("Prepara prima la formazione");
-  await frame(c,"FORMAZIONE · "+xi.mod);
-  const X=110,Y=270,W=860,H=930;
+  await frame(c,xi.mod);
+  c.textAlign="left";c.textBaseline="alphabetic";c.font="62px Anton";c.fillStyle="#f4f1ea";c.fillText(t1,70,316);const w1=c.measureText(t1+" ").width;c.fillStyle="#d0021b";c.fillText(t2,70+w1,316);
+  const X=110,Y=345,W=860,H=860;
   rr(c,X,Y,W,H,36);c.fillStyle="rgba(15,22,16,.85)";c.fill();c.lineWidth=4;c.strokeStyle="rgba(255,255,255,.16)";c.stroke();
   c.beginPath();c.moveTo(X,Y+H/2);c.lineTo(X+W,Y+H/2);c.stroke();c.beginPath();c.arc(X+W/2,Y+H/2,110,0,7);c.stroke();
   c.strokeRect(X+W*.22,Y,W*.56,H*.15);c.strokeRect(X+W*.22,Y+H*.85,W*.56,H*.15);
@@ -1581,7 +1614,7 @@ const G={
     c.textAlign="center";c.textBaseline="middle";c.fillStyle="#f4f1ea";c.fillText(name,cx,cy+60,164);c.textBaseline="alphabetic";
    }
   });
-  c.textAlign="center";const xs=xiOf(m).sub;if(xs.length){c.fillStyle="#f4f1ea";c.font="700 24px Inter";c.fillText(("SUBENTRATI: "+xs.map(n=>PL[n].name).join(", ")).toUpperCase(),540,1236)}c.fillStyle="#d9ad55";c.font="800 30px Inter";c.fillText(`${titolo(m).toUpperCase()} · ALL. ${COACH.toUpperCase()}`,540,1286);
+  c.textAlign="center";const xs=prob?[]:xiOf(m).sub;if(xs.length){c.fillStyle="#f4f1ea";c.font="700 24px Inter";c.fillText(("SUBENTRATI: "+xs.map(n=>PL[n].name).join(", ")).toUpperCase(),540,1236)}c.fillStyle="#d9ad55";c.font="800 30px Inter";c.fillText(`${titolo(m).toUpperCase()} · ALL. ${COACH.toUpperCase()}`,540,1286);
  },
  async pagelle(c,m){
   const v=votesOf(m),all=votedList(m,v).slice(0,18);if(!all.length&&v.coach==null&&v.team==null)throw new Error("Inserisci prima i voti");
@@ -1662,6 +1695,20 @@ const G={
   c.fillStyle="#d9ad55";c.font="80px Anton";c.fillText(x.age+" ANNI",540,1150);
   c.fillStyle="#8b8781";c.font="700 30px Inter";c.fillText(`${x.dt.getDate()} ${MESI[x.dt.getMonth()].toUpperCase()} ${x.dt.getFullYear()}`,540,1286);
  },
+ async dichiarazioni(c,d){
+  await frame(c,"DICHIARAZIONI");
+  c.textAlign="left";c.textBaseline="alphabetic";c.fillStyle="#d0021b";c.font="260px Anton";c.fillText("“",60,470);
+  let fs=58,lines;
+  for(;fs>=30;fs-=2){c.font=`700 ${fs}px Inter`;lines=wrapLines(c,d.txt,920);if(lines.length*fs*1.28<=560)break}
+  const lh=fs*1.28,y0=430+Math.max(0,(560-lines.length*lh)/2);
+  c.fillStyle="#f4f1ea";lines.forEach((l,i)=>c.fillText(l,80,y0+fs+i*lh));
+  c.fillStyle="#d0021b";c.fillRect(80,1040,120,6);
+  const pl=SQUAD.find(p=>p[1].toLowerCase()===d.chi.toLowerCase());
+  let nx=80;if(pl){cshirt(c,pl[2]==="P"?"GK":"MILAN",130,1130,100,pl[0]);nx=200}
+  c.fillStyle="#f4f1ea";c.font="72px Anton";let n=d.chi.toUpperCase();while(c.measureText(n).width>1000-nx&&n.length>3)n=n.slice(0,-1);c.fillText(n,nx,1140);
+  if(d.ctx){c.fillStyle="#d9ad55";c.font="800 28px Inter";c.fillText(d.ctx.toUpperCase(),nx,1190)}
+  c.textAlign="center";c.fillStyle="#8b8781";c.font="700 30px Inter";c.fillText(quando(now).split(" · ")[0].toUpperCase(),540,1286);
+ },
  async infermeria(c){
   const list=infOf();if(!list.length)throw new Error("Nessun giocatore in infermeria");
   await frame(c,"INFERMERIA");
@@ -1689,6 +1736,7 @@ async function drawScore(c,m,label,sc,only){
  });
  c.fillStyle="#f4f1ea";c.font="300px Anton";c.fillText(`${sc.h}-${sc.a}`,540,1040);
 }
+const drawXI=(c,m,t1,t2,prob)=>G.drawXI_(c,m,t1,t2,prob);
 let lastBlob=null,lastName="";
 async function storyOf(src){
  const cv=document.createElement("canvas");cv.width=1080;cv.height=1920;const c=cv.getContext("2d");
@@ -1701,6 +1749,7 @@ async function storyOf(src){
 }
 async function makeGfx(kind,arg){
  if(kind==="ufficiale"&&!arg){uffForm();return}
+ if(kind==="dichiarazioni"&&!arg){dicForm();return}
  const cv=document.createElement("canvas");cv.width=1080;cv.height=1350;const c=cv.getContext("2d");
  try{
   await Promise.all([document.fonts.load("120px Anton"),document.fonts.load("800 30px Inter")]);
@@ -1708,7 +1757,7 @@ async function makeGfx(kind,arg){
  }catch(err){toast(err.message||"Errore");return}
  const st=await storyOf(cv);
  const blobs=await Promise.all([cv,st].map(x=>new Promise(ok=>x.toBlob(ok,"image/png"))));
- const tail=kind==="infermeria"||kind==="marcatori"?"":kind==="ufficiale"?"-"+plain(arg.nome):kind==="compleanno"?"-"+plain(PL[arg.n].name):"-"+plain(nm(stM.avv));
+ const tail=kind==="infermeria"||kind==="marcatori"?"":kind==="ufficiale"?"-"+plain(arg.nome):kind==="dichiarazioni"?"-"+plain(arg.chi):kind==="compleanno"?"-"+plain(PL[arg.n].name):"-"+plain(nm(stM.avv));
  const names=[`tana-${kind}${tail}.png`,`tana-${kind}${tail}-storia.png`];
  const urls=blobs.map(b=>URL.createObjectURL(b));let cur=0;
  $("sheetBody").onclick=null;
@@ -1772,6 +1821,7 @@ function menuItems(){
   {t:"Top e flop",s:titolo(stM),e:"🔥",v:"photo",go:()=>studioTab("tf")},
   {t:"Matchday",s:titolo(next),e:"🗓️",v:"stripes",go:()=>{stM=next;renderStudio();makeGfx("matchday")}},
   {t:"Ufficiale",s:"Calciomercato",e:"🚨",v:"smoke",go:()=>uffForm()},
+  {t:"Dichiarazioni",s:"Conferenze e interviste",e:"🎙️",v:"gold",go:()=>dicForm()},
   {t:"Infermeria",s:inf.length?inf.length+(inf.length>1?" giocatori":" giocatore"):"Nessun infortunato",e:"🩹",v:"photo",go:()=>{const el=$("infList");el&&el.scrollIntoView({behavior:"smooth",block:"center"})}},
   {t:"Compleanni",s:bd?`${PL[bd.n].name} · ${bd.dd===0?"oggi":bd.dt.getDate()+" "+MESI[bd.dt.getMonth()].slice(0,3).toLowerCase()}`:"",e:"🎂",v:"gold",go:()=>{const el=$("bdList");el&&el.scrollIntoView({behavior:"smooth",block:"center"})}},
   {t:"Calendario",s:`${M.length} partite`,e:"📅",v:"stripes",go:()=>goTo("calendario")},
