@@ -363,6 +363,33 @@ footer p{margin-top:10px;font-family:Anton,sans-serif;letter-spacing:2px;text-tr
 .mn-close svg{width:20px;height:20px;stroke:#fff;fill:none;stroke-width:2.2;stroke-linecap:round}
 body.menu-on{overflow:hidden}
 
+/* ROSA E FOTO */
+.w-rosa{display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left}
+.faces{display:flex}
+.faces .ktok{width:38px;height:38px;margin-left:-10px;flex:0 0 38px}
+.faces .ktok:first-child{margin-left:0}
+.ktok.face{display:block;border-radius:50%;overflow:hidden;box-shadow:0 0 0 2px #0a0a0a,0 0 0 3.5px var(--red)}
+.ktok.face.gk{box-shadow:0 0 0 2px #0a0a0a,0 0 0 3.5px var(--gold)}
+.ktok.face img{width:100%;height:100%;object-fit:cover;display:block}
+.tok.face{background:none;width:50px;height:50px;border-radius:50%;box-shadow:0 0 0 2px #0a0a0a,0 0 0 4px var(--red),0 8px 18px rgba(0,0,0,.6);position:relative}
+.tok.face.gk{box-shadow:0 0 0 2px #0a0a0a,0 0 0 4px var(--gold),0 8px 18px rgba(0,0,0,.6)}
+.tok.face img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block;pointer-events:none}
+.tok.face i{position:absolute;right:-6px;bottom:-4px;min-width:20px;height:20px;padding:0 4px;border-radius:999px;background:var(--red);border:2px solid #0a0a0a;font:400 12px/16px Anton,sans-serif;font-style:normal;color:#fff;text-align:center}
+.tok.face.gk i{background:var(--gold);color:#111}
+.rosa{position:fixed;inset:0;z-index:145;overflow:auto;background:rgba(4,4,4,.86);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);opacity:0;transform:translateY(24px);transition:opacity .3s,transform .4s cubic-bezier(.2,.8,.2,1)}
+.rosa[hidden]{display:none}
+.rosa.on{opacity:1;transform:none}
+.rosa-in{max-width:680px;margin:0 auto;padding:calc(20px + env(safe-area-inset-top)) 16px 60px}
+.rosa-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.rosa-head .mn-close{position:static}
+.rrow{display:grid;grid-template-columns:56px 1fr auto;gap:12px;align-items:center;padding:8px 10px 8px 8px;border-radius:18px;background:var(--glass2);border:1px solid var(--edge);margin-bottom:6px}
+.rav .ktok{width:56px;height:56px;display:block}
+.rrow b{display:block;font-size:15px;font-weight:800}
+.rrow small{font-size:12px;color:var(--muted);font-weight:600}
+.crop{width:min(280px,72vw);aspect-ratio:1;margin:4px auto 14px;border-radius:50%;overflow:hidden;box-shadow:0 0 0 3px var(--red),0 20px 40px rgba(0,0,0,.5);touch-action:none}
+.crop canvas{width:100%;height:100%;display:block;cursor:grab}
+.zoom{width:100%;margin:0 0 14px;accent-color:var(--red)}
+
 /* SHEET */
 .sheet{position:fixed;inset:0;z-index:150;background:rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .25s;display:flex;align-items:flex-end}
 .sheet.on{opacity:1;pointer-events:auto}
@@ -568,6 +595,7 @@ body.intro-on{overflow:hidden}
       <div class="tile wide w-post" id="wPost"></div>
       <div class="tile w-stats" id="wStats"></div>
       <button class="tile w-push" id="wPush"><span class="w-label" style="margin:0">Notifiche</span><b>Avvisi post</b><span class="switch" id="pushSwitch"></span></button>
+      <button class="tile wide w-rosa" id="wRosa"><span class="w-label" style="margin:0">Rosa</span><span class="faces" id="rosaFaces"></span></button>
     </div>
   </section>
 
@@ -684,6 +712,13 @@ body.intro-on{overflow:hidden}
   <button class="mn-close" id="mnClose" aria-label="Chiudi"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
 </div>
 
+<div class="rosa" id="rosa" hidden>
+  <div class="rosa-in">
+    <div class="rosa-head"><h2 class="display">Rosa</h2><button class="mn-close" id="rosaClose" aria-label="Chiudi"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div id="rosaList"></div>
+  </div>
+</div>
+<input type="file" id="fotoIn" accept="image/*" hidden>
 <div class="sheet" id="sheet"><div class="sheet-in glass"><div class="grab"></div><div id="sheetBody"></div></div></div>
 <div class="toast" id="toast"></div>
 
@@ -866,6 +901,7 @@ async function initSync(){
  if(error){sb=null;return}
  applyRemote(data);
  flush();
+ loadFoto();
  sb.channel("tdd").on("postgres_changes",{event:"*",schema:"public",table:"tdd_state"},p=>{
   const k=(p.new&&p.new.key)||(p.old&&p.old.key);if(!k||k in pending)return;
   if(p.eventType==="DELETE"){delete CACHE[k];try{localStorage.removeItem(k)}catch(e){}}
@@ -1032,7 +1068,7 @@ function renderPitch(){
  slots.forEach((s,i)=>{
   const n=xi.p[i],t=s.querySelector(".tok");
   s.style.left=pos[i][0]+"%";s.style.top=pos[i][1]+"%";
-  if(n){t.className="tok kit";t.innerHTML=shirtSVG(i===0?"GK":"MILAN",n)}else{t.className="tok empty";t.textContent="+"}
+  if(n&&FOTO[n]){t.className="tok face"+(i===0?" gk":"");t.innerHTML=`<img src="${FOTO[n]}" alt=""><i>${n}</i>`}else if(n){t.className="tok kit";t.innerHTML=shirtSVG(i===0?"GK":"MILAN",n)}else{t.className="tok empty";t.textContent="+"}
   s.querySelector("span").textContent=n?PL[n].name:(i===0?"Portiere":"");
   s.querySelector("span").style.visibility=n||i===0?"visible":"hidden";
  });
@@ -1040,7 +1076,7 @@ function renderPitch(){
 }
 function renderBench(){
  const xi=xiOf(stM);if(!xi.p.some(Boolean)){$("bench").innerHTML="";return}
- const chip=n=>`<button class="bchip${xi.sub.includes(n)?" in":""}" data-b="${n}"><span class="ktok">${shirtSVG(PL[n].r==="P"?"GK":"MILAN",n)}</span>${PL[n].name}</button>`;
+ const chip=n=>`<button class="bchip${xi.sub.includes(n)?" in":""}" data-b="${n}">${kit(n)}${PL[n].name}</button>`;
  const rest=SQUAD.map(x=>x[0]).filter(n=>!xi.p.includes(n)&&!xi.sub.includes(n));
  $("bench").innerHTML=(xi.sub.length?`<div class="vsub">Subentrati</div><div class="bchips">${xi.sub.map(chip).join("")}</div>`:"")+`<div class="vsub">Panchina</div><div class="bchips">${rest.map(chip).join("")}</div>`;
 }
@@ -1120,7 +1156,7 @@ const TIPI=["Muscolare","Lesione muscolare","Distorsione","Contusione","Lesione 
 const RECS=["Da valutare","Pochi giorni","1 settimana","2 settimane","3-4 settimane","1-2 mesi","3+ mesi","Stagione finita"];
 function renderInf(){
  const l=infOf();
- $("infList").innerHTML=l.length?l.map((x,i)=>`<div class="inf-row" data-x="${i}"><span class="ktok">${shirtSVG(PL[x.n].r==="P"?"GK":"MILAN",x.n)}</span><div><b>${PL[x.n].name}</b><small>${esc(x.tipo||"Infortunio")}</small></div><em>${esc(x.rec||"Da valutare")}</em></div>`).join(""):`<div class="inf-empty">Nessun infortunato</div>`;
+ $("infList").innerHTML=l.length?l.map((x,i)=>`<div class="inf-row" data-x="${i}">${kit(x.n)}<div><b>${PL[x.n].name}</b><small>${esc(x.tipo||"Infortunio")}</small></div><em>${esc(x.rec||"Da valutare")}</em></div>`).join(""):`<div class="inf-empty">Nessun infortunato</div>`;
 }
 function infCaption(){
  const l=infOf();
@@ -1179,7 +1215,7 @@ function tfCands(){
  [...xi.p.filter(Boolean),...xi.sub].forEach(n=>{if(v.v[n]==null)main.push({n,val:null})});
  const ids=main.map(x=>x.n);return {main,rest:SQUAD.map(p=>p[0]).filter(n=>!ids.includes(n)).map(n=>({n,val:null}))};
 }
-const kit=n=>`<span class="ktok">${shirtSVG(PL[n].r==="P"?"GK":"MILAN",n)}</span>`;
+const kit=n=>FOTO[n]?`<span class="ktok face${isGK(n)?" gk":""}"><img src="${FOTO[n]}" alt=""></span>`:`<span class="ktok">${shirtSVG(isGK(n)?"GK":"MILAN",n)}</span>`;
 function renderTF(){
  if(!stM)return;
  const x=tfOf(stM),{main,rest}=tfCands();
@@ -1413,6 +1449,105 @@ async function copyText(txt){
  toast("Caption copiata");
 }
 
+
+/* ================= FOTO GIOCATORI ================= */
+let FOTO={};try{FOTO=JSON.parse(localStorage.getItem("tdd-foto")||"{}")||{}}catch(e){FOTO={}}
+const FOTO_IMG={};
+function fotoImgs(){
+ Object.keys(FOTO_IMG).forEach(n=>{if(!FOTO[n])delete FOTO_IMG[n]});
+ for(const n in FOTO){if(!FOTO_IMG[n]||FOTO_IMG[n].src!==FOTO[n]){const i=new Image();i.src=FOTO[n];FOTO_IMG[n]=i}}
+}
+function fotoSave(){try{localStorage.setItem("tdd-foto",JSON.stringify(FOTO))}catch(e){}}
+fotoImgs();
+async function loadFoto(){
+ if(!sb)return;
+ const {data,error}=await sb.from("tdd_foto").select("n,data");
+ if(error)return;
+ FOTO={};data.forEach(r=>FOTO[r.n]=r.data);fotoSave();fotoImgs();rerender();
+ sb.channel("tddf").on("postgres_changes",{event:"*",schema:"public",table:"tdd_foto"},p=>{
+  if(p.eventType==="DELETE"){const n=p.old&&p.old.n;if(n!=null)delete FOTO[n]}
+  else if(p.new&&p.new.n!=null&&p.new.data)FOTO[p.new.n]=p.new.data;
+  fotoSave();fotoImgs();rerender();
+ }).subscribe();
+}
+const isGK=n=>PL[n]&&PL[n].r==="P";
+function cplayer(c,n,x,y,size,gk){
+ const im=FOTO_IMG[n];
+ if(!im||!im.complete||!im.naturalWidth){cshirt(c,gk?"GK":"MILAN",x,y,size,n);return}
+ c.save();
+ const r=size*.46,col=gk?"#d9ad55":"#d0021b";
+ c.shadowColor="rgba(0,0,0,.55)";c.shadowBlur=size*.18;c.shadowOffsetY=size*.06;c.beginPath();c.arc(x,y,r,0,7);c.fillStyle="#111";c.fill();c.shadowColor="transparent";
+ c.save();c.beginPath();c.arc(x,y,r,0,7);c.clip();c.drawImage(im,x-r,y-r,2*r,2*r);c.restore();
+ c.lineWidth=Math.max(3,size*.045);c.strokeStyle=col;c.beginPath();c.arc(x,y,r,0,7);c.stroke();
+ const br=Math.max(11,size*.15),bx=x+r*.74,by=y+r*.74;
+ c.beginPath();c.arc(bx,by,br,0,7);c.fillStyle=col;c.fill();c.lineWidth=Math.max(2,br*.18);c.strokeStyle="#0a0a0a";c.stroke();
+ c.fillStyle=gk?"#111":"#fff";c.font=`${br*1.15}px Anton`;c.textAlign="center";c.textBaseline="middle";c.fillText(String(n),bx,by+br*.06);
+ c.restore();
+}
+
+/* schermata Rosa: si apre solo dal riquadro della dashboard */
+let fotoN=null;
+function renderRosaFaces(){
+ const el=$("rosaFaces");if(!el)return;
+ const withF=SQUAD.filter(p=>FOTO[p[0]]),rest=SQUAD.filter(p=>!FOTO[p[0]]);
+ el.innerHTML=[...withF,...rest].slice(0,9).map(p=>kit(p[0])).join("");
+}
+function renderRosa(){
+ const el=$("rosaList");if(!el||$("rosa").hidden)return;
+ el.innerHTML=["P","D","C","A"].map(r=>`<div class="vsub">${RUOLI[r]}</div>`+SQUAD.filter(p=>p[2]===r).map(([n,name])=>`<div class="rrow" data-n="${n}">
+  <span class="rav">${kit(n)}</span>
+  <div><b>${name}</b><small>${n} · ${RUOLO[r]}</small></div>
+  <div class="acts">${FOTO[n]?`<button class="ic rdel" aria-label="Rimuovi foto"><svg viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button>`:""}<button class="ic rup" aria-label="Carica foto"><svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></button></div>
+ </div>`).join("")).join("");
+}
+function openRosa(){$("rosa").hidden=false;document.body.classList.add("menu-on");renderRosa();requestAnimationFrame(()=>$("rosa").classList.add("on"))}
+function closeRosa(){$("rosa").classList.remove("on");setTimeout(()=>{$("rosa").hidden=true;document.body.classList.remove("menu-on")},300)}
+$("wRosa").onclick=openRosa;
+$("rosaClose").onclick=closeRosa;
+$("rosaList").addEventListener("click",async e=>{
+ const r=e.target.closest(".rrow");if(!r)return;const n=+r.dataset.n;
+ if(e.target.closest(".rup")){fotoN=n;$("fotoIn").value="";$("fotoIn").click()}
+ if(e.target.closest(".rdel")){
+  if(!sb||!PIN){toast("Serve la connessione");return}
+  const {error}=await sb.rpc("tdd_foto_set",{p_pin:PIN,p_n:n,p_data:""});
+  if(error){toast("Non riuscito");return}
+  delete FOTO[n];fotoSave();fotoImgs();rerender();renderRosa();toast("Foto rimossa");
+ }
+});
+$("fotoIn").addEventListener("change",()=>{
+ const f=$("fotoIn").files[0];if(!f||fotoN==null)return;
+ const url=URL.createObjectURL(f),img=new Image();
+ img.onload=()=>cropFoto(fotoN,img,url);img.onerror=()=>{toast("Formato non supportato");URL.revokeObjectURL(url)};img.src=url;
+});
+function cropFoto(n,img,url){
+ const S=560;let z=1,ox=0,oy=0;
+ const base=Math.max(S/img.naturalWidth,S/img.naturalHeight);
+ const lim=()=>{const s=base*z,mx=Math.max(0,(img.naturalWidth*s-S)/2),my=Math.max(0,(img.naturalHeight*s-S)/2);ox=Math.max(-mx,Math.min(mx,ox));oy=Math.max(-my,Math.min(my,oy))};
+ oy=Math.max(0,(img.naturalHeight*base-S)/2)*.7;lim();
+ $("sheetBody").onclick=null;
+ $("sheetBody").innerHTML=`<h3>${PL[n].name}</h3><div class="crop"><canvas id="cropC" width="${S}" height="${S}"></canvas></div><input class="zoom" id="cropZ" type="range" min="1" max="3" step="0.01" value="1" aria-label="Zoom"><div class="row2"><button class="btn" id="cropX">Annulla</button><button class="btn white" id="cropOK">Salva</button></div>`;
+ const cv=$("cropC"),c=cv.getContext("2d");
+ const paint=(ctx,size)=>{const k=size/S,s=base*z*k,w=img.naturalWidth*s,h=img.naturalHeight*s;ctx.fillStyle="#111";ctx.fillRect(0,0,size,size);ctx.drawImage(img,size/2-w/2+ox*k,size/2-h/2+oy*k,w,h)};
+ const draw=()=>{lim();paint(c,S)};draw();
+ let d=null;
+ cv.onpointerdown=e=>{d={x:e.clientX,y:e.clientY};cv.setPointerCapture(e.pointerId)};
+ cv.onpointermove=e=>{if(!d)return;const k=S/cv.getBoundingClientRect().width;ox+=(e.clientX-d.x)*k;oy+=(e.clientY-d.y)*k;d={x:e.clientX,y:e.clientY};draw()};
+ cv.onpointerup=cv.onpointercancel=()=>{d=null};
+ $("cropZ").oninput=e=>{z=+e.target.value;draw()};
+ $("cropX").onclick=()=>{closeSheet();URL.revokeObjectURL(url)};
+ $("cropOK").onclick=async()=>{
+  if(!sb||!PIN){toast("Serve la connessione");return}
+  const out=document.createElement("canvas");out.width=out.height=400;paint(out.getContext("2d"),400);
+  const data=out.toDataURL("image/jpeg",.84);
+  $("cropOK").disabled=true;
+  const {error}=await sb.rpc("tdd_foto_set",{p_pin:PIN,p_n:n,p_data:data});
+  $("cropOK").disabled=false;
+  if(error){toast("Non riuscito, riprova");return}
+  FOTO[n]=data;fotoSave();fotoImgs();URL.revokeObjectURL(url);closeSheet();rerender();renderRosa();toast("Foto salvata");
+ };
+ openSheet();
+}
+
 /* ================= BILANCIO ================= */
 function renderStats(){
  const played=M.filter(m=>(!scF||m.comp===scF)&&res(m)).map(m=>[m,res(m)]);
@@ -1475,7 +1610,7 @@ let rrT=null,rrWait=false;
 const editing=()=>{const a=document.activeElement;return a&&(a.tagName==="TEXTAREA"||a.tagName==="INPUT")};
 function rerender(){clearTimeout(rrT);rrT=setTimeout(()=>{if(editing()){rrWait=true;return}rrWait=false;doRender()},150)}
 document.addEventListener("focusout",()=>{if(rrWait)setTimeout(rerender,50)});
-function doRender(){now=new Date();pickNext();renderWidgets();renderPlan();renderCarousel();renderMods();renderPitch();renderVotes();renderStats();renderInf();renderTF();renderScorers();renderBdays()}
+function doRender(){now=new Date();pickNext();renderWidgets();renderPlan();renderCarousel();renderMods();renderPitch();renderVotes();renderStats();renderInf();renderTF();renderScorers();renderBdays();renderRosaFaces();renderRosa()}
 setInterval(()=>{const n=new Date();if(n.getMinutes()!==now.getMinutes())rerender()},30000);
 
 /* ================= NOTIFICHE ================= */
@@ -1605,7 +1740,7 @@ const G={
   c.strokeRect(X+W*.22,Y,W*.56,H*.15);c.strokeRect(X+W*.22,Y+H*.85,W*.56,H*.15);
   MODS[xi.mod].forEach(([px,py],i)=>{
    const n=xi.p[i],cx=X+W*px/100,cy=Y+H*py/100;
-   if(n)cshirt(c,i===0?"GK":"MILAN",cx,cy-6,88,n);else{c.lineWidth=3;c.strokeStyle="rgba(255,255,255,.35)";c.beginPath();c.arc(cx,cy,36,0,7);c.stroke()}
+   if(n)cplayer(c,n,cx,cy-6,88,i===0);else{c.lineWidth=3;c.strokeStyle="rgba(255,255,255,.35)";c.beginPath();c.arc(cx,cy,36,0,7);c.stroke()}
    const name=(n?PL[n].name:"").toUpperCase();
    if(name){
     let fs=24;c.font=`800 ${fs}px Inter`;while(fs>16&&c.measureText(name).width>164){fs--;c.font=`800 ${fs}px Inter`}
@@ -1650,7 +1785,7 @@ const G={
    rr(c,60,y,960,400,36);c.fillStyle="rgba(255,255,255,.06)";c.fill();c.lineWidth=3;c.strokeStyle=color;c.globalAlpha=.55;c.stroke();c.globalAlpha=1;
    c.textAlign="left";c.textBaseline="alphabetic";c.fillStyle=color;c.font="800 34px Inter";c.fillText(lab,110,y+76);
    if(!n){c.fillStyle="#8b8781";c.font="120px Anton";c.fillText("–",110,y+280);return}
-   cshirt(c,PL[n].r==="P"?"GK":"MILAN",250,y+240,230,n);
+   cplayer(c,n,250,y+240,230,isGK(n));
    c.fillStyle="#f4f1ea";c.font="92px Anton";const nmT=PL[n].name.toUpperCase();
    let fs=92;while(fs>48&&(c.font=`${fs}px Anton`,c.measureText(nmT).width>560))fs-=4;
    c.fillText(nmT,410,y+232);
@@ -1667,7 +1802,7 @@ const G={
   c.textAlign="right";c.fillStyle="#8b8781";c.font="800 24px Inter";c.fillText("GOL",880,490);c.fillText("ASSIST",1000,490);
   const top=510,RH=Math.min(92,(1230-top)/rows.length);
   rows.forEach((x,i)=>{const y=top+i*RH;rr(c,60,y+5,960,RH-10,20);c.fillStyle=i===0?"rgba(217,173,85,.16)":"rgba(255,255,255,.06)";c.fill();
-   cshirt(c,PL[x.n].r==="P"?"GK":"MILAN",128,y+RH/2,RH*.72,x.n);
+   cplayer(c,x.n,128,y+RH/2,RH*.72,isGK(x.n));
    c.textBaseline="middle";c.textAlign="left";c.fillStyle="#f4f1ea";c.font=`${RH*.4}px Anton`;c.fillText(PL[x.n].name.toUpperCase(),190,y+RH/2+2);
    c.textAlign="right";c.fillStyle=i===0?"#d9ad55":"#f4f1ea";c.font=`${RH*.55}px Anton`;c.fillText(String(x.g),870,y+RH/2+3);
    c.fillStyle="#8b8781";c.font=`${RH*.42}px Anton`;c.fillText(String(x.a),990,y+RH/2+3);c.textBaseline="alphabetic"});
@@ -1689,7 +1824,7 @@ const G={
   await frame(c,"AUGURI");
   const p=PL[x.n];
   c.textAlign="center";c.textBaseline="alphabetic";c.fillStyle="#f4f1ea";c.font="120px Anton";c.fillText("BUON",540,400);c.fillStyle="#d0021b";c.fillText("COMPLEANNO",540,520);
-  cshirt(c,p.r==="P"?"GK":"MILAN",540,770,320,x.n);
+  cplayer(c,x.n,540,770,320,isGK(x.n));
   let fs=110;const n=p.name.toUpperCase();c.font=`${fs}px Anton`;while(fs>56&&c.measureText(n).width>940){fs-=4;c.font=`${fs}px Anton`}
   c.fillStyle="#f4f1ea";c.fillText(n,540,1050);
   c.fillStyle="#d9ad55";c.font="80px Anton";c.fillText(x.age+" ANNI",540,1150);
@@ -1704,7 +1839,7 @@ const G={
   c.fillStyle="#f4f1ea";lines.forEach((l,i)=>c.fillText(l,80,y0+fs+i*lh));
   c.fillStyle="#d0021b";c.fillRect(80,1040,120,6);
   const pl=SQUAD.find(p=>p[1].toLowerCase()===d.chi.toLowerCase());
-  let nx=80;if(pl){cshirt(c,pl[2]==="P"?"GK":"MILAN",130,1130,100,pl[0]);nx=200}
+  let nx=80;if(pl){cplayer(c,pl[0],130,1130,100,pl[2]==="P");nx=200}
   c.fillStyle="#f4f1ea";c.font="72px Anton";let n=d.chi.toUpperCase();while(c.measureText(n).width>1000-nx&&n.length>3)n=n.slice(0,-1);c.fillText(n,nx,1140);
   if(d.ctx){c.fillStyle="#d9ad55";c.font="800 28px Inter";c.fillText(d.ctx.toUpperCase(),nx,1190)}
   c.textAlign="center";c.fillStyle="#8b8781";c.font="700 30px Inter";c.fillText(quando(now).split(" · ")[0].toUpperCase(),540,1286);
@@ -1716,7 +1851,7 @@ const G={
   const top=490,rowH=Math.min(120,(1220-top)/list.length);
   list.forEach((x,i)=>{const y=top+i*rowH,p=PL[x.n];
    rr(c,60,y+6,960,rowH-12,22);c.fillStyle="rgba(255,255,255,.06)";c.fill();
-   cshirt(c,p.r==="P"?"GK":"MILAN",130,y+rowH/2,rowH*.72,x.n);
+   cplayer(c,x.n,130,y+rowH/2,rowH*.72,isGK(x.n));
    c.textAlign="left";c.textBaseline="alphabetic";c.fillStyle="#f4f1ea";c.font=`${rowH*.34}px Anton`;c.fillText(p.name.toUpperCase(),200,y+rowH*.48);
    c.fillStyle="#8b8781";c.font=`700 ${rowH*.2}px Inter`;c.fillText(x.tipo||"Infortunio",200,y+rowH*.78);
    c.textAlign="right";c.fillStyle="#d9ad55";c.font=`800 ${rowH*.22}px Inter`;c.fillText((x.rec||"Da valutare").toUpperCase(),990,y+rowH*.6)});
@@ -1752,7 +1887,7 @@ async function makeGfx(kind,arg){
  if(kind==="dichiarazioni"&&!arg){dicForm();return}
  const cv=document.createElement("canvas");cv.width=1080;cv.height=1350;const c=cv.getContext("2d");
  try{
-  await Promise.all([document.fonts.load("120px Anton"),document.fonts.load("800 30px Inter")]);
+  await Promise.all([document.fonts.load("120px Anton"),document.fonts.load("800 30px Inter"),...Object.values(FOTO_IMG).map(i=>i.decode?i.decode().catch(()=>{}):0)]);
   await G[kind](c,arg||stM);
  }catch(err){toast(err.message||"Errore");return}
  const st=await storyOf(cv);
@@ -1772,7 +1907,7 @@ document.querySelector(".gfx").addEventListener("click",e=>{const b=e.target.clo
 /* ================= AVVIO ================= */
 const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}}),{rootMargin:"0px 0px -8% 0px"});
 pickNext();stM=defaultStudio();
-renderWidgets();renderPlan();renderStudio();renderStats();renderInf();renderTF();renderScorers();renderBdays();
+renderWidgets();renderPlan();renderStudio();renderStats();renderInf();renderTF();renderScorers();renderBdays();renderRosaFaces();
 if(!PIN)showGate();
 document.querySelectorAll("[data-r]").forEach(e=>io.observe(e));
 track.innerHTML=LIST().map(cardHTML).join("");
