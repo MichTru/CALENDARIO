@@ -1095,8 +1095,9 @@ function renderVotes(){
  const staff=(id,ico,name,sub)=>`<div class="vrow staff${v[id]==null?" off":""}" data-n="${id}"><div class="n ic2">${ico}</div><div><b>${name}</b><small>${sub}</small></div>${votoHTML(id,v[id])}<span></span></div>`;
  const others=SQUAD.map(p=>p[0]).filter(n=>!inXI.includes(n)&&!xi.sub.includes(n));
  const staffH=`<div class="vsub">Allenatore e squadra</div>${staff("coach","🧠",COACH,"Allenatore")}${staff("team","🔴","Squadra","Voto collettivo")}`;
+ const wasOpen=$("votes").querySelector("details.more")?.open;
  $("votes").innerHTML=inXI.length
-  ?`<div class="vsub">Titolari</div>${inXI.map(row).join("")}${xi.sub.length?`<div class="vsub">Subentrati</div>${xi.sub.map(row).join("")}`:""}${staffH}<details class="more"><summary>Non entrati</summary>${others.map(row).join("")}</details>`
+  ?`<div class="vsub">Titolari</div>${inXI.map(row).join("")}${xi.sub.length?`<div class="vsub">Subentrati</div>${xi.sub.map(row).join("")}`:""}${staffH}<details class="more"${wasOpen?" open":""}><summary>Non entrati</summary>${others.map(row).join("")}</details>`
   :staffH+`<div class="vsub">Rosa</div>`+others.map(row).join("");
 }
 $("votes").addEventListener("click",e=>{
@@ -1583,22 +1584,28 @@ const G={
   c.textAlign="center";const xs=xiOf(m).sub;if(xs.length){c.fillStyle="#f4f1ea";c.font="700 24px Inter";c.fillText(("SUBENTRATI: "+xs.map(n=>PL[n].name).join(", ")).toUpperCase(),540,1236)}c.fillStyle="#d9ad55";c.font="800 30px Inter";c.fillText(`${titolo(m).toUpperCase()} · ALL. ${COACH.toUpperCase()}`,540,1286);
  },
  async pagelle(c,m){
-  const v=votesOf(m),list=votedList(m,v).slice(0,16);if(!list.length&&v.coach==null&&v.team==null)throw new Error("Inserisci prima i voti");
+  const v=votesOf(m),all=votedList(m,v).slice(0,18);if(!all.length&&v.coach==null&&v.team==null)throw new Error("Inserisci prima i voti");
+  const xi=xiOf(m),tit=xi.p.some(Boolean)?all.filter(([n])=>xi.p.includes(n)):all,sos=xi.p.some(Boolean)?all.filter(([n])=>!xi.p.includes(n)):[];
   const staff=[["ALL. "+COACH.toUpperCase(),v.coach],["SQUADRA",v.team]].filter(x=>x[1]!=null);
   await frame(c,"PAGELLE");
   const r=res(m);c.textAlign="left";c.fillStyle="#f4f1ea";c.font="64px Anton";c.fillText(r?resLine(m).toUpperCase():titolo(m).toUpperCase(),70,320);
-  const top=360,rowH=Math.min(54,(1210-top-(staff.length?24:0))/Math.max(1,list.length+staff.length));
-  list.forEach(([n,val],i)=>{
-   const y=top+i*rowH,mvp=v.mvp==n;
+  const SEP=56,top=360,rows=tit.length+sos.length+staff.length;
+  const rowH=Math.min(54,(1215-top-(sos.length&&tit.length?SEP:0)-(staff.length?SEP:0))/Math.max(1,rows));
+  const vcol=val=>val>=7?"#3ddc84":val>=6?"#d9ad55":"#ff4d5e";
+  const sep=(y,lab,col)=>{c.fillStyle=col;c.globalAlpha=.4;c.fillRect(70,y+10,940,2);c.globalAlpha=1;
+   c.textBaseline="middle";c.textAlign="left";c.font="800 22px Inter";c.fillStyle=col;c.fillText(lab,70,y+36)};
+  let y=top;
+  const row=([n,val])=>{const mvp=v.mvp==n;
    if(mvp){rr(c,60,y+4,960,rowH-8,14);c.fillStyle="rgba(217,173,85,.18)";c.fill()}
-   c.textBaseline="middle";c.textAlign="left";c.fillStyle="#8b8781";c.font=`${rowH*.55}px Anton`;c.fillText(n,84,y+rowH/2+2);if(xiOf(m).sub.includes(n)){c.fillStyle="#3ddc84";c.font=`800 ${rowH*.36}px Inter`;c.fillText("↑",140,y+rowH/2+2)}
+   c.textBaseline="middle";c.textAlign="left";c.fillStyle="#8b8781";c.font=`${rowH*.55}px Anton`;c.fillText(n,84,y+rowH/2+2);
    c.fillStyle=mvp?"#d9ad55":"#f4f1ea";c.font=`800 ${rowH*.5}px Inter`;c.fillText(PL[n].name.toUpperCase()+(mvp?"  ★":""),170,y+rowH/2+2);
-   c.textAlign="right";c.fillStyle=val>=7?"#3ddc84":val>=6?"#d9ad55":"#ff4d5e";c.font=`${rowH*.7}px Anton`;c.fillText(fmtV(val),996,y+rowH/2+2);
-  });
-  const sy=top+list.length*rowH+(list.length?16:0);
-  if(staff.length&&list.length){c.fillStyle="rgba(217,173,85,.35)";c.fillRect(70,sy-6,940,2)}
-  staff.forEach(([name,val],i)=>{const y=sy+i*rowH;c.textBaseline="middle";c.textAlign="left";c.fillStyle="#d9ad55";c.font=`800 ${rowH*.5}px Inter`;c.fillText(name,170,y+rowH/2+2);
-   c.textAlign="right";c.fillStyle=val>=7?"#3ddc84":val>=6?"#d9ad55":"#ff4d5e";c.font=`${rowH*.7}px Anton`;c.fillText(fmtV(val),996,y+rowH/2+2)});
+   c.textAlign="right";c.fillStyle=vcol(val);c.font=`${rowH*.7}px Anton`;c.fillText(fmtV(val),996,y+rowH/2+2);
+   y+=rowH};
+  tit.forEach(row);
+  if(sos.length){if(tit.length){sep(y,"SOSTITUTI","#f4f1ea");y+=SEP}sos.forEach(row)}
+  if(staff.length){if(tit.length||sos.length){sep(y,"ALLENATORE E SQUADRA","#d9ad55");y+=SEP}
+   staff.forEach(([name,val])=>{c.textBaseline="middle";c.textAlign="left";c.fillStyle="#d9ad55";c.font=`800 ${rowH*.5}px Inter`;c.fillText(name,170,y+rowH/2+2);
+    c.textAlign="right";c.fillStyle=vcol(val);c.font=`${rowH*.7}px Anton`;c.fillText(fmtV(val),996,y+rowH/2+2);y+=rowH})}
   c.textBaseline="alphabetic";footer(c,m);
  },
  async topflop(c,m){
