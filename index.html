@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#070707">
 <title>Tana del Diavolo</title>
 <link rel="icon" href="assets/logo.png">
@@ -25,7 +25,10 @@
   --r:28px;--nav:70px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;touch-action:manipulation}
+*{touch-action:manipulation}
+input,textarea,select{font-size:16px}
+body.lock{position:fixed;left:0;right:0;overflow:hidden}
 body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif;overflow-x:hidden;padding-bottom:calc(var(--nav) + 30px + env(safe-area-inset-bottom))}
 a{color:inherit;text-decoration:none}
 button,input,select,textarea{font:inherit;color:inherit}
@@ -376,7 +379,7 @@ body.menu-on{overflow:hidden}
 .tok.face img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block;pointer-events:none}
 .tok.face i{position:absolute;right:-6px;bottom:-4px;min-width:20px;height:20px;padding:0 4px;border-radius:999px;background:var(--red);border:2px solid #0a0a0a;font:400 12px/16px Anton,sans-serif;font-style:normal;color:#fff;text-align:center}
 .tok.face.gk i{background:var(--gold);color:#111}
-.rosa{position:fixed;inset:0;z-index:145;overflow:auto;background:rgba(4,4,4,.86);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);opacity:0;transform:translateY(24px);transition:opacity .3s,transform .4s cubic-bezier(.2,.8,.2,1)}
+.rosa{position:fixed;inset:0;z-index:145;overflow:auto;overscroll-behavior:contain;background:rgba(4,4,4,.86);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);opacity:0;transform:translateY(24px);transition:opacity .3s,transform .4s cubic-bezier(.2,.8,.2,1)}
 .rosa[hidden]{display:none}
 .rosa.on{opacity:1;transform:none}
 .rosa-in{max-width:680px;margin:0 auto;padding:calc(20px + env(safe-area-inset-top)) 16px 60px}
@@ -393,8 +396,11 @@ body.menu-on{overflow:hidden}
 /* SHEET */
 .sheet{position:fixed;inset:0;z-index:150;background:rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .25s;display:flex;align-items:flex-end}
 .sheet.on{opacity:1;pointer-events:auto}
-.sheet-in{width:100%;max-width:640px;margin:0 auto;max-height:86svh;overflow:auto;border-radius:30px 30px 0 0;padding:10px 16px calc(24px + env(safe-area-inset-bottom));transform:translateY(100%);transition:transform .35s cubic-bezier(.2,.8,.2,1);background:rgba(28,28,28,.72)}
+.sheet-in{overscroll-behavior:contain;-webkit-overflow-scrolling:touch;width:100%;max-width:640px;margin:0 auto;max-height:86svh;overflow:auto;border-radius:30px 30px 0 0;padding:10px 16px calc(24px + env(safe-area-inset-bottom));transform:translateY(100%);transition:transform .35s cubic-bezier(.2,.8,.2,1);background:rgba(28,28,28,.72)}
 .sheet.on .sheet-in{transform:none}
+.sheet-in.drag{transition:none}
+.sheet-in{touch-action:pan-y}
+.grab{position:relative}.grab::after{content:"";position:absolute;inset:-14px -60px}
 .grab{width:40px;height:4px;border-radius:4px;background:rgba(255,255,255,.25);margin:0 auto 14px}
 .sheet h3{font-family:Anton,sans-serif;font-size:24px;text-transform:uppercase;margin-bottom:12px}
 .plist{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px}
@@ -1500,8 +1506,8 @@ function renderRosa(){
   <div class="acts">${FOTO[n]?`<button class="ic rdel" aria-label="Rimuovi foto"><svg viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button>`:""}<button class="ic rup" aria-label="Carica foto"><svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></button></div>
  </div>`).join("")).join("");
 }
-function openRosa(){$("rosa").hidden=false;document.body.classList.add("menu-on");renderRosa();requestAnimationFrame(()=>$("rosa").classList.add("on"))}
-function closeRosa(){$("rosa").classList.remove("on");setTimeout(()=>{$("rosa").hidden=true;document.body.classList.remove("menu-on")},300)}
+function openRosa(){$("rosa").hidden=false;document.body.classList.add("menu-on");lockScroll();renderRosa();requestAnimationFrame(()=>$("rosa").classList.add("on"))}
+function closeRosa(){$("rosa").classList.remove("on");setTimeout(()=>{$("rosa").hidden=true;document.body.classList.remove("menu-on");unlockScroll()},300)}
 $("wRosa").onclick=openRosa;
 $("rosaClose").onclick=closeRosa;
 $("rosaList").addEventListener("click",async e=>{
@@ -1667,9 +1673,44 @@ $("searchF").onsubmit=e=>{e.preventDefault();const v=$("searchQ").value.trim();i
 
 
 /* ================= SHEET ================= */
-function openSheet(){$("sheet").classList.add("on")}
-function closeSheet(){$("sheet").classList.remove("on")}
+/* blocco dello scroll della pagina sotto tendine e menu (funziona anche su iPhone) */
+let lockN=0,lockY=0;
+function lockScroll(){if(lockN++)return;lockY=scrollY;document.body.style.top=-lockY+"px";document.body.classList.add("lock")}
+function unlockScroll(){if(!lockN||--lockN)return;document.body.classList.remove("lock");document.body.style.top="";document.documentElement.style.scrollBehavior="auto";scrollTo(0,lockY);document.documentElement.style.scrollBehavior=""}
+function openSheet(){const s=$("sheet");if(!s.classList.contains("on"))lockScroll();s.classList.add("on");const i=s.querySelector(".sheet-in");i.style.transform="";i.scrollTop=0}
+function closeSheet(){const s=$("sheet");if(s.classList.contains("on"))unlockScroll();s.classList.remove("on");const i=s.querySelector(".sheet-in");i.classList.remove("drag");i.style.transform=""}
 $("sheet").addEventListener("click",e=>{if(e.target.id==="sheet")closeSheet()});
+/* trascina giù per chiudere */
+(()=>{
+ const sh=$("sheet"),inn=sh.querySelector(".sheet-in");let y0=0,dy=0,t0=0,drag=false,ok=false;
+ sh.addEventListener("touchmove",e=>{if(!inn.contains(e.target))e.preventDefault()},{passive:false});
+ inn.addEventListener("touchstart",e=>{
+  if(e.touches.length>1)return;const t=e.touches[0];
+  y0=t.clientY;dy=0;t0=Date.now();drag=false;
+  const top=t.clientY-inn.getBoundingClientRect().top;
+  ok=top<70||inn.scrollTop<=0;
+  if(e.target.closest("input[type=range],canvas,textarea"))ok=top<70;
+ },{passive:true});
+ inn.addEventListener("touchmove",e=>{
+  if(!ok)return;const d=e.touches[0].clientY-y0;
+  if(!drag){if(d>6&&(inn.scrollTop<=0||e.touches[0].clientY-inn.getBoundingClientRect().top<70)){drag=true;inn.classList.add("drag");y0=e.touches[0].clientY}else if(d<-6){ok=false;return}else return}
+  dy=Math.max(0,e.touches[0].clientY-y0);e.preventDefault();inn.style.transform=`translateY(${dy}px)`;
+ },{passive:false});
+ const end=()=>{
+  if(!drag)return;drag=false;inn.classList.remove("drag");
+  const v=dy/Math.max(1,Date.now()-t0);
+  if(dy>110||v>.6)closeSheet();else inn.style.transform="";
+ };
+ inn.addEventListener("touchend",end);inn.addEventListener("touchcancel",end);
+ /* anche col mouse/trackpad sulla maniglia */
+ inn.querySelector(".grab").addEventListener("pointerdown",e=>{if(e.pointerType==="touch")return;let sy=e.clientY,d=0;inn.classList.add("drag");
+  const mv=ev=>{d=Math.max(0,ev.clientY-sy);inn.style.transform=`translateY(${d}px)`};
+  const up=()=>{removeEventListener("pointermove",mv);removeEventListener("pointerup",up);inn.classList.remove("drag");if(d>110)closeSheet();else inn.style.transform=""};
+  addEventListener("pointermove",mv);addEventListener("pointerup",up)});
+})();
+/* niente zoom col doppio tap / pinch su iPhone */
+document.addEventListener("gesturestart",e=>e.preventDefault());
+
 
 /* ================= GRAFICHE INSTAGRAM 1080x1350 ================= */
 const IMG={};
@@ -1991,13 +2032,13 @@ function menuItems(){
  window.openMenu=()=>{
   items=menuItems();N=items.length;step=360/N;
   ring.innerHTML=items.map((it,i)=>`<button class="mn-card v-${it.v}" data-i="${i}"><span class="mn-bg"></span><span class="mn-ico">${it.e}</span><span class="mn-txt"><b>${it.t}</b>${it.s?`<small>${esc(it.s)}</small>`:""}</span></button>`).join("");
-  layout();menu.hidden=false;document.body.classList.add("menu-on");
+  layout();menu.hidden=false;document.body.classList.add("menu-on");lockScroll();
   rot=-step*3;vel=0;target=0;open=true;cancelAnimationFrame(raf);frame();
   requestAnimationFrame(()=>menu.classList.add("on"));
  };
  function close(after){
   if(!open)return;menu.classList.remove("on");
-  setTimeout(()=>{open=false;cancelAnimationFrame(raf);menu.hidden=true;document.body.classList.remove("menu-on");if(after)after()},330);
+  setTimeout(()=>{open=false;cancelAnimationFrame(raf);menu.hidden=true;document.body.classList.remove("menu-on");unlockScroll();if(after)after()},330);
  }
  stage.addEventListener("pointerdown",e=>{drag={x:e.clientX,y:e.clientY,lx:e.clientX,moved:0,t:e.target};target=null;vel=0;stage.setPointerCapture(e.pointerId)});
  stage.addEventListener("pointermove",e=>{if(!drag)return;const dx=e.clientX-drag.lx;drag.lx=e.clientX;drag.moved+=Math.abs(dx);const k=step/(parseFloat(ring.style.getPropertyValue("--cw"))||260);rot-=dx*k;vel=-dx*k});
