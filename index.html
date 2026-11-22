@@ -644,6 +644,7 @@ body.intro-on{overflow:hidden}
           <button class="gbtn" data-g="matchday"><span>🗓️</span>Matchday</button>
           <button class="gbtn" data-g="probabili"><span>📋</span>Probabili formazioni</button>
           <button class="gbtn" data-g="titolari"><span>✅</span>Formazione ufficiale</button>
+          <button class="gbtn" data-g="giocatore"><span>⚽</span>Giocatore</button>
           <button class="gbtn" data-g="dichiarazioni"><span>🎙️</span>Dichiarazioni</button>
           <button class="gbtn" data-g="primotempo"><span>⏱️</span>Primo tempo</button>
           <button class="gbtn" data-g="risultato"><span>🏁</span>Risultato</button>
@@ -1330,13 +1331,16 @@ function golForm(m,idx){
   <div class="flab">Minuto</div><input class="fin" id="gMin" inputmode="text" placeholder="es. 64 o 90+3" value="${esc(cur.min||"")}">
   <div class="flab">Marcatore</div>${milanPlayer?plist(cur.n,"gn",false):`<input class="fin" id="gP" placeholder="Cognome" value="${esc(cur.p||"")}">`}
   ${cur.t==="m"&&!cur.og?`<div class="flab">Assist</div>${plist(cur.a,"ga",true)}`:""}
-  <div class="row2" style="margin-top:12px">${idx!=null?`<button class="btn" id="gDel">Elimina</button>`:`<button class="btn" id="gCancel">Annulla</button>`}<button class="btn white" id="gSave">Salva</button></div>`;
+  <div class="row2" style="margin-top:12px">${idx!=null?`<button class="btn" id="gDel">Elimina</button>`:`<button class="btn" id="gCancel">Annulla</button>`}<button class="btn white" id="gSave">Salva</button></div>
+  ${idx!=null&&list[idx].t==="m"&&!list[idx].og&&PL[list[idx].n]?`<div class="row2"><button class="btn gold" id="gGfxG">Grafica gol</button>${list[idx].a&&PL[list[idx].a]?`<button class="btn" id="gGfxA">Grafica assist</button>`:""}</div>`:""}`;
  };
  const keep=()=>{const a=$("gMin"),b=$("gP");if(a)cur.min=a.value.trim();if(b)cur.p=b.value.trim()};
  draw();openSheet();
  $("sheetBody").onclick=e=>{
   const t=e.target.closest("[data-gt]"),f=e.target.closest("[data-gf]"),n=e.target.closest("[data-gn]"),a=e.target.closest("[data-ga]");
   if(t||f||n||a){keep();if(t){cur.t=t.dataset.gt;cur.n=null;cur.a=null}if(f){cur[f.dataset.gf]=!cur[f.dataset.gf];if(f.dataset.gf==="og"){cur.n=null;cur.a=null}}if(n)cur.n=+n.dataset.gn;if(a)cur.a=+a.dataset.ga||null;draw();return}
+  if(e.target.closest("#gGfxG")){gioForm({tipo:"Gol",n:list[idx].n,mi:m.i,min:"",txt:""});return}
+  if(e.target.closest("#gGfxA")){gioForm({tipo:"Assist",n:list[idx].a,mi:m.i,min:"",txt:""});return}
   if(e.target.closest("#gCancel")){closeSheet();return}
   if(e.target.closest("#gDel")){list.splice(idx,1);saveGols(m,list);closeSheet();return}
   if(e.target.closest("#gSave")){
@@ -1405,6 +1409,61 @@ function uffForm(){
  };
 }
 
+
+/* ================= GRAFICA GIOCATORE (gol, assist, MVP...) ================= */
+const GTIPI=["Gol","Assist","MVP","Esordio","Traguardo"];
+const GIO={tipo:"Gol",n:null,mi:null,min:"",txt:""};
+const MULTI=["GOL","DOPPIETTA","TRIPLETTA","POKER","MANITA"];
+function gioData(g){
+ const m=M[g.mi]||stM,list=golsOf(m).map((x,i)=>[x,i]).sort((a,b)=>minN(a[0].min)-minN(b[0].min)||a[1]-b[1]).map(x=>x[0]);
+ const mine=g.tipo==="Gol"?list.filter(x=>x.t==="m"&&!x.og&&x.n===g.n):g.tipo==="Assist"?list.filter(x=>x.t==="m"&&x.a===g.n):[];
+ let score=null;
+ if(mine.length){const last=list.indexOf(mine[mine.length-1]),upto=list.slice(0,last+1),mg=upto.filter(x=>x.t==="m").length,og=upto.length-mg;score=casa(m)==="MILAN"?[mg,og]:[og,mg]}
+ else{const r=res(m);if(r)score=[r.h,r.a]}
+ const mins=g.min?g.min.split(/[ ,]+/).filter(Boolean).map(x=>x.replace(/'/g,"")+"'"):mine.map(x=>(x.min||"?")+"'");
+ const v=votesOf(m),voto=v.v&&v.v[g.n]!=null?v.v[g.n]:null;
+ const label=g.tipo==="Gol"?MULTI[Math.min(Math.max(mine.length,1),5)-1]:g.tipo==="Assist"?(mine.length>1?mine.length+" ASSIST":"ASSIST"):g.tipo==="MVP"?"MAN OF THE MATCH":g.tipo==="Esordio"?"ESORDIO":"TRAGUARDO";
+ const per=g.tipo==="Assist"?[...new Set(mine.map(x=>PL[x.n]?PL[x.n].name:"?"))]:[];
+ return {m,mine,score,mins,voto,label,per};
+}
+function gioCaption(){
+ const d=gioData(GIO),p=PL[GIO.n],m=d.m,sc=d.score?` | ${nm(casa(m))} ${d.score[0]}-${d.score[1]} ${nm(ospite(m))}`:` | ${titolo(m)}`;
+ const ico={Gol:"⚽",Assist:"🅰️",MVP:"⭐",Esordio:"🆕",Traguardo:"🏆"}[GIO.tipo];
+ const body=GIO.tipo==="Gol"?`${d.label==="GOL"?"GOL":d.label} DI ${p.name.toUpperCase()}${d.mins.length?" "+d.mins.join(" "):""}`:GIO.tipo==="Assist"?`ASSIST DI ${p.name.toUpperCase()}${d.per.length?" per "+d.per.join(", "):""}${d.mins.length?" "+d.mins.join(" "):""}`:GIO.tipo==="MVP"?`${p.name.toUpperCase()} È IL MAN OF THE MATCH${d.voto!=null?" · voto "+d.voto:""}`:GIO.tipo==="Esordio"?`ESORDIO IN ROSSONERO PER ${p.name.toUpperCase()}`:`${p.name.toUpperCase()}`;
+ return `${ico} ${body}${sc}${GIO.txt?"\n"+GIO.txt:""}\n\n${TAGS} #${GIO.tipo==="MVP"?"manofthematch":plain(GIO.tipo)} #${plain(p.name)} #tanadeldiavolo`;
+}
+function gioForm(pre){
+ Object.assign(GIO,pre||{});if(GIO.mi==null||!M[GIO.mi])GIO.mi=stM.i;
+ const m0=()=>M[GIO.mi];
+ if(GIO.n==null){const g=golsOf(m0()).find(x=>x.t==="m"&&!x.og&&PL[x.n]);if(g)GIO.n=g.n}
+ const draw=()=>{
+  const m=m0(),mvp=votesOf(m).mvp;
+  const sug=[...new Set(GIO.tipo==="Gol"?golsOf(m).filter(x=>x.t==="m"&&!x.og).map(x=>x.n):GIO.tipo==="Assist"?golsOf(m).filter(x=>x.t==="m"&&x.a).map(x=>x.a):GIO.tipo==="MVP"&&mvp?[mvp]:[])].filter(n=>PL[n]);
+  const btn=([n,name])=>`<button class="pbtn${n===GIO.n?" cur":""}" data-gn="${n}"><i>${n}</i>${name}</button>`;
+  const all=["P","D","C","A"].map(r=>`<div class="plist">${SQUAD.filter(p=>p[2]===r).map(btn).join("")}</div>`).join("");
+  const open=!sug.length||(GIO.n!=null&&!sug.includes(GIO.n));
+  const plist=(sug.length?`<div class="plist">${sug.map(n=>btn([n,PL[n].name])).join("")}</div>`:"")+(sug.length?`<details class="more"${open?" open":""}><summary>Tutta la rosa</summary>${all}</details>`:all);
+  $("sheetBody").innerHTML=`<h3>Giocatore</h3>
+  <div class="opts">${GTIPI.map(t=>`<button class="opt${t===GIO.tipo?" on":""}" data-gt="${t}">${t}</button>`).join("")}</div>
+  <div class="flab">Partita</div><select class="fin" id="gioM">${M.map(x=>`<option value="${x.i}"${x===m?" selected":""}>${x.k.getDate()} ${MESI[x.k.getMonth()].slice(0,3).toLowerCase()} · ${titolo(x)}</option>`).join("")}</select>
+  <div class="flab">Giocatore</div>${plist}
+  ${GIO.tipo==="Gol"||GIO.tipo==="Assist"?`<div class="flab">Minuto</div><input class="fin" id="gioMin" placeholder="${(()=>{const d=GIO.n!=null?gioData(GIO):null;return d&&d.mins.length?esc(d.mins.join(" ")):"es. 64"})()}" value="${esc(GIO.min)}">`:""}
+  <div class="flab">${GIO.tipo==="Traguardo"?"Traguardo":"Dettaglio"}</div><input class="fin" id="gioTxt" placeholder="${GIO.tipo==="Traguardo"?"es. 100 presenze in rossonero":"Facoltativo"}" value="${esc(GIO.txt)}">
+  <div class="row2"><button class="btn" id="gioCap">Caption</button><button class="btn white" id="gioGfx">Grafica</button></div>`;
+ };
+ const keep=()=>{const a=$("gioMin"),b=$("gioTxt");if(a)GIO.min=a.value.trim();if(b)GIO.txt=b.value.trim()};
+ draw();openSheet();
+ $("sheetBody").onchange=e=>{if(e.target.id==="gioM"){keep();GIO.mi=+e.target.value;GIO.min="";draw()}};
+ $("sheetBody").onclick=e=>{
+  const t=e.target.closest("[data-gt]"),n=e.target.closest("[data-gn]");
+  if(t){keep();GIO.tipo=t.dataset.gt;GIO.min="";if(GIO.tipo==="MVP"&&votesOf(m0()).mvp)GIO.n=votesOf(m0()).mvp;draw();return}
+  if(n){keep();GIO.n=+n.dataset.gn;GIO.min="";const y=$("sheetBody").parentNode.scrollTop;draw();$("sheetBody").parentNode.scrollTop=y;return}
+  if(e.target.closest("#gioCap")||e.target.closest("#gioGfx")){keep();
+   if(GIO.n==null){toast("Scegli il giocatore");return}
+   if(GIO.tipo==="Traguardo"&&!GIO.txt){toast("Scrivi il traguardo");return}
+   if(e.target.closest("#gioCap"))copyText(gioCaption());else{const keepSt=stM;stM=M[GIO.mi];makeGfx("giocatore",{...GIO}).finally(()=>{stM=keepSt})}}
+ };
+}
 /* ================= DICHIARAZIONI ================= */
 const DIC={chi:"",ctx:"Conferenza pre-partita",txt:""};
 const DCTX=["Conferenza pre-partita","Post-partita","Intervista","Social"];
@@ -1543,8 +1602,7 @@ function cropFoto(n,img,url){
  $("cropX").onclick=()=>{closeSheet();URL.revokeObjectURL(url)};
  $("cropOK").onclick=async()=>{
   if(!sb||!PIN){toast("Serve la connessione");return}
-  const out=document.createElement("canvas");out.width=out.height=400;paint(out.getContext("2d"),400);
-  const data=out.toDataURL("image/jpeg",.84);
+  let data="";for(const [sz,q] of [[720,.84],[640,.78],[520,.74],[400,.72]]){const out=document.createElement("canvas");out.width=out.height=sz;paint(out.getContext("2d"),sz);data=out.toDataURL("image/jpeg",q);if(data.length<390000)break}
   $("cropOK").disabled=true;
   const {error}=await sb.rpc("tdd_foto_set",{p_pin:PIN,p_n:n,p_data:data});
   $("cropOK").disabled=false;
@@ -1871,6 +1929,32 @@ const G={
   c.fillStyle="#d9ad55";c.font="80px Anton";c.fillText(x.age+" ANNI",540,1150);
   c.fillStyle="#8b8781";c.font="700 30px Inter";c.fillText(`${x.dt.getDate()} ${MESI[x.dt.getMonth()].toUpperCase()} ${x.dt.getFullYear()}`,540,1286);
  },
+ async giocatore(c,g){
+  const d=gioData(g),p=PL[g.n],m=d.m;
+  await frame(c,g.tipo==="MVP"?"MVP":g.tipo.toUpperCase());
+  c.textAlign="center";c.textBaseline="alphabetic";
+  let fs=168;c.font=`${fs}px Anton`;while(fs>90&&c.measureText(d.label).width>960){fs-=6;c.font=`${fs}px Anton`}
+  c.fillStyle="#d0021b";c.fillText(d.label,540,248+fs*.92);
+  const top=248+fs*.92+34,S=Math.min(560,1010-top),x=540-S/2,y=top,im=FOTO_IMG[g.n];
+  if(im&&im.complete&&im.naturalWidth){
+   c.save();c.shadowColor="rgba(0,0,0,.6)";c.shadowBlur=50;c.shadowOffsetY=20;rr(c,x,y,S,S,44);c.fillStyle="#111";c.fill();c.restore();
+   c.save();rr(c,x,y,S,S,44);c.clip();c.drawImage(im,x,y,S,S);
+   const gr=c.createLinearGradient(0,y+S*.55,0,y+S);gr.addColorStop(0,"rgba(7,7,7,0)");gr.addColorStop(1,"rgba(7,7,7,.85)");c.fillStyle=gr;c.fillRect(x,y,S,S);c.restore();
+   c.lineWidth=6;c.strokeStyle=isGK(g.n)?"#d9ad55":"#d0021b";rr(c,x,y,S,S,44);c.stroke();
+   c.textAlign="right";c.fillStyle="#f4f1ea";c.font="110px Anton";c.fillText(String(g.n),x+S-34,y+S-30);c.textAlign="center";
+  }else cshirt(c,isGK(g.n)?"GK":"MILAN",540,y+S/2,S*.82,g.n);
+  let nf=112;const nmT=p.name.toUpperCase();c.font=`${nf}px Anton`;while(nf>60&&c.measureText(nmT).width>960){nf-=4;c.font=`${nf}px Anton`}
+  c.fillStyle="#f4f1ea";c.fillText(nmT,540,1110);
+  const bits=[];
+  if(g.tipo==="Gol"||g.tipo==="Assist"){if(d.mins.length)bits.push(d.mins.join(" "));if(g.tipo==="Assist"&&d.per.length)bits.push("PER "+d.per.join(", ").toUpperCase())}
+  if(g.tipo==="MVP"&&d.voto!=null)bits.push("VOTO "+String(d.voto).replace(".",","));
+  if(g.txt)bits.push(g.txt.toUpperCase());
+  if(d.score&&(g.tipo!=="Traguardo"))bits.push(`${nm(casa(m)).toUpperCase()} ${d.score[0]}-${d.score[1]} ${nm(ospite(m)).toUpperCase()}`);
+  else if(g.tipo!=="Traguardo")bits.push(titolo(m).toUpperCase());
+  let line=bits.join(" · "),bf=38;c.font=`800 ${bf}px Inter`;while(bf>22&&c.measureText(line).width>960){bf--;c.font=`800 ${bf}px Inter`}
+  c.fillStyle="#d9ad55";c.fillText(line,540,1180);
+  footer(c,m);
+ },
  async dichiarazioni(c,d){
   await frame(c,"DICHIARAZIONI");
   c.textAlign="left";c.textBaseline="alphabetic";c.fillStyle="#d0021b";c.font="260px Anton";c.fillText("“",60,470);
@@ -1929,6 +2013,7 @@ async function storyOf(src){
 async function makeGfx(kind,arg){
  if(kind==="ufficiale"&&!arg){uffForm();return}
  if(kind==="dichiarazioni"&&!arg){dicForm();return}
+ if(kind==="giocatore"&&!arg){gioForm();return}
  const cv=document.createElement("canvas");cv.width=1080;cv.height=1350;const c=cv.getContext("2d");
  try{
   await Promise.all([document.fonts.load("120px Anton"),document.fonts.load("800 30px Inter"),...Object.values(FOTO_IMG).map(i=>i.decode?i.decode().catch(()=>{}):0)]);
@@ -1936,7 +2021,7 @@ async function makeGfx(kind,arg){
  }catch(err){toast(err.message||"Errore");return}
  const st=await storyOf(cv);
  const blobs=await Promise.all([cv,st].map(x=>new Promise(ok=>x.toBlob(ok,"image/png"))));
- const tail=kind==="infermeria"||kind==="marcatori"?"":kind==="ufficiale"?"-"+plain(arg.nome):kind==="dichiarazioni"?"-"+plain(arg.chi):kind==="compleanno"?"-"+plain(PL[arg.n].name):"-"+plain(nm(stM.avv));
+ const tail=kind==="infermeria"||kind==="marcatori"?"":kind==="ufficiale"?"-"+plain(arg.nome):kind==="dichiarazioni"?"-"+plain(arg.chi):kind==="giocatore"?"-"+plain(arg.tipo)+"-"+plain(PL[arg.n].name):kind==="compleanno"?"-"+plain(PL[arg.n].name):"-"+plain(nm(stM.avv));
  const names=[`tana-${kind}${tail}.png`,`tana-${kind}${tail}-storia.png`];
  const urls=blobs.map(b=>URL.createObjectURL(b));let cur=0;
  $("sheetBody").onclick=null;
