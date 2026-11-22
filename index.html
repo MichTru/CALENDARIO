@@ -1904,13 +1904,16 @@ async function drawScore(c,m,label,sc,only){
  cshirt(c,casa(m),290,440,150);cshirt(c,ospite(m),790,440,150);
  c.textAlign="center";c.textBaseline="alphabetic";c.font="56px Anton";c.fillStyle=casa(m)==="MILAN"?"#d0021b":"#f4f1ea";c.fillText(nm(casa(m)).toUpperCase(),290,600);
  c.fillStyle=ospite(m)==="MILAN"?"#d0021b":"#f4f1ea";c.fillText(nm(ospite(m)).toUpperCase(),790,600);
+ let maxL=0;
  [[casa(m),290],[ospite(m),790]].forEach(([t,x])=>{
   let lines=golGroups(m,t==="MILAN"?"m":"o",only).map(g=>`${g.who} ${g.mins.join(" ")}${g.tag}`.toUpperCase());
-  if(lines.length>4)lines=[...lines.slice(0,3),"+"+(lines.length-3)+" ALTRI"];
+  const lh=lines.length>6?30:36,f0=lines.length>6?23:26;
   c.fillStyle="rgba(244,241,234,.78)";
-  lines.forEach((l,i)=>{let fs=26;while(fs>18&&(c.font=`700 ${fs}px Inter`,c.measureText(l).width>440))fs--;c.fillText(l,x,646+i*36)});
+  lines.forEach((l,i)=>{let fs=f0;while(fs>16&&(c.font=`700 ${fs}px Inter`,c.measureText(l).width>440))fs--;c.fillText(l,x,646+i*lh)});
+  maxL=Math.max(maxL,lines.length?646+(lines.length-1)*lh:600);
  });
- c.fillStyle="#f4f1ea";c.font="300px Anton";c.fillText(`${sc.h}-${sc.a}`,540,1040);
+ const fz=Math.min(300,(1075-maxL-34)/.74),by=Math.min(1075,Math.max(1040,maxL+34+fz*.74));
+ c.fillStyle="#f4f1ea";c.font=`${fz}px Anton`;c.fillText(`${sc.h}-${sc.a}`,540,by);
 }
 const drawXI=(c,m,t1,t2,prob)=>G.drawXI_(c,m,t1,t2,prob);
 let lastBlob=null,lastName="";
