@@ -401,6 +401,7 @@ body.menu-on{overflow:hidden}
 .sheet-in.drag{transition:none}
 .sheet-in{touch-action:pan-y}
 .grab{position:relative}.grab::after{content:"";position:absolute;inset:-14px -60px}
+.dfoto{display:flex;align-items:center;gap:10px}.dfoto small{flex:1;color:var(--muted);font-weight:700;font-size:13px}.dfoto .btn{flex:0 0 auto;padding:10px 14px}.dthumb{width:46px;height:46px;border-radius:12px;overflow:hidden;flex:0 0 auto}.dthumb img{width:100%;height:100%;object-fit:cover;display:block}
 .grab{width:40px;height:4px;border-radius:4px;background:rgba(255,255,255,.25);margin:0 auto 14px}
 .sheet h3{font-family:Anton,sans-serif;font-size:24px;text-transform:uppercase;margin-bottom:12px}
 .plist{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px}
@@ -1465,7 +1466,9 @@ function gioForm(pre){
  };
 }
 /* ================= DICHIARAZIONI ================= */
-const DIC={chi:"",ctx:"Conferenza pre-partita",txt:""};
+const DIC={chi:"",ctx:"Conferenza pre-partita",txt:"",img:null};
+const dicPl=()=>SQUAD.find(p=>p[1].toLowerCase()===DIC.chi.trim().toLowerCase())||[];
+const dicPhoto=()=>DIC.img||(dicPl()[0]!=null&&FOTO[dicPl()[0]]);
 const DCTX=["Conferenza pre-partita","Post-partita","Intervista","Social"];
 const dicCaption=()=>`🎙️ ${DIC.chi.toUpperCase()}${DIC.ctx?` | ${DIC.ctx.toUpperCase()}`:""}\n\n“${DIC.txt}”\n\n${TAGS} #dichiarazioni${DIC.chi?" #"+plain(DIC.chi):""} #tanadeldiavolo`;
 function dicForm(){
@@ -1475,12 +1478,17 @@ function dicForm(){
   <div class="flab">Chi parla</div><input class="fin" id="dChi" list="dWho" placeholder="es. ${COACH}" value="${esc(DIC.chi)}"><datalist id="dWho">${who.map(w=>`<option value="${esc(w)}">`).join("")}</datalist>
   <div class="flab">Contesto</div><div class="opts">${DCTX.map(t=>`<button class="opt${t===DIC.ctx?" on":""}" data-dc="${t}">${t}</button>`).join("")}</div>
   <div class="flab">Dichiarazione</div><textarea class="fin" id="dTxt" rows="5" style="resize:vertical;min-height:120px;font:500 15px/1.45 Inter,sans-serif" placeholder="Scrivi o incolla la frase">${esc(DIC.txt)}</textarea>
+  <div class="flab">Foto</div><div class="dfoto">${dicPhoto()?`<span class="dthumb"><img src="${DIC.img?DIC.img.src:FOTO[dicPl()[0]]}" alt=""></span><small>${DIC.img?"Foto scelta":"Dalla Rosa"}</small>`:`<small>Nessuna foto</small>`}<button class="btn" id="dPick">Scegli</button>${DIC.img?`<button class="btn" id="dNoImg">Togli</button>`:""}</div>
   <div class="row2"><button class="btn" id="dCap">Caption</button><button class="btn white" id="dGfx">Grafica</button></div>`;
  };
  const keep=()=>{const a=$("dChi"),b=$("dTxt");if(a)DIC.chi=a.value.trim();if(b)DIC.txt=b.value.trim().replace(/^["“”«»]+|["“”«»]+$/g,"")};
  draw();openSheet();
+ $("sheetBody").onchange=e=>{if(e.target.id==="dChi"){keep();const y=$("sheetBody").parentNode.scrollTop;draw();$("sheetBody").parentNode.scrollTop=y}};
  $("sheetBody").onclick=e=>{
   const t=e.target.closest("[data-dc]");if(t){keep();DIC.ctx=DIC.ctx===t.dataset.dc?"":t.dataset.dc;draw();return}
+  if(e.target.closest("#dNoImg")){keep();DIC.img=null;draw();return}
+  if(e.target.closest("#dPick")){keep();const f=document.createElement("input");f.type="file";f.accept="image/*";
+   f.onchange=()=>{const x=f.files[0];if(!x)return;const i=new Image();i.onload=()=>{DIC.img=i;draw()};i.onerror=()=>toast("Formato non supportato");i.src=URL.createObjectURL(x)};f.click();return}
   if(e.target.closest("#dCap")||e.target.closest("#dGfx")){keep();if(!DIC.chi||!DIC.txt){toast("Scrivi chi parla e la dichiarazione");return}
    if(e.target.closest("#dCap"))copyText(dicCaption());else makeGfx("dichiarazioni",{...DIC})}
  };
@@ -1956,6 +1964,30 @@ const G={
   footer(c,m);
  },
  async dichiarazioni(c,d){
+  const dpl=SQUAD.find(p=>p[1].toLowerCase()===d.chi.toLowerCase()),ri=dpl&&FOTO_IMG[dpl[0]];
+  const ph=d.img||(ri&&ri.complete&&ri.naturalWidth?ri:null);
+  if(ph){
+   const W=1080,H=1350,badge=await loadImg("assets/tana-badge.png");
+   c.fillStyle="#070707";c.fillRect(0,0,W,H);
+   const w=ph.naturalWidth||ph.width,h=ph.naturalHeight||ph.height,k=Math.max(W/w,H/h);
+   c.drawImage(ph,(W-w*k)/2,(H-h*k)*.3,w*k,h*k);
+   let g=c.createLinearGradient(0,0,0,260);g.addColorStop(0,"rgba(7,7,7,.45)");g.addColorStop(1,"rgba(7,7,7,0)");c.fillStyle=g;c.fillRect(0,0,W,260);
+   c.textAlign="left";c.textBaseline="alphabetic";
+   let fs=54,lines;
+   for(;fs>=30;fs-=2){c.font=`700 ${fs}px Inter`;lines=wrapLines(c,d.txt,930);if(lines.length*fs*1.26<=420)break}
+   const lh=fs*1.26,ty=1000-lines.length*lh;
+   g=c.createLinearGradient(0,Math.max(380,ty-260),0,H);g.addColorStop(0,"rgba(7,7,7,0)");g.addColorStop(.38,"rgba(7,7,7,.78)");g.addColorStop(.62,"rgba(7,7,7,.94)");g.addColorStop(1,"#070707");c.fillStyle=g;c.fillRect(0,0,W,H);
+   c.fillStyle="#d0021b";c.font="190px Anton";c.fillText("“",64,ty+60);
+   c.fillStyle="#f4f1ea";c.font=`700 ${fs}px Inter`;lines.forEach((l,i)=>c.fillText(l,75,ty+fs+i*lh));
+   c.fillStyle="#d0021b";c.fillRect(75,1036,110,6);
+   c.fillStyle="#f4f1ea";c.font="68px Anton";let n=d.chi.toUpperCase();while(c.measureText(n).width>930&&n.length>3)n=n.slice(0,-1);c.fillText(n,75,1122);
+   if(d.ctx){c.fillStyle="#d9ad55";c.font="800 26px Inter";c.fillText(d.ctx.toUpperCase(),75,1168)}
+   c.fillStyle="rgba(244,241,234,.14)";c.fillRect(75,1205,930,2);
+   c.drawImage(badge,75,1220,104,104);
+   c.textAlign="right";c.fillStyle="#8b8781";c.font="700 26px Inter";c.fillText(quando(now).split(" · ")[0].toUpperCase(),1005,1282);
+   c.fillStyle="#f4f1ea";c.font="40px Anton";c.textAlign="left";c.fillText("TANA DEL",198,1262);c.fillStyle="#d0021b";c.fillText("DIAVOLO",198,1306);
+   return;
+  }
   await frame(c,"DICHIARAZIONI");
   c.textAlign="left";c.textBaseline="alphabetic";c.fillStyle="#d0021b";c.font="260px Anton";c.fillText("“",60,470);
   let fs=58,lines;
