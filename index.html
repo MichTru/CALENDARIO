@@ -827,8 +827,8 @@ const M=[
 /* rosa 26/27 dal sito ufficiale: [numero, nome breve, ruolo] */
 const SQUAD=[
  [16,"Maignan","P"],[1,"P. Terracciano","P"],[96,"Torriani","P"],
- [23,"Tomori","D"],[31,"Pavlović","D"],[5,"De Winter","D"],[34,"Gila","D"],[46,"Gabbia","D"],[33,"Bartesaghi","D"],[2,"Estupiñán","D"],[42,"F. Terracciano","D"],[13,"Diawara","D"],[35,"Vladimirov","D"],
- [14,"Modrić","C"],[12,"Rabiot","C"],[30,"Jashari","C"],[8,"Loftus-Cheek","C"],[80,"Musah","C"],[56,"Saelemaekers","C"],[11,"Pulisic","C"],[20,"Hutchinson","C"],[22,"Moreira","C"],[28,"Comotto","C"],[70,"Cissè","C"],
+ [23,"Tomori","D"],[31,"Pavlovic","D"],[5,"De Winter","D"],[34,"Gila","D"],[46,"Gabbia","D"],[33,"Bartesaghi","D"],[2,"Estupiñán","D"],[42,"F. Terracciano","D"],[13,"Diawara","D"],[35,"Vladimirov","D"],
+ [14,"Modric","C"],[12,"Rabiot","C"],[30,"Jashari","C"],[8,"Loftus-Cheek","C"],[80,"Musah","C"],[56,"Saelemaekers","C"],[11,"Pulisic","C"],[20,"Hutchinson","C"],[22,"Moreira","C"],[28,"Comotto","C"],[70,"Cissè","C"],
  [9,"Ramos","A"],[21,"Chukwueze","A"],[73,"Camarda","A"]
 ];
 const PL=Object.fromEntries(SQUAD.map(([n,name,r])=>[n,{n,name,r}]));
@@ -1995,6 +1995,10 @@ document.addEventListener("gesturestart",e=>e.preventDefault());
 
 /* ================= GRAFICHE INSTAGRAM 1080x1350 ================= */
 const IMG={};
+/* nelle grafiche: lettere fuori dal set del font (ć, č, ś, ł...) diventano normali */
+const plainLat=t=>typeof t==="string"&&/[^\x00-\xff]/.test(t)?t.replace(/[^\x00-\xff]/g,ch=>{const b=ch.normalize("NFD").replace(/[\u0300-\u036f]/g,"");return /^[\x00-\xff]+$/.test(b)?b:({"ł":"l","Ł":"L","đ":"d","Đ":"D","ı":"i","ø":"o","Ø":"O","’":"'","‘":"'","“":"\"","”":"\"","–":"-","—":"-","…":"..."}[ch]||ch)}):t;
+{const P=CanvasRenderingContext2D.prototype,ft=P.fillText,st=P.strokeText,mt=P.measureText;
+ P.fillText=function(t,...a){return ft.call(this,plainLat(t),...a)};P.strokeText=function(t,...a){return st.call(this,plainLat(t),...a)};P.measureText=function(t){return mt.call(this,plainLat(t))}}
 const loadImg=src=>IMG[src]||(IMG[src]=new Promise((ok,ko)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=ko;i.src=src}));
 function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath()}
 const SHIRT2D=new Path2D(SHIRT);
