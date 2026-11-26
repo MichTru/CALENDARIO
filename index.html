@@ -656,6 +656,7 @@ body.intro-on{overflow:hidden}
           <button class="gbtn" data-g="matchday"><span>🗓️</span>Matchday</button>
           <button class="gbtn" data-g="probabili"><span>📋</span>Probabili formazioni</button>
           <button class="gbtn" data-g="titolari"><span>✅</span>Formazione ufficiale</button>
+          <button class="gbtn" data-g="notizia"><span>📰</span>Notizia</button>
           <button class="gbtn" data-g="giocatore"><span>⚽</span>Giocatore</button>
           <button class="gbtn" data-g="dichiarazioni"><span>🎙️</span>Dichiarazioni</button>
           <button class="gbtn" data-g="primotempo"><span>⏱️</span>Primo tempo</button>
@@ -1619,6 +1620,50 @@ async function badgeFoot(c,right){
  if(right){c.textAlign="right";c.fillStyle="#8b8781";c.font="700 26px Inter";c.fillText(right,1005,1282)}
 }
 
+/* ================= NOTIZIA (identità) ================= */
+const NSTILI=["Breaking","Magazine","Rossonero"];
+const NTAG=["","Ufficiale","Mercato","Breaking","Infortunio","Rumors","Esclusiva"];
+const NWS={tit:"",tag:"",stile:(()=>{try{return localStorage.getItem("tdd-stile")||"Breaking"}catch(e){return "Breaking"}})(),n:null,img:null};
+function nwsForm(){
+ const opt=["P","D","C","A"].map(r=>`<optgroup label="${RUOLI[r]}">${SQUAD.filter(p=>p[2]===r).map(([n,name])=>`<option value="${n}"${n===NWS.n?" selected":""}>${n} · ${esc(name)}</option>`).join("")}</optgroup>`).join("");
+ const draw=()=>{
+  const src=NWS.img?NWS.img.src:(NWS.n!=null&&FOTO[NWS.n]);
+  $("sheetBody").innerHTML=`<h3>Notizia</h3>
+  <div class="opts">${NSTILI.map(s=>`<button class="opt${s===NWS.stile?" on":""}" data-ns="${s}">${s}</button>`).join("")}</div>
+  <div class="flab">Titolo</div><textarea class="fin" id="nTit" rows="3" placeholder="es. *Pulisic* rinnova fino al 2030">${esc(NWS.tit)}</textarea>
+  <div class="flab">Etichetta</div><div class="opts">${NTAG.map(t=>`<button class="opt${t===NWS.tag?" on":""}" data-nt="${t}">${t||"Nessuna"}</button>`).join("")}</div>
+  <div class="flab">Foto</div><select class="fin" id="nN"><option value="">Nessun giocatore</option>${opt}</select>
+  <div class="dfoto">${src?`<span class="dthumb"><img src="${src}" alt=""></span><small>${NWS.img?"Foto scelta":"Dalla Rosa"}</small>`:`<small>Nessuna foto</small>`}<button class="btn" id="nPick">Scegli</button>${NWS.img?`<button class="btn" id="nNoImg">Togli</button>`:""}</div>
+  <div class="row2"><button class="btn" id="nCap">Caption</button><button class="btn white" id="nGfx">Grafica</button></div>`;
+  $("nN").value=NWS.n==null?"":String(NWS.n);
+ };
+ const keep=()=>{const t=$("nTit");if(t)NWS.tit=t.value.trim()};
+ const redraw=()=>{const sc=$("sheetBody").parentNode,y=sc.scrollTop;draw();sc.scrollTop=y};
+ draw();openSheet();
+ $("sheetBody").onchange=e=>{if(e.target.id==="nN"){keep();NWS.n=e.target.value===""?null:+e.target.value;redraw()}};
+ $("sheetBody").onclick=e=>{
+  const s=e.target.closest("[data-ns]"),t=e.target.closest("[data-nt]");
+  if(s){keep();NWS.stile=s.dataset.ns;try{localStorage.setItem("tdd-stile",NWS.stile)}catch(_){}redraw();return}
+  if(t){keep();NWS.tag=t.dataset.nt;redraw();return}
+  if(e.target.closest("#nNoImg")){keep();NWS.img=null;redraw();return}
+  if(e.target.closest("#nPick")){keep();const f=document.createElement("input");f.type="file";f.accept="image/*";
+   f.onchange=()=>{const x=f.files[0];if(!x)return;const i=new Image();i.onload=()=>{NWS.img=i;redraw()};i.onerror=()=>toast("Formato non supportato");i.src=URL.createObjectURL(x)};f.click();return}
+  if(e.target.closest("#nCap")){keep();if(!NWS.tit){toast("Scrivi il titolo");return}copyText(`${NWS.tag?NWS.tag.toUpperCase()+" | ":""}${NWS.tit.replace(/\*/g,"")}\n\n${TAGS} #tanadeldiavolo`);return}
+  if(e.target.closest("#nGfx")){keep();if(!NWS.tit){toast("Scrivi il titolo");return}makeGfx("notizia",{...NWS})}
+ };
+}
+/* titolo con *parole* evidenziate: restituisce righe di token {w,hi} */
+function hiLines(c,txt,maxW){
+ const toks=[];let hi=false;txt.toUpperCase().split(/(\*)/).forEach(p=>{if(p==="*"){hi=!hi;return}p.split(/\s+/).filter(Boolean).forEach(w=>toks.push({w,hi}))});
+ const lines=[];let cur=[],cw=0;const sp=c.measureText(" ").width;
+ toks.forEach(t=>{const w=c.measureText(t.w).width;if(cur.length&&cw+sp+w>maxW){lines.push(cur);cur=[];cw=0}cw+=(cur.length?sp:0)+w;cur.push(t)});
+ if(cur.length)lines.push(cur);return lines;
+}
+const hiW=(c,l)=>l.reduce((a,t,i)=>a+c.measureText(t.w).width+(i?c.measureText(" ").width:0),0);
+function hiDraw(c,l,x,y,col,hcol){let cx=x;const sp=c.measureText(" ").width;l.forEach(t=>{c.fillStyle=t.hi?hcol:col;c.fillText(t.w,cx,y);cx+=c.measureText(t.w).width+sp})}
+function coverImg(c,im,x,y,w,h,fy){const iw=im.naturalWidth||im.width,ih=im.naturalHeight||im.height,k=Math.max(w/iw,h/ih);c.save();c.beginPath();c.rect(x,y,w,h);c.clip();c.drawImage(im,x+(w-iw*k)/2,y+(h-ih*k)*(fy??.3),iw*k,ih*k);c.restore()}
+function fitHi(c,txt,maxW,maxH,maxF,minF,lhK,font){let f=maxF,l;for(;f>=minF;f-=2){c.font=font(f);l=hiLines(c,txt,maxW);if(l.length*f*lhK<=maxH)break}return {f,l}}
+
 /* ================= DICHIARAZIONI ================= */
 const DIC={chi:"",ctx:"Conferenza pre-partita",txt:"",img:null};
 const dicPl=()=>SQUAD.find(p=>p[1].toLowerCase()===DIC.chi.trim().toLowerCase())||[];
@@ -2118,6 +2163,44 @@ const G={
   c.fillStyle="#d9ad55";c.fillText(line,540,1180);
   footer(c,m);
  },
+ async notizia(c,o){
+  const W=1080,H=1350,badge=await loadImg("assets/tana-badge.png");
+  const ri=o.n!=null&&FOTO_IMG[o.n],ph=o.img||(ri&&ri.complete&&ri.naturalWidth?ri:await loadImg("assets/milano.jpg"));
+  c.fillStyle="#070707";c.fillRect(0,0,W,H);c.textBaseline="alphabetic";
+  const RED="#e10600",AF=f=>`${f}px Anton`;
+  if(o.stile==="Magazine"){
+   coverImg(c,ph,0,0,W,980,.3);
+   let g=c.createLinearGradient(0,700,0,990);g.addColorStop(0,"rgba(7,7,7,0)");g.addColorStop(1,"#070707");c.fillStyle=g;c.fillRect(0,700,W,290);
+   g=c.createLinearGradient(0,0,0,200);g.addColorStop(0,"rgba(7,7,7,.55)");g.addColorStop(1,"rgba(7,7,7,0)");c.fillStyle=g;c.fillRect(0,0,W,200);
+   c.drawImage(badge,60,50,120,120);
+   const {f,l}=fitHi(c,o.tit,900,330,104,52,1.02,AF);c.font=AF(f);
+   const bottom=1190,top=bottom-(l.length-1)*f*1.02;
+   if(o.tag){c.font="800 30px Inter";c.fillStyle=RED;c.letterSpacing="4px";c.fillText(o.tag.toUpperCase(),100,top-f-26);c.letterSpacing="0px"}
+   c.fillStyle=RED;c.fillRect(64,top-f*.8,10,bottom-top+f*.8);
+   c.font=AF(f);l.forEach((ln,i)=>hiDraw(c,ln,100,top+i*f*1.02,"#f4f1ea",RED));
+   c.fillStyle="rgba(244,241,234,.16)";c.fillRect(64,1236,952,2);
+   c.font="800 24px Inter";c.fillStyle="#f4f1ea";c.letterSpacing="3px";c.fillText("TANA DEL DIAVOLO",64,1290);
+   c.textAlign="right";c.fillStyle="#8b8781";c.fillText(quando(now).split(" · ")[0].toUpperCase(),1016,1290);c.textAlign="left";c.letterSpacing="0px";
+  }else if(o.stile==="Rossonero"){
+   coverImg(c,ph,0,0,W,H,.25);
+   let g=c.createLinearGradient(0,H*.35,0,H);g.addColorStop(0,"rgba(7,7,7,0)");g.addColorStop(1,"rgba(7,7,7,.9)");c.fillStyle=g;c.fillRect(0,0,W,H);
+   c.save();c.translate(W,0);c.rotate(Math.PI/4);for(let i=0;i<6;i++){c.fillStyle=i%2?"#070707":RED;c.fillRect(-60+i*26,-40,26,240)}c.restore();
+   const {f,l}=fitHi(c,o.tit,860,470,92,48,1.22,AF);c.font=AF(f);
+   const lh=f*1.22,top=1170-l.length*lh;
+   if(o.tag){c.font="800 28px Inter";const tw=c.measureText(o.tag.toUpperCase()).width;c.fillStyle="#f4f1ea";c.fillRect(60,top-66,tw+36,48);c.fillStyle="#070707";c.fillText(o.tag.toUpperCase(),78,top-32)}
+   c.font=AF(f);
+   l.forEach((ln,i)=>{const y=top+i*lh,w=hiW(c,ln);c.fillStyle=RED;c.fillRect(60,y,w+44,lh-8);hiDraw(c,ln,82,y+f*.98,"#ffffff","#070707")});
+   c.drawImage(badge,W-190,H-190,130,130);
+  }else{
+   coverImg(c,ph,0,0,W,H,.25);
+   let g=c.createLinearGradient(0,H*.42,0,H);g.addColorStop(0,"rgba(0,0,0,0)");g.addColorStop(.45,"rgba(0,0,0,.75)");g.addColorStop(1,"rgba(0,0,0,.97)");c.fillStyle=g;c.fillRect(0,0,W,H);
+   c.save();c.shadowColor="rgba(0,0,0,.5)";c.shadowBlur=24;c.drawImage(badge,W-210,50,160,160);c.restore();
+   const {f,l}=fitHi(c,o.tit,980,420,124,56,.98,AF);c.font=AF(f);c.textAlign="left";
+   const bottom=1290,top=bottom-(l.length-1)*f*.98;
+   if(o.tag){c.font="800 30px Inter";const t=o.tag.toUpperCase(),tw=c.measureText(t).width;rr(c,540-tw/2-24,top-f-62,tw+48,50,25);c.fillStyle=RED;c.fill();c.fillStyle="#fff";c.textAlign="center";c.fillText(t,540,top-f-26);c.textAlign="left"}
+   c.font=AF(f);l.forEach((ln,i)=>{const w=hiW(c,ln);c.save();c.shadowColor="rgba(0,0,0,.6)";c.shadowBlur=18;hiDraw(c,ln,540-w/2,top+i*f*.98,"#ffffff",RED);c.restore()});
+  }
+ },
  async classifica(c,C){
   await frame(c,"SERIE A");
   c.textAlign="left";c.textBaseline="alphabetic";c.font="84px Anton";c.fillStyle="#f4f1ea";c.fillText("CLASSIFICA",70,335);
@@ -2289,6 +2372,7 @@ async function makeGfx(kind,arg){
  if(kind==="classifica"&&!arg){clsForm();return}
  if(kind==="motm"&&!arg){motmForm();return}
  if(kind==="sondaggio"&&!arg){pollForm();return}
+ if(kind==="notizia"&&!arg){nwsForm();return}
  const SO=kind==="sondaggio";
  const cv=document.createElement("canvas");cv.width=1080;cv.height=SO?1920:1350;const c=cv.getContext("2d");
  try{
@@ -2297,7 +2381,7 @@ async function makeGfx(kind,arg){
  }catch(err){toast(err.message||"Errore");return}
  const st=SO?cv:await storyOf(cv);
  const blobs=await Promise.all([cv,st].map(x=>new Promise(ok=>x.toBlob(ok,"image/png"))));
- const tail=kind==="infermeria"||kind==="marcatori"?"":kind==="ufficiale"?"-"+plain(arg.nome):kind==="dichiarazioni"?"-"+plain(arg.chi):kind==="giocatore"?"-"+plain(arg.tipo)+"-"+plain(PL[arg.n].name):kind==="classifica"?"-giornata"+(arg.g||""):kind==="scheda"?"-"+plain(arg.t)+"-"+plain(PL[arg.n].name):kind==="sondaggio"?"-"+plain(PL[arg.a].name)+"-"+plain(PL[arg.b].name):kind==="compleanno"?"-"+plain(PL[arg.n].name):"-"+plain(nm(stM.avv));
+ const tail=kind==="infermeria"||kind==="marcatori"?"":kind==="ufficiale"?"-"+plain(arg.nome):kind==="dichiarazioni"?"-"+plain(arg.chi):kind==="giocatore"?"-"+plain(arg.tipo)+"-"+plain(PL[arg.n].name):kind==="classifica"?"-giornata"+(arg.g||""):kind==="notizia"?"-"+plain(arg.stile):kind==="scheda"?"-"+plain(arg.t)+"-"+plain(PL[arg.n].name):kind==="sondaggio"?"-"+plain(PL[arg.a].name)+"-"+plain(PL[arg.b].name):kind==="compleanno"?"-"+plain(PL[arg.n].name):"-"+plain(nm(stM.avv));
  const names=SO?[`tana-${kind}${tail}-storia.png`,`tana-${kind}${tail}-storia.png`]:[`tana-${kind}${tail}.png`,`tana-${kind}${tail}-storia.png`];
  const urls=blobs.map(b=>URL.createObjectURL(b));let cur=0;
  $("sheetBody").onclick=null;
