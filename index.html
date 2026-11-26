@@ -258,8 +258,10 @@ details.more[open] summary::after{content:" −"}
 .bchip.in{border-color:var(--green);background:rgba(61,220,132,.12)}
 .bchip.in::after{content:"↑";color:var(--green);font-weight:900}
 .filters{display:flex;justify-content:center;margin-bottom:10px}
-.inf-row{display:grid;grid-template-columns:40px 1fr auto;gap:12px;align-items:center;padding:10px 12px 10px 8px;border-radius:18px;background:var(--glass2);border:1px solid var(--edge);margin-bottom:8px;cursor:pointer}
+.inf-row{display:grid;grid-template-columns:40px 1fr auto 30px;gap:12px;align-items:center;padding:10px 12px 10px 8px;border-radius:18px;background:var(--glass2);border:1px solid var(--edge);margin-bottom:8px;cursor:pointer}
 .inf-row .ktok{width:40px;height:40px}
+.inf-h{width:30px;height:40px;display:grid;place-items:center;touch-action:none;cursor:grab;color:var(--muted)}.inf-h svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round}
+.inf-row.drag{position:relative;z-index:5;box-shadow:0 14px 30px rgba(0,0,0,.5);border-color:var(--gold);transition:none}.inf-row.shift{transition:transform .18s}
 .inf-row b{display:block;font-size:14px;font-weight:800}
 .inf-row small{display:block;font-size:12px;color:var(--muted);font-weight:600}
 .inf-row em{font-style:normal;color:var(--gold);font-size:12px;font-weight:700}
@@ -1180,7 +1182,7 @@ const TIPI=["Muscolare","Lesione muscolare","Distorsione","Contusione","Lesione 
 const RECS=["Da valutare","Pochi giorni","1 settimana","2 settimane","3-4 settimane","1-2 mesi","3+ mesi","Stagione finita"];
 function renderInf(){
  const l=infOf();
- $("infList").innerHTML=l.length?l.map((x,i)=>`<div class="inf-row" data-x="${i}">${kit(x.n)}<div><b>${PL[x.n].name}</b><small>${esc(x.tipo||"Infortunio")}</small></div><em>${esc(x.rec||"Da valutare")}</em></div>`).join(""):`<div class="inf-empty">Nessun infortunato</div>`;
+ $("infList").innerHTML=l.length?l.map((x,i)=>`<div class="inf-row" data-x="${i}">${kit(x.n)}<div><b>${PL[x.n].name}</b><small>${esc(x.tipo||"Infortunio")}</small></div><em>${esc(x.rec||"Da valutare")}</em><span class="inf-h" aria-label="Sposta"><svg viewBox="0 0 24 24"><path d="M5 8h14M5 12h14M5 16h14"/></svg></span></div>`).join(""):`<div class="inf-empty">Nessun infortunato</div>`;
 }
 function infCaption(){
  const l=infOf();
@@ -1210,13 +1212,26 @@ function infForm(idx){
    if(!cur.n){toast("Scegli il giocatore");return}
    const tv=$("fTipo").value.trim(),rv=$("fRec").value.trim();
    const item={n:cur.n,tipo:tv?(cur.tipo&&TIPI.includes(cur.tipo)?cur.tipo+" · "+tv:tv):cur.tipo,rec:rv||cur.rec};
-   if(idx!=null)l[idx]=item;else{const o=l.findIndex(x=>x.n===item.n);if(o>-1)l[o]=item;else l.push(item)}
+   const rk=x=>{const i=RECS.indexOf(x.rec||"Da valutare");return i<=0?99:i};
+   if(idx!=null)l[idx]=item;else{const o=l.findIndex(x=>x.n===item.n);if(o>-1)l[o]=item;else{const at=l.findIndex(x=>rk(x)>rk(item));if(at<0)l.push(item);else l.splice(at,0,item)}}
    store.set(INF_KEY,l);renderInf();closeSheet();toast("Infermeria aggiornata");
   }
  };
 }
 $("infAdd").onclick=()=>infForm(null);
-$("infList").addEventListener("click",e=>{const r=e.target.closest(".inf-row");if(r)infForm(+r.dataset.x)});
+$("infList").addEventListener("click",e=>{if(e.target.closest(".inf-h"))return;const r=e.target.closest(".inf-row");if(r)infForm(+r.dataset.x)});
+$("infList").addEventListener("pointerdown",e=>{
+ const h=e.target.closest(".inf-h");if(!h)return;e.preventDefault();
+ const row=h.closest(".inf-row"),rows=[...$("infList").querySelectorAll(".inf-row")],from=rows.indexOf(row);
+ const step=row.getBoundingClientRect().height+8,y0=e.clientY;let to=from;
+ row.classList.add("drag");rows.forEach(r=>{if(r!==row)r.classList.add("shift")});h.setPointerCapture(e.pointerId);
+ const mv=ev=>{const dy=ev.clientY-y0;row.style.transform=`translateY(${dy}px)`;to=Math.max(0,Math.min(rows.length-1,from+Math.round(dy/step)));
+  rows.forEach((r,i)=>{if(r===row)return;r.style.transform=from<to&&i>from&&i<=to?`translateY(${-step}px)`:from>to&&i<from&&i>=to?`translateY(${step}px)`:""})};
+ const up=()=>{h.removeEventListener("pointermove",mv);h.removeEventListener("pointerup",up);h.removeEventListener("pointercancel",up);
+  rows.forEach(r=>{r.style.transform="";r.classList.remove("shift","drag")});
+  if(to!==from){const l=infOf();const [it]=l.splice(from,1);l.splice(to,0,it);store.set(INF_KEY,l)}renderInf()};
+ h.addEventListener("pointermove",mv);h.addEventListener("pointerup",up);h.addEventListener("pointercancel",up);
+});
 $("infCopy").onclick=async()=>{if(!infOf().length){toast("Nessun giocatore in infermeria");return}const txt=infCaption();try{await navigator.clipboard.writeText(txt)}catch(_){const t=document.createElement("textarea");t.value=txt;document.body.appendChild(t);t.select();document.execCommand("copy");t.remove()}toast("Caption copiata")};
 $("infGfx").onclick=()=>makeGfx("infermeria");
 
