@@ -1997,11 +1997,15 @@ function cshirt(c,team,x,y,size,label){
   c.lineWidth=4;c.strokeStyle=light?"rgba(255,255,255,.6)":"rgba(0,0,0,.55)";c.strokeText(txt,50,txt.length>2?66:70);c.fillStyle=light?"#111":"#fff";c.fillText(txt,50,txt.length>2?66:70)}
  c.restore();
 }
-async function frame(c,label){
- const W=1080,H=1350,[photo,logo]=await Promise.all([loadImg("assets/milano.jpg"),loadImg("assets/logo.png")]);
+async function bgTana(c){
+ const W=1080,H=1350,photo=await loadImg("assets/milano.jpg");
  c.fillStyle="#070707";c.fillRect(0,0,W,H);
  const s=Math.max(W/photo.width,H/photo.height);c.globalAlpha=.32;c.drawImage(photo,(W-photo.width*s)/2,(H-photo.height*s)/2,photo.width*s,photo.height*s);c.globalAlpha=1;
- let g=c.createLinearGradient(0,0,0,H);g.addColorStop(0,"rgba(7,7,7,.55)");g.addColorStop(.45,"rgba(7,7,7,.8)");g.addColorStop(1,"#070707");c.fillStyle=g;c.fillRect(0,0,W,H);
+ const g=c.createLinearGradient(0,0,0,H);g.addColorStop(0,"rgba(7,7,7,.55)");g.addColorStop(.45,"rgba(7,7,7,.8)");g.addColorStop(1,"#070707");c.fillStyle=g;c.fillRect(0,0,W,H);
+}
+async function frame(c,label){
+ const W=1080,H=1350,logo=await loadImg("assets/logo.png");
+ await bgTana(c);
  c.drawImage(logo,70,64,120,120);
  c.textAlign="left";c.textBaseline="alphabetic";c.fillStyle="#f4f1ea";c.font="52px Anton";c.fillText("TANA DEL",214,118);c.fillStyle="#d0021b";c.fillText("DIAVOLO",214,172);
  c.textAlign="right";c.fillStyle="#d9ad55";c.font="800 26px Inter";c.fillText(label,W-70,118);
@@ -2165,11 +2169,12 @@ const G={
  },
  async notizia(c,o){
   const W=1080,H=1350,badge=await loadImg("assets/tana-badge.png");
-  const ri=o.n!=null&&FOTO_IMG[o.n],ph=o.img||(ri&&ri.complete&&ri.naturalWidth?ri:await loadImg("assets/milano.jpg"));
-  c.fillStyle="#070707";c.fillRect(0,0,W,H);c.textBaseline="alphabetic";
+  const ri=o.n!=null&&FOTO_IMG[o.n],ph=o.img||(ri&&ri.complete&&ri.naturalWidth?ri:null);
+  await bgTana(c);c.textBaseline="alphabetic";
+  const cover=(x,y,w,h,fy)=>{if(ph)coverImg(c,ph,x,y,w,h,fy)};
   const RED="#e10600",AF=f=>`${f}px Anton`;
   if(o.stile==="Magazine"){
-   coverImg(c,ph,0,0,W,980,.3);
+   cover(0,0,W,980,.3);
    let g=c.createLinearGradient(0,700,0,990);g.addColorStop(0,"rgba(7,7,7,0)");g.addColorStop(1,"#070707");c.fillStyle=g;c.fillRect(0,700,W,290);
    g=c.createLinearGradient(0,0,0,200);g.addColorStop(0,"rgba(7,7,7,.55)");g.addColorStop(1,"rgba(7,7,7,0)");c.fillStyle=g;c.fillRect(0,0,W,200);
    c.drawImage(badge,60,50,120,120);
@@ -2182,7 +2187,7 @@ const G={
    c.font="800 24px Inter";c.fillStyle="#f4f1ea";c.letterSpacing="3px";c.fillText("TANA DEL DIAVOLO",64,1290);
    c.textAlign="right";c.fillStyle="#8b8781";c.fillText(quando(now).split(" · ")[0].toUpperCase(),1016,1290);c.textAlign="left";c.letterSpacing="0px";
   }else if(o.stile==="Rossonero"){
-   coverImg(c,ph,0,0,W,H,.25);
+   cover(0,0,W,H,.25);
    let g=c.createLinearGradient(0,H*.35,0,H);g.addColorStop(0,"rgba(7,7,7,0)");g.addColorStop(1,"rgba(7,7,7,.9)");c.fillStyle=g;c.fillRect(0,0,W,H);
    c.save();c.translate(W,0);c.rotate(Math.PI/4);for(let i=0;i<6;i++){c.fillStyle=i%2?"#070707":RED;c.fillRect(-60+i*26,-40,26,240)}c.restore();
    const {f,l}=fitHi(c,o.tit,860,470,92,48,1.22,AF);c.font=AF(f);
@@ -2192,7 +2197,7 @@ const G={
    l.forEach((ln,i)=>{const y=top+i*lh,w=hiW(c,ln);c.fillStyle=RED;c.fillRect(60,y,w+44,lh-8);hiDraw(c,ln,82,y+f*.98,"#ffffff","#070707")});
    c.drawImage(badge,W-190,H-190,130,130);
   }else{
-   coverImg(c,ph,0,0,W,H,.25);
+   cover(0,0,W,H,.25);
    let g=c.createLinearGradient(0,H*.42,0,H);g.addColorStop(0,"rgba(0,0,0,0)");g.addColorStop(.45,"rgba(0,0,0,.75)");g.addColorStop(1,"rgba(0,0,0,.97)");c.fillStyle=g;c.fillRect(0,0,W,H);
    c.save();c.shadowColor="rgba(0,0,0,.5)";c.shadowBlur=24;c.drawImage(badge,W-210,50,160,160);c.restore();
    const {f,l}=fitHi(c,o.tit,980,420,124,56,.98,AF);c.font=AF(f);c.textAlign="left";
