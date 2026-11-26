@@ -405,9 +405,9 @@ body.menu-on{overflow:hidden}
 .grab{position:relative}.grab::after{content:"";position:absolute;inset:-14px -60px}
 .dfoto{display:flex;align-items:center;gap:10px}.dfoto small{flex:1;color:var(--muted);font-weight:700;font-size:13px}.dfoto .btn{flex:0 0 auto;padding:10px 14px}.dthumb{width:46px;height:46px;border-radius:12px;overflow:hidden;flex:0 0 auto}.dthumb img{width:100%;height:100%;object-fit:cover;display:block}
 .clsl{display:flex;flex-direction:column;gap:5px}
-.clsr{display:grid;grid-template-columns:22px 28px 1fr 34px 54px 34px;gap:8px;align-items:center;padding:5px 6px;border-radius:12px;background:var(--glass2)}
+.clsr{display:grid;grid-template-columns:22px 28px 1fr 30px 34px 50px 34px;gap:8px;align-items:center;padding:5px 6px;border-radius:12px;background:var(--glass2)}
 .clsr.me{background:rgba(208,2,27,.35)}.clsr i{font-style:normal;font-family:Anton,sans-serif;color:var(--muted);text-align:right}.clsr b{font-size:14px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.clsr .kt svg{width:28px;height:28px;display:block}.clsr .ic{width:34px;height:34px;font-size:18px;font-weight:800}.clsr .fin{padding:8px 4px;text-align:center;margin:0}
+.clsr .kt svg{width:28px;height:28px;display:block}.clsr .ic{width:34px;height:34px;font-size:18px;font-weight:800}.clsr .ic.sw{width:30px;height:30px;font-size:15px;color:var(--gold);border-color:rgba(217,173,85,.4)}.clsr .fin{padding:8px 4px;text-align:center;margin:0}
 .stsh,.stsr{display:grid;grid-template-columns:76px 1fr 76px;gap:10px;align-items:center}.stsh{font-family:Anton,sans-serif;text-transform:uppercase;font-size:15px;margin:14px 0 6px}.stsh span:last-child{text-align:right}
 .stsr{margin-bottom:6px}.stsr b{text-align:center;font-size:13px;font-weight:800;color:var(--muted)}.stsr .fin{text-align:center;margin:0;padding:10px 6px}
 .psh{display:flex;align-items:center;gap:14px;margin-bottom:14px}.psh h3{margin:0}.psh small{color:var(--muted);font-weight:700}.psk .ktok,.psk>span{width:64px;height:64px}
@@ -669,6 +669,7 @@ body.intro-on{overflow:hidden}
           <button class="gbtn" data-g="infermeria"><span>🩹</span>Infermeria</button>
           <button class="gbtn" data-g="statistiche"><span>📈</span>Statistiche</button>
           <button class="gbtn" data-g="classifica"><span>🏆</span>Classifica</button>
+          <button class="gbtn" data-g="motmatch"><span>⭐</span>Man of the match</button>
           <button class="gbtn" data-g="motm"><span>🌟</span>Man of the month</button>
           <button class="gbtn" data-g="sondaggio"><span>🗳️</span>Sondaggio</button>
         </div>
@@ -1509,13 +1510,14 @@ function clsForm(){
   $("sheetBody").innerHTML=`<h3>Classifica Serie A</h3>
   <div class="flab">Dopo la giornata</div><input class="fin" id="cG" inputmode="numeric" value="${C.g||""}">
   <div class="flab">Punti</div>
-  <div class="clsl">${C.r.map(([t,p],i)=>`<div class="clsr${t==="MILAN"?" me":""}"><i>${i+1}</i><span class="kt">${shirtSVG(t,"")}</span><b>${nm(t)}</b><button class="ic" data-cmi="${i}" aria-label="Meno">−</button><input class="fin" inputmode="numeric" data-cp="${i}" value="${p}"><button class="ic" data-cpl="${i}" aria-label="Più">+</button></div>`).join("")}</div>
+  <div class="clsl">${C.r.map(([t,p],i)=>`<div class="clsr${t==="MILAN"?" me":""}"><i>${i+1}</i><span class="kt">${shirtSVG(t,"")}</span><b>${nm(t)}</b>${i&&C.r[i-1][1]===p?`<button class="ic sw" data-csw="${i}" aria-label="Scambia">⇅</button>`:`<span></span>`}<button class="ic" data-cmi="${i}" aria-label="Meno">−</button><input class="fin" inputmode="numeric" data-cp="${i}" value="${p}"><button class="ic" data-cpl="${i}" aria-label="Più">+</button></div>`).join("")}</div>
   <div class="row2"><button class="btn" id="cSave">Salva</button><button class="btn white" id="cGfx">Grafica</button></div>`;
  };
  const keep=()=>{const g=$("cG");if(g)C.g=+g.value.replace(/\D/g,"")||C.g;document.querySelectorAll("[data-cp]").forEach(x=>{C.r[+x.dataset.cp][1]=+x.value.replace(/\D/g,"")||0})};
  const redraw=()=>{const sc=$("sheetBody").parentNode,y=sc.scrollTop;draw();sc.scrollTop=y};
  draw();openSheet();
  $("sheetBody").onclick=e=>{
+  const sw=e.target.closest("[data-csw]");if(sw){keep();const i=+sw.dataset.csw;[C.r[i-1],C.r[i]]=[C.r[i],C.r[i-1]];store.set("global:cls",C);redraw();return}
   const mi=e.target.closest("[data-cmi]"),pl=e.target.closest("[data-cpl]");
   if(mi||pl){keep();const i=+(mi||pl).dataset[mi?"cmi":"cpl"];C.r[i][1]=Math.max(0,C.r[i][1]+(pl?1:-1));redraw();return}
   if(e.target.closest("#cSave")){keep();clsSort(C);store.set("global:cls",C);redraw();toast("Classifica salvata");return}
@@ -1607,6 +1609,35 @@ function motmForm(){
   const x=motmRank(mk).find(z=>z.n===sel),p=PL[sel];
   if(e.target.closest("#mCap"))copyText(`🌟 MAN OF THE MONTH | ${MESI[mk%12].toUpperCase()}\n\n${p.name}: ${x.avg!=null?"media voto "+fmtAvg(x.avg)+" · ":""}${x.gol} gol · ${x.ast} assist in ${x.pres} presenze\n\n${TAGS} #manofthemonth #${plain(p.name)} #tanadeldiavolo`);
   if(e.target.closest("#mGfx"))makeGfx("scheda",{n:sel,t:"MAN OF THE MONTH",sub:mkLab(mk).toUpperCase(),st:x,motm:1});
+ };
+}
+
+/* ================= MAN OF THE MATCH ================= */
+function motmatchForm(m0){
+ let m=m0||stM,sel=null;
+ const rank=()=>{const v=votesOf(m),gl=golsOf(m),out={};
+  const get=n=>out[n]||(out[n]={n,voto:null,gol:0,ast:0});
+  Object.keys(v.v||{}).forEach(k=>{if(PL[+k]){const x=parseFloat(v.v[k]);get(+k).voto=isNaN(x)?null:x}});
+  gl.forEach(g=>{if(g.t==="m"&&!g.og&&PL[g.n])get(g.n).gol++;if(g.t==="m"&&g.a&&PL[g.a])get(g.a).ast++});
+  return Object.values(out).sort((a,b)=>(b.n===v.mvp)-(a.n===v.mvp)||(b.voto??0)-(a.voto??0)||(b.gol+b.ast)-(a.gol+a.ast))};
+ const draw=()=>{
+  const r=rank();if(sel==null||!r.find(x=>x.n===sel))sel=r[0]?r[0].n:null;
+  $("sheetBody").innerHTML=`<h3>Man of the match</h3>
+  <div class="flab">Partita</div><select class="fin" id="mmM">${M.filter(x=>res(x)).map(x=>`<option value="${x.i}"${x===m?" selected":""}>${x.k.getDate()} ${MESI[x.k.getMonth()].slice(0,3).toLowerCase()} · ${titolo(x)}</option>`).join("")}</select>
+  <div class="flab">Giocatori</div>
+  <div class="mrank">${r.map(x=>`<button class="mrow${x.n===sel?" cur":""}" data-mn="${x.n}">${kit(x.n)}<b>${esc(PL[x.n].name)}</b><span>${x.voto!=null?fmtV(x.voto):"–"}</span><small>${x.gol} gol · ${x.ast} assist</small></button>`).join("")||`<div class="inf-empty">Inserisci prima i voti</div>`}</div>
+  <div class="row2"><button class="btn" id="mmCap">Caption</button><button class="btn white" id="mmGfx">Grafica</button></div>`;
+ };
+ if(!res(m)){const l=M.filter(x=>res(x));m=l[l.length-1]||m}
+ draw();openSheet();
+ $("sheetBody").onchange=e=>{if(e.target.id==="mmM"){m=M[+e.target.value];sel=null;draw()}};
+ $("sheetBody").onclick=e=>{
+  const r=e.target.closest("[data-mn]");
+  if(r){sel=+r.dataset.mn;const sc=$("sheetBody").parentNode,y=sc.scrollTop;draw();sc.scrollTop=y;return}
+  if(sel==null)return;
+  const x=rank().find(z=>z.n===sel),p=PL[sel],rl=(resLine(m)||titolo(m)).toUpperCase();
+  if(e.target.closest("#mmCap"))copyText(`⭐ MAN OF THE MATCH | ${rl}\n\n${p.name}${x.voto!=null?" · voto "+fmtV(x.voto):""}${x.gol?" · "+x.gol+" gol":""}${x.ast?" · "+x.ast+" assist":""}\n\n${TAGS} #manofthematch #${plain(p.name)} #tanadeldiavolo`);
+  if(e.target.closest("#mmGfx")){const keepSt=stM;stM=m;makeGfx("scheda",{n:sel,t:"MAN OF THE MATCH",sub:rl,label:"MVP",right:quando(m.k).split(" · ")[0].toUpperCase(),st:{},cols:[[x.voto!=null?fmtV(x.voto):"–","VOTO"],[x.gol,"GOL"],[x.ast,"ASSIST"]]}).finally(()=>{stM=keepSt})}
  };
 }
 
@@ -2025,6 +2056,14 @@ async function bgTana(c){
  r=c.createRadialGradient(0,H,0,0,H,620);r.addColorStop(0,"rgba(225,6,0,.2)");r.addColorStop(1,"rgba(225,6,0,0)");c.fillStyle=r;c.fillRect(0,0,W,H);
  c.save();c.globalAlpha=.06;c.fillStyle=c.createPattern(grain(),"repeat");c.fillRect(0,0,W,H);c.restore();
 }
+/* Duomo che affiora nella parte scura delle grafiche con foto */
+async function duomoOver(c,y0,alpha=.34){
+ const W=c.canvas.width,H=c.canvas.height,ph=await loadImg("assets/milano.jpg"),o=document.createElement("canvas");o.width=W;o.height=H;const x=o.getContext("2d");
+ const k=Math.max(W/ph.width,(H-y0+200)/ph.height);x.drawImage(ph,(W-ph.width*k)/2,H-ph.height*k,ph.width*k,ph.height*k);
+ x.globalCompositeOperation="destination-in";const g=x.createLinearGradient(0,y0,0,y0+300);g.addColorStop(0,"rgba(0,0,0,0)");g.addColorStop(1,"rgba(0,0,0,1)");x.fillStyle=g;x.fillRect(0,0,W,H);
+ c.save();c.globalAlpha=alpha;c.drawImage(o,0,0);c.restore();
+ const r=c.createRadialGradient(W,H,0,W,H,700);r.addColorStop(0,"rgba(225,6,0,.22)");r.addColorStop(1,"rgba(225,6,0,0)");c.fillStyle=r;c.fillRect(0,0,W,H);
+}
 let GRAIN=null;
 function grain(){if(GRAIN)return GRAIN;const g=document.createElement("canvas");g.width=g.height=160;const x=g.getContext("2d"),d=x.createImageData(160,160);
  for(let i=0;i<d.data.length;i+=4){const v=Math.random()*255|0;d.data[i]=d.data[i+1]=d.data[i+2]=v;d.data[i+3]=255}x.putImageData(d,0,0);return GRAIN=g}
@@ -2224,6 +2263,7 @@ const G={
    cover(0,0,W,980,.3);
    let g=c.createLinearGradient(0,700,0,990);g.addColorStop(0,"rgba(7,7,7,0)");g.addColorStop(1,"#070707");c.fillStyle=g;c.fillRect(0,700,W,290);
    g=c.createLinearGradient(0,0,0,200);g.addColorStop(0,"rgba(7,7,7,.55)");g.addColorStop(1,"rgba(7,7,7,0)");c.fillStyle=g;c.fillRect(0,0,W,200);
+   if(ph)await duomoOver(c,760);
    c.drawImage(badge,60,50,120,120);
    const {f,l}=fitHi(c,o.tit,900,330,104,52,1.02,AF);c.font=AF(f);
    const bottom=1190,top=bottom-(l.length-1)*f*1.02;
@@ -2236,6 +2276,7 @@ const G={
   }else if(o.stile==="Rossonero"){
    cover(0,0,W,H,.25);
    let g=c.createLinearGradient(0,H*.35,0,H);g.addColorStop(0,"rgba(7,7,7,0)");g.addColorStop(1,"rgba(7,7,7,.9)");c.fillStyle=g;c.fillRect(0,0,W,H);
+   if(ph)await duomoOver(c,H*.5);
    c.save();c.translate(W,0);c.rotate(Math.PI/4);for(let i=0;i<6;i++){c.fillStyle=i%2?"#070707":RED;c.fillRect(-60+i*26,-40,26,240)}c.restore();
    const {f,l}=fitHi(c,o.tit,860,470,92,48,1.22,AF);c.font=AF(f);
    const lh=f*1.22,top=1170-l.length*lh;
@@ -2246,6 +2287,7 @@ const G={
   }else{
    cover(0,0,W,H,.25);
    let g=c.createLinearGradient(0,H*.42,0,H);g.addColorStop(0,"rgba(0,0,0,0)");g.addColorStop(.45,"rgba(0,0,0,.75)");g.addColorStop(1,"rgba(0,0,0,.97)");c.fillStyle=g;c.fillRect(0,0,W,H);
+   if(ph)await duomoOver(c,H*.5);
    c.save();c.shadowColor="rgba(0,0,0,.5)";c.shadowBlur=24;c.drawImage(badge,W-210,50,160,160);c.restore();
    const {f,l}=fitHi(c,o.tit,980,420,124,56,.98,AF);c.font=AF(f);c.textAlign="left";
    const bottom=1290,top=bottom-(l.length-1)*f*.98;
@@ -2299,16 +2341,17 @@ const G={
    const k=Math.max(W/ph.naturalWidth,H/ph.naturalHeight);c.drawImage(ph,(W-ph.naturalWidth*k)/2,(H-ph.naturalHeight*k)*.25,ph.naturalWidth*k,ph.naturalHeight*k);
    let g=c.createLinearGradient(0,0,0,240);g.addColorStop(0,"rgba(7,7,7,.5)");g.addColorStop(1,"rgba(7,7,7,0)");c.fillStyle=g;c.fillRect(0,0,W,240);
    g=c.createLinearGradient(0,470,0,H);g.addColorStop(0,"rgba(7,7,7,0)");g.addColorStop(.4,"rgba(7,7,7,.82)");g.addColorStop(.62,"rgba(7,7,7,.95)");g.addColorStop(1,"#070707");c.fillStyle=g;c.fillRect(0,0,W,H);
-  }else{await frame(c,o.motm?"MVP DEL MESE":"STAGIONE");cshirt(c,isGK(o.n)?"GK":"MILAN",540,520,360,o.n)}
+   await duomoOver(c,620);
+  }else{await frame(c,o.label||(o.motm?"MVP DEL MESE":"STAGIONE"));cshirt(c,isGK(o.n)?"GK":"MILAN",540,520,360,o.n)}
   c.textAlign="left";c.textBaseline="alphabetic";
   let fs=104;c.font=`${fs}px Anton`;while(fs>60&&c.measureText(o.t).width>930){fs-=4;c.font=`${fs}px Anton`}
-  c.fillStyle="#d0021b";c.fillText(o.t,75,800);
+  c.font=`${fs}px Anton`;hiBlock(c,o.t,92,790);
   c.fillStyle="#d9ad55";c.font="800 32px Inter";c.fillText(o.sub,78,852);
   let nf=110;const nn=p.name.toUpperCase();c.font=`${nf}px Anton`;while(nf>60&&c.measureText(nn).width>930){nf-=4;c.font=`${nf}px Anton`}
   c.fillStyle="#f4f1ea";c.fillText(nn,75,970);
-  const st=o.st,cols=[[fmtAvg(st.avg),"MEDIA VOTO"],[st.gol,"GOL"],[st.ast,"ASSIST"],[st.pres,"PRESENZE"]];
+  const st=o.st,cols=o.cols||[[fmtAvg(st.avg),"MEDIA VOTO"],[st.gol,"GOL"],[st.ast,"ASSIST"],[st.pres,"PRESENZE"]];
   cols.forEach(([v,l],i)=>{const x=75+i*235;c.textAlign="left";c.fillStyle=i===0?"#d9ad55":"#f4f1ea";c.font="76px Anton";c.fillText(String(v),x,1100);c.fillStyle="#8b8781";c.font="800 22px Inter";c.fillText(l,x+2,1140)});
-  await badgeFoot(c,o.motm?"":quando(now).split(" · ")[0].toUpperCase());
+  await badgeFoot(c,o.right!=null?o.right:o.motm?"":quando(now).split(" · ")[0].toUpperCase());
  },
  async sondaggio(c,q){
   const W=1080,H=1920,[photo,badge]=await Promise.all([loadImg("assets/milano.jpg"),loadImg("assets/tana-badge.png")]);
@@ -2350,6 +2393,7 @@ const G={
    for(;fs>=30;fs-=2){c.font=`700 ${fs}px Inter`;lines=wrapLines(c,d.txt,930);if(lines.length*fs*1.26<=420)break}
    const lh=fs*1.26,ty=1000-lines.length*lh;
    g=c.createLinearGradient(0,Math.max(380,ty-260),0,H);g.addColorStop(0,"rgba(7,7,7,0)");g.addColorStop(.38,"rgba(7,7,7,.78)");g.addColorStop(.62,"rgba(7,7,7,.94)");g.addColorStop(1,"#070707");c.fillStyle=g;c.fillRect(0,0,W,H);
+   await duomoOver(c,Math.max(420,ty-180));
    c.fillStyle="#d0021b";c.font="190px Anton";c.fillText("“",64,ty+60);
    c.fillStyle="#f4f1ea";c.font=`700 ${fs}px Inter`;lines.forEach((l,i)=>c.fillText(l,75,ty+fs+i*lh));
    c.fillStyle="#d0021b";c.fillRect(75,1036,110,6);
@@ -2424,6 +2468,7 @@ async function makeGfx(kind,arg){
  if(kind==="motm"&&!arg){motmForm();return}
  if(kind==="sondaggio"&&!arg){pollForm();return}
  if(kind==="notizia"&&!arg){nwsForm();return}
+ if(kind==="motmatch"&&!arg){motmatchForm();return}
  const SO=kind==="sondaggio";
  const cv=document.createElement("canvas");cv.width=1080;cv.height=SO?1920:1350;const c=cv.getContext("2d");
  try{
@@ -2583,8 +2628,11 @@ new IntersectionObserver(es=>es.forEach(e=>$("city").classList.toggle("play",e.i
 const navLinks=[...document.querySelectorAll(".nav a")],secs=navLinks.map(a=>$(a.dataset.s));
 let px=0,py=0,ticking=false;
 const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v));
+let navCur=-2,navT=null;
+function setNav(cur){navLinks.forEach((a,i)=>a.classList.toggle("on",i===cur))}
 function onFrame(){
  ticking=false;
+ if(document.body.classList.contains("lock"))return;
  const y=scrollY,vh=innerHeight,p=clamp(y/vh);
  document.body.classList.toggle("scrolled",y>vh*.6);
  if(!reduce){
@@ -2594,7 +2642,7 @@ function onFrame(){
   tilt.style.transform=`rotateX(${py*-14+p*50}deg) rotateY(${px*18}deg) translateZ(${p*-120}px)`;
  }
  let cur=-1;secs.forEach((s,i)=>{if(s.getBoundingClientRect().top<vh*.45)cur=i});
- navLinks.forEach((a,i)=>a.classList.toggle("on",i===cur));
+ if(cur!==navCur){navCur=cur;clearTimeout(navT);navT=setTimeout(()=>setNav(navCur),90)}
 }
 const req=()=>{if(!ticking){ticking=true;requestAnimationFrame(onFrame)}};
 addEventListener("scroll",req,{passive:true});addEventListener("resize",req);
