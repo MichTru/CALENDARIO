@@ -2021,14 +2021,39 @@ async function bgTana(c){
  c.fillStyle="#070707";c.fillRect(0,0,W,H);
  const s=Math.max(W/photo.width,H/photo.height);c.globalAlpha=.32;c.drawImage(photo,(W-photo.width*s)/2,(H-photo.height*s)/2,photo.width*s,photo.height*s);c.globalAlpha=1;
  const g=c.createLinearGradient(0,0,0,H);g.addColorStop(0,"rgba(7,7,7,.55)");g.addColorStop(.45,"rgba(7,7,7,.8)");g.addColorStop(1,"#070707");c.fillStyle=g;c.fillRect(0,0,W,H);
+ let r=c.createRadialGradient(W,0,0,W,0,760);r.addColorStop(0,"rgba(225,6,0,.34)");r.addColorStop(1,"rgba(225,6,0,0)");c.fillStyle=r;c.fillRect(0,0,W,H);
+ r=c.createRadialGradient(0,H,0,0,H,620);r.addColorStop(0,"rgba(225,6,0,.2)");r.addColorStop(1,"rgba(225,6,0,0)");c.fillStyle=r;c.fillRect(0,0,W,H);
+ c.save();c.globalAlpha=.06;c.fillStyle=c.createPattern(grain(),"repeat");c.fillRect(0,0,W,H);c.restore();
+}
+let GRAIN=null;
+function grain(){if(GRAIN)return GRAIN;const g=document.createElement("canvas");g.width=g.height=160;const x=g.getContext("2d"),d=x.createImageData(160,160);
+ for(let i=0;i<d.data.length;i+=4){const v=Math.random()*255|0;d.data[i]=d.data[i+1]=d.data[i+2]=v;d.data[i+3]=255}x.putImageData(d,0,0);return GRAIN=g}
+/* parola su fascia rossa: usa le misure reali del font */
+function hiBlock(c,t,x,y,opt={}){
+ const m=c.measureText(t),asc=m.actualBoundingBoxAscent||parseInt(c.font)*.75,desc=m.actualBoundingBoxDescent||0,w=m.width,al=c.textAlign;
+ const px=opt.pad??Math.max(12,asc*.22),py=Math.max(8,asc*.16),sk=asc*.12;
+ let x0=al==="center"?x-w/2:al==="right"?x-w:x;
+ c.save();c.beginPath();c.moveTo(x0-px+sk,y-asc-py);c.lineTo(x0+w+px+sk,y-asc-py);c.lineTo(x0+w+px-sk,y+desc+py);c.lineTo(x0-px-sk,y+desc+py);c.closePath();
+ c.fillStyle=opt.bg||"#e10600";c.shadowColor="rgba(225,6,0,.45)";c.shadowBlur=opt.glow??30;c.fill();c.restore();
+ c.fillStyle=opt.col||"#ffffff";c.fillText(t,x,y);
+ return w;
+}
+/* titolo: prima parte bianca, seconda su fascia rossa */
+function hiTitle(c,a,b,x,y,f,align){
+ c.textBaseline="alphabetic";let wa,wb,tot;
+ for(;;f-=4){c.font=`${f}px Anton`;wa=a?c.measureText(a+" ").width:0;wb=c.measureText(b).width;tot=wa+wb+(a?f*.12:0)+f*.3;if(tot<=930||f<=40)break}
+ let x0=align==="center"?x-tot/2:x;c.textAlign="left";
+ if(a){c.fillStyle="#f4f1ea";c.fillText(a,x0,y);x0+=wa+f*.12}
+ hiBlock(c,b,x0,y);c.textAlign=align||"left";
 }
 async function frame(c,label){
- const W=1080,H=1350,logo=await loadImg("assets/logo.png");
+ const W=1080,H=1350,badge=await loadImg("assets/tana-badge.png");
  await bgTana(c);
- c.drawImage(logo,70,64,120,120);
- c.textAlign="left";c.textBaseline="alphabetic";c.fillStyle="#f4f1ea";c.font="52px Anton";c.fillText("TANA DEL",214,118);c.fillStyle="#d0021b";c.fillText("DIAVOLO",214,172);
- c.textAlign="right";c.fillStyle="#d9ad55";c.font="800 26px Inter";c.fillText(label,W-70,118);
- c.fillStyle="#d0021b";c.fillRect(70,226,W-140,6);
+ c.save();c.shadowColor="rgba(0,0,0,.6)";c.shadowBlur=26;c.drawImage(badge,W-218,36,150,150);c.restore();
+ c.textAlign="left";c.textBaseline="alphabetic";c.font="58px Anton";hiBlock(c,String(label).toUpperCase(),84,128,{glow:24});
+ c.font="800 22px Inter";c.fillStyle="rgba(244,241,234,.72)";c.letterSpacing="6px";c.fillText("TANA DEL DIAVOLO",72,196);c.letterSpacing="0px";
+ const lg=c.createLinearGradient(70,0,W-70,0);lg.addColorStop(0,"#e10600");lg.addColorStop(1,"rgba(225,6,0,0)");c.fillStyle=lg;c.fillRect(70,226,W-140,5);
+
 }
 function footer(c,m){
  c.textAlign="center";c.fillStyle="#8b8781";c.font="700 30px Inter";
@@ -2036,12 +2061,15 @@ function footer(c,m){
 }
 const G={
  async matchday(c,m){
-  await frame(c,"MATCHDAY");
-  c.textAlign="center";c.fillStyle="#d9ad55";c.font="800 34px Inter";c.fillText(quando(m.k).toUpperCase(),540,340);
-  cshirt(c,casa(m),300,560,170);cshirt(c,ospite(m),780,560,170);
-  c.fillStyle="#8b8781";c.font="64px Anton";c.fillText("VS",540,585);
-  c.font="84px Anton";c.fillStyle=casa(m)==="MILAN"?"#d0021b":"#f4f1ea";c.fillText(nm(casa(m)).toUpperCase(),540,820);
-  c.fillStyle=ospite(m)==="MILAN"?"#d0021b":"#f4f1ea";c.fillText(nm(ospite(m)).toUpperCase(),540,920);
+  await frame(c,m.comp);
+  hiTitle(c,"MATCH","DAY",540,420,170,"center");
+  c.textAlign="center";c.fillStyle="#d9ad55";c.font="800 36px Inter";c.fillText(quando(m.k).toUpperCase(),540,505);
+  cshirt(c,casa(m),290,730,210);cshirt(c,ospite(m),790,730,210);
+  c.beginPath();c.arc(540,730,62,0,7);c.fillStyle="#e10600";c.shadowColor="rgba(225,6,0,.6)";c.shadowBlur=40;c.fill();c.shadowBlur=0;
+  c.fillStyle="#fff";c.font="62px Anton";c.textBaseline="middle";c.fillText("VS",540,734);c.textBaseline="alphabetic";
+  const nf=t=>{let f=92;c.font=`${f}px Anton`;while(f>50&&c.measureText(t).width>440){f-=4;c.font=`${f}px Anton`}};
+  [[casa(m),290],[ospite(m),790]].forEach(([t,x])=>{const n=nm(t).toUpperCase();nf(n);c.fillStyle=t==="MILAN"?"#e10600":"#f4f1ea";c.fillText(n,x,960)});
+  if(m.stadio){c.fillStyle="rgba(244,241,234,.75)";c.font="800 30px Inter";c.letterSpacing="4px";c.fillText(m.stadio.toUpperCase(),540,1060);c.letterSpacing="0px"}
   footer(c,m);
  },
  async risultato(c,m){
@@ -2063,7 +2091,7 @@ const G={
  async drawXI_(c,m,t1,t2,prob){
   const xi=xiOf(m);if(!xi.p.some(Boolean))throw new Error("Prepara prima la formazione");
   await frame(c,xi.mod);
-  c.textAlign="left";c.textBaseline="alphabetic";c.font="62px Anton";c.fillStyle="#f4f1ea";c.fillText(t1,70,316);const w1=c.measureText(t1+" ").width;c.fillStyle="#d0021b";c.fillText(t2,70+w1,316);
+  hiTitle(c,t1,t2,78,322,66);
   const X=110,Y=345,W=860,H=860;
   rr(c,X,Y,W,H,36);c.fillStyle="rgba(15,22,16,.85)";c.fill();c.lineWidth=4;c.strokeStyle="rgba(255,255,255,.16)";c.stroke();
   c.beginPath();c.moveTo(X,Y+H/2);c.lineTo(X+W,Y+H/2);c.stroke();c.beginPath();c.arc(X+W/2,Y+H/2,110,0,7);c.stroke();
@@ -2128,7 +2156,7 @@ const G={
  async marcatori(c){
   const rows=scorerTable().filter(x=>x.g).slice(0,8);if(!rows.length)throw new Error("Nessun gol inserito");
   await frame(c,"MARCATORI");
-  c.textAlign="left";c.textBaseline="alphabetic";c.fillStyle="#f4f1ea";c.font="80px Anton";c.fillText("CLASSIFICA",70,340);c.fillStyle="#d0021b";c.fillText("MARCATORI",70,430);
+  c.textAlign="left";c.textBaseline="alphabetic";c.fillStyle="#f4f1ea";c.font="84px Anton";c.fillText("CLASSIFICA",70,340);hiBlock(c,"MARCATORI",86,446);
   c.textAlign="right";c.fillStyle="#8b8781";c.font="800 24px Inter";c.fillText("GOL",880,490);c.fillText("ASSIST",1000,490);
   const top=510,RH=Math.min(92,(1230-top)/rows.length);
   rows.forEach((x,i)=>{const y=top+i*RH;rr(c,60,y+5,960,RH-10,20);c.fillStyle=i===0?"rgba(217,173,85,.16)":"rgba(255,255,255,.06)";c.fill();
@@ -2140,7 +2168,7 @@ const G={
  },
  async ufficiale(c,u){
   await frame(c,"CALCIOMERCATO");
-  c.textAlign="center";c.textBaseline="alphabetic";c.fillStyle="#d0021b";c.font="150px Anton";c.fillText("UFFICIALE",540,420);
+  c.textAlign="center";c.textBaseline="alphabetic";c.font="150px Anton";hiBlock(c,"UFFICIALE",540,420);
   c.fillStyle="#d9ad55";c.font="800 34px Inter";c.fillText(u.tipo.toUpperCase(),540,480);
   cshirt(c,"MILAN",540,720,340,u.num||"");
   let fs=110;const n=u.nome.toUpperCase();c.font=`${fs}px Anton`;while(fs>56&&c.measureText(n).width>940){fs-=4;c.font=`${fs}px Anton`}
@@ -2153,7 +2181,7 @@ const G={
  async compleanno(c,x){
   await frame(c,"AUGURI");
   const p=PL[x.n];
-  c.textAlign="center";c.textBaseline="alphabetic";c.fillStyle="#f4f1ea";c.font="120px Anton";c.fillText("BUON",540,400);c.fillStyle="#d0021b";c.fillText("COMPLEANNO",540,520);
+  c.textAlign="center";c.textBaseline="alphabetic";c.fillStyle="#f4f1ea";c.font="120px Anton";c.fillText("BUON",540,400);hiBlock(c,"COMPLEANNO",540,540);
   cplayer(c,x.n,540,770,320,isGK(x.n));
   let fs=110;const n=p.name.toUpperCase();c.font=`${fs}px Anton`;while(fs>56&&c.measureText(n).width>940){fs-=4;c.font=`${fs}px Anton`}
   c.fillStyle="#f4f1ea";c.fillText(n,540,1050);
@@ -2165,7 +2193,7 @@ const G={
   await frame(c,g.tipo==="MVP"?"MVP":g.tipo.toUpperCase());
   c.textAlign="center";c.textBaseline="alphabetic";
   let fs=168;c.font=`${fs}px Anton`;while(fs>90&&c.measureText(d.label).width>960){fs-=6;c.font=`${fs}px Anton`}
-  c.fillStyle="#d0021b";c.fillText(d.label,540,248+fs*.92);
+  hiBlock(c,d.label,540,248+fs*.92);
   const top=248+fs*.92+34,S=Math.min(560,1010-top),x=540-S/2,y=top,im=FOTO_IMG[g.n];
   if(im&&im.complete&&im.naturalWidth){
    c.save();c.shadowColor="rgba(0,0,0,.6)";c.shadowBlur=50;c.shadowOffsetY=20;rr(c,x,y,S,S,44);c.fillStyle="#111";c.fill();c.restore();
@@ -2227,8 +2255,7 @@ const G={
  },
  async classifica(c,C){
   await frame(c,"SERIE A");
-  c.textAlign="left";c.textBaseline="alphabetic";c.font="84px Anton";c.fillStyle="#f4f1ea";c.fillText("CLASSIFICA",70,335);
-  const w=c.measureText("CLASSIFICA ").width;c.fillStyle="#d0021b";c.fillText("SERIE A",70+w,335);
+  hiTitle(c,"CLASSIFICA","SERIE A",76,338,84);
   const top=372,RH=(1222-top)/C.r.length;
   C.r.forEach(([t,p],i)=>{
    const y=top+i*RH,me=t==="MILAN",yc=y+RH/2;
@@ -2250,7 +2277,7 @@ const G={
   c.textAlign="center";c.textBaseline="alphabetic";c.font="46px Anton";
   c.fillStyle=casa(m)==="MILAN"?"#d0021b":"#f4f1ea";c.fillText(nm(casa(m)).toUpperCase(),190,460);
   c.fillStyle=ospite(m)==="MILAN"?"#d0021b":"#f4f1ea";c.fillText(nm(ospite(m)).toUpperCase(),890,460);
-  c.fillStyle="#f4f1ea";c.font="150px Anton";c.fillText(r?`${r.h}-${r.a}`:"VS",540,410);
+  c.save();c.fillStyle="#f4f1ea";c.font="150px Anton";c.shadowColor="rgba(225,6,0,.75)";c.shadowBlur=60;c.fillText(r?`${r.h}-${r.a}`:"VS",540,410);c.restore();
   const top=520,RH=Math.min(110,(1215-top)/rows.length);
   rows.forEach(([k,l,u],i)=>{
    const y=top+i*RH,a=stsNum(S[k][0])??0,b=stsNum(S[k][1])??0,tot=a+b||1;
@@ -2350,7 +2377,7 @@ const G={
  async infermeria(c){
   const list=infOf();if(!list.length)throw new Error("Nessun giocatore in infermeria");
   await frame(c,"INFERMERIA");
-  c.textAlign="left";c.fillStyle="#f4f1ea";c.font="80px Anton";c.fillText("INFERMERIA",70,340);c.fillStyle="#d0021b";c.fillText("ROSSONERA",70,430);
+  c.textAlign="left";c.textBaseline="alphabetic";c.fillStyle="#f4f1ea";c.font="84px Anton";c.fillText("INFERMERIA",70,340);hiBlock(c,"ROSSONERA",86,446);
   const top=490,rowH=Math.min(120,(1220-top)/list.length);
   list.forEach((x,i)=>{const y=top+i*rowH,p=PL[x.n];
    rr(c,60,y+6,960,rowH-12,22);c.fillStyle="rgba(255,255,255,.06)";c.fill();
@@ -2375,7 +2402,7 @@ async function drawScore(c,m,label,sc,only){
   maxL=Math.max(maxL,lines.length?646+(lines.length-1)*lh:600);
  });
  const fz=Math.min(300,(1075-maxL-34)/.74),by=Math.min(1075,Math.max(1040,maxL+34+fz*.74));
- c.fillStyle="#f4f1ea";c.font=`${fz}px Anton`;c.fillText(`${sc.h}-${sc.a}`,540,by);
+ c.save();c.fillStyle="#f4f1ea";c.font=`${fz}px Anton`;c.shadowColor="rgba(225,6,0,.75)";c.shadowBlur=90;c.fillText(`${sc.h}-${sc.a}`,540,by);c.shadowBlur=0;c.fillText(`${sc.h}-${sc.a}`,540,by);c.restore();
 }
 const drawXI=(c,m,t1,t2,prob)=>G.drawXI_(c,m,t1,t2,prob);
 let lastBlob=null,lastName="";
